@@ -58,7 +58,7 @@ export const handler = async (event) => {
             return {
                 statusCode: 500,
                 headers,
-                body: JSON.stringify({ error: 'Failed to save subscription' }),
+                body: JSON.stringify({ error: `Failed to save subscription: ${error.message || JSON.stringify(error)}` }),
             };
         }
 
