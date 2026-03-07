@@ -185,7 +185,7 @@ const functionHandler = async (event, context) => {
                     console.log(`Sent notification to ${rec.endpoint}`);
                 } catch (e) {
                     console.error("Failed to send push", e);
-                    if (e.statusCode === 410 || e.statusCode === 404) {
+                    if (e.statusCode === 410 || e.statusCode === 404 || e.code === 'ENOTFOUND') {
                         invalidEndpoints.push(rec.endpoint);
                         needsUpdate = false; // we'll delete it instead
                     }
