@@ -2,7 +2,7 @@
 [build]
   # لو المستودع فيه المشروع داخل مجلد (مثلاً Zad_ElMuslim)، شغّل السطر اللي تحت
   # base = "Zad_ElMuslim"
-  command = "npm install && npx vite build"
+  command = "rm -rf node_modules package-lock.json && npm install && npm run build"
   publish = "dist"
 
 [build.environment]
