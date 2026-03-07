@@ -1,0 +1,94 @@
+.wudu-page {
+  padding-top: 1.5rem;
+  padding-bottom: 3rem;
+}
+
+.wudu-hero {
+  text-align: center;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.wudu-hero-icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: #fff;
+}
+
+.wudu-hero-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+}
+
+.wudu-hero-sub {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.wudu-section {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+}
+
+.wudu-section-title {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+  color: var(--color-primary);
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.wudu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.wudu-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.wudu-list-item:last-child {
+  border-bottom: none;
+}
+
+.wudu-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-primary-10);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.wudu-list-item.invalidate .wudu-num {
+  background: rgba(198, 40, 40, 0.1);
+  color: var(--color-error, #c62828);
+}
+
+[data-theme='ramadan'] .wudu-hero-icon {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%);
+  color: var(--color-primary-dark);
+}
+
+[data-theme='ramadan'] .wudu-section-title {
+  color: var(--color-accent);
+}

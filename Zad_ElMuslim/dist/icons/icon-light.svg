@@ -1,0 +1,20 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" rx="224" fill="#0F5D4A" />
+  <defs>
+    <mask id="crescent">
+      <rect width="1024" height="1024" fill="white" />
+      <circle cx="580" cy="400" r="270" fill="black" />
+    </mask>
+  </defs>
+  <g fill="#F7F4EE">
+    <circle cx="512" cy="460" r="270" mask="url(#crescent)" opacity="0.95"/>
+    <g transform="translate(620, 340)">
+      <polygon points="0,-30 10,-10 30,0 10,10 0,30 -10,10 -30,0 -10,-10" />
+      <polygon points="0,-30 10,-10 30,0 10,10 0,30 -10,10 -30,0 -10,-10" transform="rotate(45)" />
+    </g>
+    <path d="M 512 680 Q 380 720 280 640 L 280 670 Q 380 760 512 720 Z" opacity="0.9"/>
+    <path d="M 512 680 Q 644 720 744 640 L 744 670 Q 644 760 512 720 Z" opacity="0.9"/>
+    <path d="M 512 705 Q 380 745 280 665 L 280 685 Q 380 775 512 735 Z" opacity="0.6"/>
+    <path d="M 512 705 Q 644 745 744 665 L 744 685 Q 644 775 512 735 Z" opacity="0.6"/>
+  </g>
+</svg>

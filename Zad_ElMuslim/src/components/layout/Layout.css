@@ -1,0 +1,671 @@
+/* Layout - Modern Islamic Design */
+.layout-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Header Styles */
+.header {
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid var(--color-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 0;
+    overflow: visible;
+}
+
+[data-theme='dark'] .header {
+    background: var(--header-bg-dark);
+    border-bottom-color: var(--border-dark);
+}
+
+[data-theme='dark'] .logo-text {
+    background: linear-gradient(135deg, var(--icon-default) 0%, var(--icon-hover) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+[data-theme='ramadan'] .header {
+    background: rgba(15, 23, 41, 0.95);
+    border-bottom-color: rgba(247, 217, 76, 0.1);
+}
+
+[data-theme='eid-fitr'] .header {
+    background: rgba(253, 251, 247, 0.95);
+    border-bottom-color: rgba(5, 150, 105, 0.1);
+    /* Green tint */
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 5rem;
+    height: 5.5rem;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    overflow: visible;
+}
+
+/* Logo */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    text-decoration: none;
+    transition: transform var(--transition-fast);
+    min-width: 0;
+    flex-shrink: 0;
+    padding: var(--space-2) 0;
+}
+
+.logo:hover {
+    transform: scale(1.02);
+}
+
+.nav-logo-icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.logo-text {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    padding: 0.2rem 0;
+}
+
+.logo-text.logo-text-arabic {
+    font-family: var(--font-logo);
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+    display: block;
+    overflow: visible;
+}
+
+[data-theme='ramadan'] .logo-text {
+    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: drop-shadow(0 0 10px rgba(247, 217, 76, 0.3));
+}
+
+/* Header Controls - compact so site name stays visible */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex-shrink: 0;
+}
+
+.header-controls .icon-btn {
+    padding: var(--space-2);
+    min-width: 32px;
+    min-height: 32px;
+}
+
+.header-controls .icon-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-text);
+    cursor: pointer;
+    padding: var(--space-3);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-btn:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.icon-btn:active {
+    transform: translateY(0);
+}
+
+/* Dark mode: always visible icons */
+[data-theme='dark'] .icon-btn {
+    color: var(--icon-default);
+    background-color: #151E1B;
+    border: 1px solid #22332D;
+}
+
+[data-theme='dark'] .icon-btn:hover {
+    color: var(--icon-hover);
+    background-color: #1A2522;
+    border-color: var(--glow-accent);
+}
+
+[data-theme='ramadan'] .icon-btn:hover {
+    background: rgba(247, 217, 76, 0.1);
+    color: var(--color-accent);
+}
+
+[data-theme='eid-fitr'] .icon-btn:hover {
+    background: rgba(5, 150, 105, 0.1);
+    color: var(--color-primary);
+}
+
+[data-theme='ramadan'] .theme-btn {
+    color: var(--color-accent);
+}
+
+/* Ramadan toggle switch (replaces old theme-btn when using .ramadan-switch) */
+.ramadan-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    border: none;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    border-radius: var(--radius-full);
+    transition: transform 150ms ease;
+}
+
+.ramadan-switch:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.ramadan-switch-track {
+    width: 40px;
+    height: 22px;
+    border-radius: 999px;
+    background-color: #D1E3DA;
+    border: 1px solid rgba(15, 93, 74, 0.25);
+    position: relative;
+    transition: background-color 300ms ease, box-shadow 300ms ease;
+}
+
+.ramadan-switch[data-active="true"] .ramadan-switch-track {
+    background: linear-gradient(135deg, #E6C87A 0%, #FFDFA3 100%);
+    border-color: rgba(230, 200, 122, 0.5);
+    box-shadow: 0 0 12px rgba(230, 200, 122, 0.6);
+}
+
+[data-theme='dark'] .ramadan-switch-track {
+    background-color: #151E1B;
+    border-color: #22332D;
+}
+
+[data-theme='dark'] .ramadan-switch[data-active="true"] .ramadan-switch-track {
+    background: linear-gradient(135deg, #E6C87A 0%, #FFDFA3 100%);
+    border-color: rgba(230, 200, 122, 0.5);
+    box-shadow: 0 0 12px rgba(230, 200, 122, 0.6);
+}
+
+.ramadan-switch-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    color: #0F5D4A;
+}
+
+.ramadan-switch[data-active="true"] .ramadan-switch-thumb {
+    transform: translateX(18px);
+    background: #0B1C2D;
+    color: #E6C87A;
+    box-shadow: 0 0 8px rgba(230, 200, 122, 0.5);
+}
+
+.ramadan-switch-thumb svg {
+    width: 10px;
+    height: 10px;
+}
+
+.header-controls .lang-text {
+    font-weight: 600;
+    font-size: 0.7rem !important;
+}
+
+/* Desktop Navigation */
+.desktop-nav {
+    display: none;
+    flex: 1;
+    justify-content: center;
+}
+
+.desktop-nav-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: var(--space-2);
+    align-items: center;
+}
+
+.desktop-nav-link {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all var(--transition-fast);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    position: relative;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.desktop-nav-link:hover {
+    color: var(--color-primary);
+    background: var(--color-primary-10);
+}
+
+.desktop-nav-link.active {
+    color: var(--color-primary);
+    background: var(--color-primary-10);
+}
+
+.desktop-nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background: var(--color-primary);
+    border-radius: var(--radius-full);
+}
+
+[data-theme='ramadan'] .desktop-nav-link:hover,
+[data-theme='ramadan'] .desktop-nav-link.active {
+    color: var(--color-accent);
+    background: rgba(247, 217, 76, 0.1);
+}
+
+[data-theme='ramadan'] .desktop-nav-link.active::after {
+    background: var(--color-accent);
+    box-shadow: 0 0 10px rgba(247, 217, 76, 0.5);
+}
+
+[data-theme='eid-fitr'] .desktop-nav-link:hover,
+[data-theme='eid-fitr'] .desktop-nav-link.active {
+    color: var(--color-primary);
+    background: rgba(5, 150, 105, 0.05);
+}
+
+[data-theme='eid-fitr'] .desktop-nav-link.active::after {
+    background: var(--color-primary);
+    box-shadow: 0 0 10px rgba(5, 150, 105, 0.3);
+}
+
+@media (min-width: 1024px) {
+    .desktop-nav {
+        display: flex;
+    }
+
+    .mobile-menu-toggle {
+        display: none;
+    }
+}
+
+/* Mobile Full-Screen Menu */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 4.5rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-background);
+    z-index: 40;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+}
+
+[dir="ltr"] .mobile-menu-overlay {
+    transform: translateX(-100%);
+}
+
+.mobile-menu-overlay.open {
+    transform: translateX(0) !important;
+}
+
+[data-theme='ramadan'] .mobile-menu-overlay {
+    background: linear-gradient(180deg, var(--color-background) 0%, #0D1F3C 100%);
+}
+
+[data-theme='eid-fitr'] .mobile-menu-overlay {
+    background: linear-gradient(180deg, var(--color-background) 0%, #FEF2F2 100%);
+}
+
+.mobile-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: var(--space-6) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.mobile-nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-5);
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 1.15rem;
+    font-weight: 600;
+    border-radius: var(--radius-xl);
+    transition: all var(--transition-fast);
+    border: 2px solid transparent;
+}
+
+.mobile-nav-link:hover {
+    background: var(--color-surface-hover);
+    transform: translateX(-4px);
+}
+
+.mobile-nav-link.active {
+    background: var(--color-primary-10);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+[data-theme='ramadan'] .mobile-nav-link:hover {
+    background: rgba(247, 217, 76, 0.05);
+}
+
+[data-theme='ramadan'] .mobile-nav-link.active {
+    background: rgba(247, 217, 76, 0.1);
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+[data-theme='eid-fitr'] .mobile-nav-link:hover {
+    background: rgba(5, 150, 105, 0.05);
+}
+
+[data-theme='eid-fitr'] .mobile-nav-link.active {
+    background: rgba(5, 150, 105, 0.1);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.nav-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-border), transparent);
+    margin: var(--space-2) var(--space-6);
+    opacity: 0.5;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding-bottom: var(--space-8);
+}
+
+/* Footer */
+.site-footer {
+    margin-top: auto;
+    padding: var(--space-4) 0 var(--space-6);
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}
+
+.site-footer-inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    text-align: center;
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-3);
+}
+
+.site-footer-date {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.site-footer-credit {
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.site-footer-name {
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+[data-theme='ramadan'] .site-footer-name {
+    color: var(--color-accent);
+}
+
+/* Ramadan Decorations */
+.pointer-events-none {
+    pointer-events: none;
+}
+
+.ramadan-decorations {
+    position: fixed;
+    top: 4.5rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.lantern {
+    position: absolute;
+    top: -10px;
+    width: 50px;
+    height: 100px;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23FDE047" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L8 6v2h8V6l-4-4zm-4 6v8c0 2 2 4 4 4s4-2 4-4V8H8zm2 2h4v4h-4v-4z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size: contain;
+    filter: drop-shadow(0 0 15px rgba(253, 224, 71, 0.5));
+}
+
+.lantern-left {
+    left: 5%;
+}
+
+.lantern-right {
+    right: 5%;
+}
+
+/* Stars effect for Ramadan */
+[data-theme='ramadan'] .layout-wrapper::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        radial-gradient(2px 2px at 20px 30px, rgba(247, 217, 76, 0.3), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(247, 217, 76, 0.2), transparent),
+        radial-gradient(2px 2px at 50px 160px, rgba(247, 217, 76, 0.3), transparent),
+        radial-gradient(2px 2px at 90px 40px, rgba(247, 217, 76, 0.2), transparent),
+        radial-gradient(2px 2px at 130px 80px, rgba(247, 217, 76, 0.3), transparent),
+        radial-gradient(2px 2px at 160px 120px, rgba(247, 217, 76, 0.2), transparent);
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    pointer-events: none;
+    z-index: -1;
+    animation: twinkle 4s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Eid Decorations */
+.eid-decorations {
+    position: fixed;
+    top: 5.5rem;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2rem;
+    overflow: visible;
+}
+
+.eid-balloon {
+    width: 60px;
+    height: 120px;
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg"><path d="M50,10 C20,10 10,40 20,70 C30,100 45,110 50,120 C55,110 70,100 80,70 C90,40 80,10 50,10 Z" fill="%23059669" opacity="0.8"/><path d="M45,120 L55,120 L52,130 L48,130 Z" fill="%23047857"/><path d="M50,130 Q40,160 50,190" stroke="%239CA3AF" stroke-width="2" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size: contain;
+    animation: float 6s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+
+.eid-balloon.gold {
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg"><path d="M50,10 C20,10 10,40 20,70 C30,100 45,110 50,120 C55,110 70,100 80,70 C90,40 80,10 50,10 Z" fill="%23FBBF24" opacity="0.9"/><path d="M45,120 L55,120 L52,130 L48,130 Z" fill="%23D97706"/><path d="M50,130 Q40,160 50,190" stroke="%239CA3AF" stroke-width="2" fill="none"/></svg>');
+    animation-delay: 1.5s;
+    animation-duration: 7s;
+}
+
+.eid-balloon.red {
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg"><path d="M50,10 C20,10 10,40 20,70 C30,100 45,110 50,120 C55,110 70,100 80,70 C90,40 80,10 50,10 Z" fill="%23EF4444" opacity="0.8"/><path d="M45,120 L55,120 L52,130 L48,130 Z" fill="%23B91C1C"/><path d="M50,130 Q40,160 50,190" stroke="%239CA3AF" stroke-width="2" fill="none"/></svg>');
+    animation-delay: 0.5s;
+    animation-duration: 5.5s;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(-2deg);
+    }
+
+    50% {
+        transform: translateY(-15px) rotate(2deg);
+    }
+}
+
+.eid-banner {
+    background: linear-gradient(135deg, rgba(5, 150, 105, 0.1) 0%, rgba(202, 138, 4, 0.1) 100%);
+    border-bottom: 1px solid rgba(5, 150, 105, 0.2);
+    padding: 0.75rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.eid-banner-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    position: relative;
+    z-index: 2;
+}
+
+.eid-banner-title {
+    color: var(--color-primary);
+    font-family: var(--font-arabic-title);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.eid-banner-subtitle {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .eid-decorations {
+        padding: 0 1rem;
+    }
+
+    .eid-balloon {
+        width: 40px;
+        height: 80px;
+    }
+
+    .eid-balloon.red {
+        display: none;
+    }
+}
+
+/* Scrollbar for mobile menu */
+.mobile-menu-overlay::-webkit-scrollbar {
+    width: 4px;
+}
+
+.mobile-menu-overlay::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.mobile-menu-overlay::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+}
+
+/* Mobile menu toggle button */
+.mobile-menu-toggle {
+    position: relative;
+}
+
+.mobile-menu-toggle svg {
+    transition: transform var(--transition-fast);
+}
+
+.mobile-menu-toggle:hover svg {
+    transform: scale(1.1);
+}

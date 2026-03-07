@@ -1,0 +1,166 @@
+ .tasbeeh-page {
+   padding-top: 2rem;
+   padding-bottom: 4rem;
+ }
+
+ .tasbeeh-hero {
+   margin-bottom: var(--space-6);
+   padding: var(--space-5) var(--space-6);
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+ }
+
+ .tasbeeh-hero-text {
+   flex: 1;
+ }
+
+ .tasbeeh-title {
+   margin: 0 0 var(--space-2) 0;
+   font-size: 1.9rem;
+ }
+
+ .tasbeeh-sub {
+   margin: 0;
+   color: var(--color-text-muted);
+   font-size: 0.95rem;
+ }
+
+ .tasbeeh-layout {
+   display: grid;
+   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+   gap: var(--space-5);
+   align-items: stretch;
+ }
+
+ .tasbeeh-phrases {
+   padding: var(--space-5);
+ }
+
+ .tasbeeh-section-title {
+   margin: 0 0 var(--space-3) 0;
+   font-size: 1.2rem;
+ }
+
+ .tasbeeh-phrases-list {
+   display: flex;
+   flex-direction: column;
+   gap: var(--space-2);
+ }
+
+ .tasbeeh-phrase-pill {
+   border-radius: var(--radius-lg);
+   border: 1px solid var(--color-border);
+   background: var(--color-surface-hover);
+   padding: var(--space-2) var(--space-3);
+   display: flex;
+   flex-direction: column;
+   align-items: flex-start;
+   gap: 2px;
+   cursor: pointer;
+   transition: all var(--transition-fast);
+ }
+
+ .tasbeeh-phrase-pill.active {
+   border-color: var(--color-primary);
+   background: var(--color-primary-10);
+ }
+
+ [data-theme='ramadan'] .tasbeeh-phrase-pill.active {
+   border-color: var(--color-accent);
+   background: rgba(247, 217, 76, 0.15);
+ }
+
+ .tasbeeh-phrase-ar {
+   font-family: var(--font-serif);
+   font-size: 1.1rem;
+   color: var(--color-accent);
+ }
+
+ .tasbeeh-phrase-en {
+   font-size: 0.8rem;
+   color: var(--color-accent);
+   opacity: 0.9;
+ }
+
+ .tasbeeh-counter {
+   padding: var(--space-5);
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: var(--space-4);
+ }
+
+ .tasbeeh-counter-circle {
+   width: 220px;
+   height: 220px;
+   border-radius: var(--radius-full);
+   background: radial-gradient(circle at 30% 20%, rgba(201, 162, 39, 0.25), transparent 60%),
+     linear-gradient(145deg, var(--color-primary), var(--color-primary-light));
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   cursor: pointer;
+   box-shadow: var(--shadow-lg);
+   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+ }
+
+ .tasbeeh-counter-circle:active {
+   transform: scale(0.96);
+   box-shadow: var(--shadow-md);
+ }
+
+ [data-theme='ramadan'] .tasbeeh-counter-circle {
+   background: radial-gradient(circle at 30% 20%, rgba(247, 217, 76, 0.35), transparent 60%),
+     linear-gradient(145deg, var(--color-accent), var(--color-accent-light));
+ }
+
+ .tasbeeh-counter-inner {
+   width: 85%;
+   height: 85%;
+   border-radius: var(--radius-full);
+   background: rgba(255, 255, 255, 0.1);
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   gap: var(--space-2);
+ }
+
+ .tasbeeh-counter-phrase {
+   font-family: var(--font-serif);
+   font-size: 1.1rem;
+   color: #fff;
+ }
+
+ .tasbeeh-counter-number {
+   font-size: 3rem;
+   font-weight: 800;
+   color: #fff;
+ }
+
+ .tasbeeh-counter-hint {
+   font-size: 0.8rem;
+   color: rgba(255, 255, 255, 0.85);
+ }
+
+ .tasbeeh-reset-btn {
+   border-radius: var(--radius-full);
+ }
+
+ @media (max-width: 900px) {
+   .tasbeeh-layout {
+     grid-template-columns: 1fr;
+   }
+
+   .tasbeeh-counter {
+     order: -1;
+   }
+ }
+
+ @media (max-width: 600px) {
+   .tasbeeh-counter-circle {
+     width: 190px;
+     height: 190px;
+   }
+ }

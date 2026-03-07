@@ -1,0 +1,15 @@
+# إعدادات النشر على Netlify
+[build]
+  # لو المستودع فيه المشروع داخل مجلد (مثلاً Zad_ElMuslim)، شغّل السطر اللي تحت
+  # base = "Zad_ElMuslim"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# منع ظهور 404 عند التحديث (Refresh) على أي مسار - تطبيق SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -1,0 +1,82 @@
+.bookmarks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.bookmark-card {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem !important;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--color-border);
+    position: relative;
+    overflow: hidden;
+}
+
+.bookmark-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary);
+}
+
+.bookmark-card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-surface-hover);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-inline-end: 1rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.bookmark-card:hover .bookmark-card-icon {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.bookmark-card-info {
+    flex: 1;
+}
+
+.bookmark-card-info h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.25rem;
+    color: var(--color-text);
+}
+
+.bookmark-card-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+.bookmark-delete-btn {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.5;
+}
+
+.bookmark-card:hover .bookmark-delete-btn {
+    opacity: 1;
+}
+
+.bookmark-delete-btn:hover {
+    color: var(--color-error);
+    background-color: rgba(220, 38, 38, 0.1);
+}
+
+/* RTL Specific */
+[dir="rtl"] .bookmark-card-icon {
+    margin-right: 0;
+    margin-left: 1rem;
+}
