@@ -104,7 +104,7 @@ export function usePushNotifications() {
             const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
             // 6. Send subscription to backend
-            await fetch(SUBSCRIBE_URL, {
+            const response = await fetch(SUBSCRIBE_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -114,6 +114,11 @@ export function usePushNotifications() {
                     timeZone,
                 }),
             });
+
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`Backend returned ${response.status}: ${text}`);
+            }
 
             setIsSubscribed(true);
             console.log('Push subscription successful!');
