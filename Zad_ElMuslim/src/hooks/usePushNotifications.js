@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { PUSH_SERVER_URL } from '../config';
 
-const VAPID_PUBLIC_URL = `${PUSH_SERVER_URL}/api/vapid-public`;
-const SUBSCRIBE_URL = `${PUSH_SERVER_URL}/api/push-subscribe`;
+const SUBSCRIBE_URL = `/.netlify/functions/subscribe`;
 
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -76,10 +75,9 @@ export function usePushNotifications() {
     const subscribe = async (silent = false) => {
         setLoading(true);
         try {
-            // 1. Get VAPID public key from backend
-            const vapidRes = await fetch(VAPID_PUBLIC_URL);
-            if (!vapidRes.ok) throw new Error('Failed to fetch VAPID key');
-            const { publicKey } = await vapidRes.json();
+            // 1. Get VAPID public key from env instead of fetching from backend
+            const publicKey = import.meta.env.VITE_PUSH_VAPID_PUBLIC;
+            if (!publicKey) throw new Error('VAPID public key not found in environment');
             const applicationServerKey = urlBase64ToUint8Array(publicKey);
 
             // 2. Request notification permission if not granted
