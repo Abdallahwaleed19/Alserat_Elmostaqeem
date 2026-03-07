@@ -162,21 +162,7 @@ const functionHandler = async (event, context) => {
                 }
             }
 
-            // Rule D: Test Notification (Always send when manually invoked if no other rule matched)
-            if (!notificationPayload && event.headers && event.headers['x-invoke-test']) {
-                notificationPayload = {
-                    title: 'رسالة تجريبية',
-                    body: 'تم ربط الإشعارات بنجاح! السيرفر يعمل الآن في الخلفية.',
-                    url: '/'
-                };
-            } else if (!notificationPayload) {
-                // If not invoked with test header, just send a test one anyway for now to help the user test easily
-                notificationPayload = {
-                    title: 'رسالة إختبار من السيرفر',
-                    body: 'إشعارات زاد المسلم تعمل بنجاح 100% الآن!',
-                    url: '/'
-                };
-            }
+
 
             // 3. Send Notification if payload exists
             if (notificationPayload) {
