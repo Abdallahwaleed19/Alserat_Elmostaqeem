@@ -201,15 +201,14 @@ export function useLocalAlarms() {
                     } catch (e) { console.error("Welcome Web Notification blocked:", e); }
                 } else if (!isWeb) {
                     try {
-                        // Instruct Capacitor to drop an INSTANT visual OS banner by deliberately omitting the `schedule` parameter
-                        // (Avoid fractional +timestamps which confuse Android's batched AlarmManager)
+                        // Restore a minimal 2-second timestamp padding to prevent certain OEM AlarmManagers from dropping the payload
                         await LocalNotifications.schedule({
                             notifications: [{
                                 id: 9999,
                                 title: 'تطبيق الصراط المستقيم 🕌',
                                 body: 'تم تفعيل الإشعارات بنجاح. ستصلك الآن مواقيت الصلاة والأذكار.',
-                                channelId: 'general_channel'
-                                // Note: Intentionally no `schedule` object here so it pops immediately upon thread entry
+                                channelId: 'general_channel',
+                                schedule: { at: new Date(new Date().getTime() + 2000), allowWhileIdle: true }
                             }]
                         });
                         console.log("[Welcome Alert] Instant Native Android Notification Dispatched.");
