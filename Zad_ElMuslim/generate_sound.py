@@ -4,14 +4,14 @@ import wave
 import os
 
 sample_rate = 44100
-duration = 1.0 # seconds
+duration = 1.5 # seconds
 num_samples = int(sample_rate * duration)
 
 def generate_sample(t):
     # Envelopes
-    env1 = math.exp(-t * 5)
-    env2 = math.exp(-t * 8)
-    env3 = math.exp(-t * 12)
+    env1 = math.exp(-t * 2)
+    env2 = math.exp(-t * 3)
+    env3 = math.exp(-t * 4)
     
     # Frequencies (C6 major chordish bell, very pleasant)
     f1 = 1046.50 # C6
@@ -27,7 +27,7 @@ def generate_sample(t):
     )
     return val
 
-output_path = 'chime.wav'
+output_path = 'chime2.wav'
 with wave.open(output_path, 'w') as obj:
     obj.setnchannels(1) # mono
     obj.setsampwidth(2)
@@ -36,12 +36,12 @@ with wave.open(output_path, 'w') as obj:
     for i in range(num_samples):
         t = float(i) / sample_rate
         val = generate_sample(t)
-        # Normalize to 16-bit range
-        amplitude = int(val * 32767 * 0.5) 
+        # Normalize to 16-bit range (max 32767)
+        amplitude = int(val * 32767 * 0.95) 
         if amplitude > 32767:
             amplitude = 32767
         elif amplitude < -32768:
             amplitude = -32768
         obj.writeframesraw(struct.pack('<h', amplitude))
 
-print("Created chime.wav")
+print("Created chime2.wav")
