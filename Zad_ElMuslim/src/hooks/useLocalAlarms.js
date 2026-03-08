@@ -109,12 +109,13 @@ export function useLocalAlarms() {
                             sound: 'adhan.mp3'
                         });
                         await LocalNotifications.createChannel({
-                            id: 'general_channel_v3',
-                            name: 'General Reminders v3',
+                            id: 'general_channel_v5',
+                            name: 'General Reminders v5',
                             description: 'Standard notifications for reminders and welcomes',
                             importance: 5, // 5 = MAX (forces Heads-Up rendering visual over the UI)
                             visibility: 1,
                             vibration: true,
+                            sound: 'chime2.wav'
                         });
 
                         setTimeout(async () => {
@@ -123,8 +124,8 @@ export function useLocalAlarms() {
                                     id: Math.floor(Date.now() / 1000) + 777,
                                     title: 'تطبيق الصراط المستقيم 🕌',
                                     body: 'تم تفعيل الإشعارات بنجاح. ستصلك الآن مواقيت الصلاة والأذكار.',
-                                    channelId: 'general_channel_v3',
-                                    sound: 'chime.wav'
+                                    channelId: 'general_channel_v5',
+                                    sound: 'chime2.wav'
                                 }]
                             });
                             console.log("Apex Native Welcome Deployed.");
@@ -264,13 +265,13 @@ export function useLocalAlarms() {
                     sound: 'adhan.mp3'
                 });
                 await LocalNotifications.createChannel({
-                    id: 'general_channel_v3',
-                    name: 'General Reminders v3',
+                    id: 'general_channel_v5',
+                    name: 'General Reminders v5',
                     description: 'Standard notifications for reminders and welcomes',
                     importance: 5, // 5 = MAX (forces Heads-Up rendering visual)
                     visibility: 1,
                     vibration: true,
-                    sound: 'chime.wav'
+                    sound: 'chime2.wav'
                 });
             } catch (err) { console.warn("Failed to create Alarms channel:", err); }
         }
@@ -356,8 +357,8 @@ export function useLocalAlarms() {
                                 title: preAlertTitle,
                                 body: preAlertBody,
                                 schedule: { at: preAlertDate, allowWhileIdle: true },
-                                channelId: 'general_channel_v3',
-                                sound: 'chime.wav',
+                                channelId: 'general_channel_v5',
+                                sound: 'chime2.wav',
                             });
                         }
 
@@ -370,8 +371,8 @@ export function useLocalAlarms() {
                                 title: 'دعاء الإفطار 🌙',
                                 body: 'اللهم إني لك صمت، وعلى رزقك أفطرت، وبك آمنت، وعليك توكلت، ذهب الظمأ، وابتلت العروق، وثبت الأجر إن شاء الله.',
                                 schedule: { at: iftarDuaDate, allowWhileIdle: true },
-                                channelId: 'general_channel_v3',
-                                sound: 'chime.wav',
+                                channelId: 'general_channel_v5',
+                                sound: 'chime2.wav',
                             });
                         }
                     }
@@ -405,8 +406,8 @@ export function useLocalAlarms() {
                                     id: idCounter++,
                                     title: title,
                                     body: body,
-                                    channelId: 'general_channel_v3',
-                                    sound: 'chime.wav',
+                                    channelId: 'general_channel_v5',
+                                    sound: 'chime2.wav',
                                     schedule: { at: duaSchedule, allowWhileIdle: true },
                                 });
                             }
@@ -419,8 +420,8 @@ export function useLocalAlarms() {
                             id: idCounter++,
                             title: 'حديث اليوم',
                             body: DAILY_HADITHS[idCounter % DAILY_HADITHS.length],
-                            channelId: 'general_channel_v3',
-                            sound: 'chime.wav',
+                            channelId: 'general_channel_v5',
+                            sound: 'chime2.wav',
                             schedule: { at: hadithSchedule, allowWhileIdle: true },
                         });
                     }
@@ -434,8 +435,8 @@ export function useLocalAlarms() {
                             id: idCounter++,
                             title: 'سنن يوم الجمعة 🕌',
                             body: 'لا تنسَ قراءة سورة الكهف، والإكثار من الصلاة على النبي ﷺ.',
-                            channelId: 'general_channel_v3',
-                            sound: 'chime.wav',
+                            channelId: 'general_channel_v5',
+                            sound: 'chime2.wav',
                             schedule: { at: fridayDate, allowWhileIdle: true },
                         });
                     }
