@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowRight, ArrowLeft, Heart, Share2, Copy, Check, Search, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { Share } from '@capacitor/share';
 
 // Map our collection IDs to hadith-api editions (Arabic text)
 const EDITION_MAP = {
@@ -120,14 +121,25 @@ const SunnahReader = ({ collectionId, collectionName, sourceUrl, shamelaUrl, onC
         });
     };
 
-    const shareHadith = (text) => {
-        if (navigator.share) {
-            navigator.share({
-                title: 'Hadith',
-                text: `${text}\n\n- ${collectionName} | As-Sirat Al-Mustaqeem`
-            }).catch(console.error);
-        } else {
-            copyToClipboard(text, 'share');
+    const shareHadith = async (text) => {
+        const isWeb = !window.Capacitor || window.Capacitor.getPlatform() === 'web';
+        try {
+            if (!isWeb) {
+                await Share.share({
+                    title: 'Hadith',
+                    text: `${text}\n\n- ${collectionName} | As-Sirat Al-Mustaqeem`,
+                    dialogTitle: 'Share Hadith'
+                });
+            } else if (navigator.share) {
+                await navigator.share({
+                    title: 'Hadith',
+                    text: `${text}\n\n- ${collectionName} | As-Sirat Al-Mustaqeem`
+                });
+            } else {
+                copyToClipboard(`${text}\n\n- ${collectionName} | As-Sirat Al-Mustaqeem`, 'share');
+            }
+        } catch (err) {
+            console.error('Error sharing hadith:', err);
         }
     };
 

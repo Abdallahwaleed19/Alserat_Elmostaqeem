@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Download, Share2, Copy, Check, Smartphone, Monitor } from 'lucide-react';
+import { Share } from '@capacitor/share';
 import './DownloadApp.css'; // We'll create a minimal CSS file for this or inline most of it
 
 const DownloadApp = () => {
@@ -19,18 +20,25 @@ const DownloadApp = () => {
     };
 
     const handleShare = async () => {
-        if (navigator.share) {
-            try {
+        const isWeb = !window.Capacitor || window.Capacitor.getPlatform() === 'web';
+        try {
+            if (!isWeb) {
+                await Share.share({
+                    title: lang === 'ar' ? 'تطبيق زاد المسلم' : 'Zad Al-Muslim App',
+                    text: lang === 'ar' ? 'الرفيق الإيماني اليومي. قرآءة، استماع، أذكار، ومواقيت الصلاة.' : 'Your daily spiritual companion. Quran, Adhkar, and Prayer Times.',
+                    url: window.location.origin,
+                });
+            } else if (navigator.share) {
                 await navigator.share({
                     title: lang === 'ar' ? 'تطبيق زاد المسلم' : 'Zad Al-Muslim App',
                     text: lang === 'ar' ? 'الرفيق الإيماني اليومي. قرآءة، استماع، أذكار، ومواقيت الصلاة.' : 'Your daily spiritual companion. Quran, Adhkar, and Prayer Times.',
                     url: window.location.origin,
                 });
-            } catch (err) {
-                console.log('Error sharing:', err);
+            } else {
+                handleCopyLink();
             }
-        } else {
-            handleCopyLink();
+        } catch (err) {
+            console.log('Error sharing:', err);
         }
     };
 

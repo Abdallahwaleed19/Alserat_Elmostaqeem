@@ -6,6 +6,8 @@ import { useTheme } from '../../context/ThemeContext';
 import html2canvas from 'html2canvas';
 import './Favorites.css';
 import QuranReader from '../../components/quran/QuranReader';
+import { Share } from '@capacitor/share';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 
 const Favorites = () => {
     const { lang, t } = useLanguage();
@@ -58,7 +60,22 @@ const Favorites = () => {
                     const blob = await (await fetch(imgData)).blob();
                     const file = new File([blob], 'zad-almuslim-share.png', { type: 'image/png' });
 
-                    if (navigator.share) {
+                    const isWeb = !window.Capacitor || window.Capacitor.getPlatform() === 'web';
+                    if (!isWeb) {
+                        // Write base64 to filesystem cache
+                        const fileName = `zad-share-${Date.now()}.png`;
+                        const res = await Filesystem.writeFile({
+                            path: fileName,
+                            data: imgData.split(',')[1], // remove data:image/png;base64,
+                            directory: Directory.Cache
+                        });
+
+                        await Share.share({
+                            files: [res.uri],
+                            title: lang === 'ar' ? 'مشاركة من زاد المسلم' : 'Share from Zad Al-Muslim',
+                            text: lang === 'ar' ? 'تطبيق زاد المسلم' : 'Zad Al-Muslim App'
+                        });
+                    } else if (navigator.share) {
                         await navigator.share({
                             files: [file],
                             title: lang === 'ar' ? 'مشاركة من زاد المسلم' : 'Share from Zad Al-Muslim',

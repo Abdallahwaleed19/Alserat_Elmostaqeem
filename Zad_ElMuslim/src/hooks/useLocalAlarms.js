@@ -1,21 +1,35 @@
 import { useState, useEffect } from 'react';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Geolocation } from '@capacitor/geolocation';
+import { Coordinates, CalculationMethod, PrayerTimes } from 'adhan';
 
 const PRAYER_KEYS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 const PRAYER_NAMES_AR = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
 
 const RANDOM_DUAS = [
     "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا",
-    "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ العَظِيمِ",
-    "اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ",
-    "لا حَوْلَ وَلا قُوَّةَ إِلا بِاللَّهِ",
-    "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لا إِلَهَ إِلا هُوَ الْحَيُّ الْقَيُّومُ وَأَتُوبُ إِلَيْهِ",
     "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
     "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ، وَشُكْرِكَ، وَحُسْنِ عِبَادَتِكَ",
     "لا إِلَهَ إِلا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
     "رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ",
     "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي"
+];
+
+const RANDOM_DHIKR = [
+    "سُبْحَانَ اللَّهِ",
+    "الْحَمْدُ لِلَّهِ",
+    "لا إِلَهَ إِلا اللَّهُ",
+    "اللَّهُ أَكْبَرُ",
+    "لاحَوْلَ وَلاقُوَّةَ إِلا بِاللَّهِ",
+    "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ",
+    "سُبْحَانَ اللَّهِ الْعَظِيمِ",
+    "أَسْتَغْفِرُ اللَّهَ",
+];
+
+const RANDOM_SALAWAT = [
+    "اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ",
+    "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ",
+    "صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ"
 ];
 
 const DAILY_HADITHS = [
@@ -92,7 +106,7 @@ export function useLocalAlarms() {
                             importance: 5,
                             visibility: 1,
                             vibration: true,
-                            sound: 'adhan.wav'
+                            sound: 'adhan.mp3'
                         });
                         await LocalNotifications.createChannel({
                             id: 'general_channel',
@@ -109,8 +123,7 @@ export function useLocalAlarms() {
                                     id: Math.floor(Date.now() / 1000) + 777,
                                     title: 'تطبيق الصراط المستقيم 🕌',
                                     body: 'تم تفعيل الإشعارات بنجاح. ستصلك الآن مواقيت الصلاة والأذكار.',
-                                    channelId: 'general_channel',
-                                    schedule: { at: new Date(new Date().getTime() + 1000), allowWhileIdle: true }
+                                    channelId: 'general_channel_v2'
                                 }]
                             });
                             console.log("Apex Native Welcome Deployed.");
@@ -150,15 +163,50 @@ export function useLocalAlarms() {
         }
     };
 
+    const generateOfflinePrayerTimes = (lat, lon, month, year) => {
+        const daysInMonth = new Date(year, month, 0).getDate();
+        const days = [];
+        const coordinates = new Coordinates(lat, lon);
+        const params = CalculationMethod.Egyptian();
+
+        for (let i = 1; i <= daysInMonth; i++) {
+            const date = new Date(year, month - 1, i);
+            const prayerTimes = new PrayerTimes(coordinates, date, params);
+
+            const formatTime = (dateObj) => {
+                return `${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}`;
+            };
+
+            days.push({
+                date: { readable: date.toISOString() }, // Can be parsed by new Date() later
+                timings: {
+                    Fajr: formatTime(prayerTimes.fajr),
+                    Dhuhr: formatTime(prayerTimes.dhuhr),
+                    Asr: formatTime(prayerTimes.asr),
+                    Maghrib: formatTime(prayerTimes.maghrib),
+                    Isha: formatTime(prayerTimes.isha),
+                }
+            });
+        }
+        return days;
+    };
+
     const fetchMonthPrayerTimes = async (lat, lon, month, year) => {
         try {
             const url = `https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${lat}&longitude=${lon}&method=5`;
-            const res = await fetch(url);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
+            const res = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
             const data = await res.json();
-            return data?.data || [];
+
+            if (data?.data && data.data.length > 0) {
+                return data.data;
+            }
+            throw new Error("Invalid API response format");
         } catch (e) {
-            console.error("Aladhan network fetch failed:", e);
-            return [];
+            console.error("Aladhan network fetch failed or timed out, falling back to offline Adhan:", e);
+            return generateOfflinePrayerTimes(lat, lon, month, year);
         }
     };
 
@@ -212,15 +260,16 @@ export function useLocalAlarms() {
                     importance: 5,
                     visibility: 1,
                     vibration: true,
-                    sound: 'adhan.wav'
+                    sound: 'adhan.mp3'
                 });
                 await LocalNotifications.createChannel({
-                    id: 'general_channel',
+                    id: 'general_channel_v2',
                     name: 'General Reminders',
                     description: 'Standard notifications for reminders and welcomes',
                     importance: 5, // 5 = MAX (forces Heads-Up rendering visual)
                     visibility: 1,
                     vibration: true,
+                    sound: 'chime.wav'
                 });
             } catch (err) { console.warn("Failed to create Alarms channel:", err); }
         }
@@ -262,12 +311,16 @@ export function useLocalAlarms() {
             const now = new Date();
             let idCounter = 1;
 
+            let duasScheduledDays = 0;
+
             days.forEach((day, dayIndex) => {
                 const dayDate = new Date(day.date.readable);
                 // Skip past days
                 if (dayDate.getDate() < now.getDate()) return;
 
                 const timings = day.timings;
+
+                const isRamadan = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', { month: 'numeric' }).format(dayDate) === '9';
 
                 PRAYER_KEYS.forEach(prayerKey => {
                     const timeStr = timings[prayerKey].split(' ')[0]; // remove (EEST)
@@ -285,48 +338,112 @@ export function useLocalAlarms() {
                             sound: 'adhan', // Native android raw file
                             channelId: 'adhan_channel_v4',
                         });
+
+                        // 15 Minutes Before Prayer Alert
+                        const preAlertDate = new Date(scheduleDate.getTime() - 15 * 60000);
+                        if (preAlertDate > new Date()) {
+                            let preAlertTitle = `اقتربت صلاة ${PRAYER_NAMES_AR[prayerKey]}`;
+                            let preAlertBody = `باقي 15 دقيقة على الأذان. استعد للصلاة.`;
+
+                            if (isRamadan && prayerKey === 'Maghrib') {
+                                preAlertTitle = `اقترب موعد الإفطار 🌙`;
+                                preAlertBody = `باقي 15 دقيقة على أذان المغرب. حضر فطورك.`;
+                            }
+
+                            notifications.push({
+                                id: idCounter++,
+                                title: preAlertTitle,
+                                body: preAlertBody,
+                                schedule: { at: preAlertDate, allowWhileIdle: true },
+                                channelId: 'general_channel_v2',
+                            });
+                        }
+
+                        // Ramadan Maghrib Exact Iftar Dua
+                        if (isRamadan && prayerKey === 'Maghrib') {
+                            // Ensure the Dua notification fires exactly 1 second after Adhan starts
+                            const iftarDuaDate = new Date(scheduleDate.getTime() + 1000);
+                            notifications.push({
+                                id: idCounter++,
+                                title: 'دعاء الإفطار 🌙',
+                                body: 'اللهم إني لك صمت، وعلى رزقك أفطرت، وبك آمنت، وعليك توكلت، ذهب الظمأ، وابتلت العروق، وثبت الأجر إن شاء الله.',
+                                schedule: { at: iftarDuaDate, allowWhileIdle: true },
+                                channelId: 'general_channel_v2',
+                            });
+                        }
                     }
                 });
 
-                // Schedule Daily Hadith at 8:00 AM
-                const hadithSchedule = new Date(year, month - 1, dayDate.getDate(), 8, 0, 0);
-                if (hadithSchedule > new Date()) {
-                    const randomHadith = DAILY_HADITHS[idCounter % DAILY_HADITHS.length];
-                    notifications.push({
-                        id: idCounter++,
-                        title: 'حديث اليوم',
-                        body: randomHadith,
-                        channelId: 'general_channel',
-                        schedule: { at: hadithSchedule, allowWhileIdle: true },
-                    });
-                }
-
-                // Schedule Random Duas every 10 minutes between 9 AM and 10 PM (waking hours)
-                // We limit this ultra-frequent scheduling to the next 3 days only to avoid exceeding Android's 500 Exact Alarm limit
-                if (dayIndex < 3) {
-                    for (let hour = 9; hour <= 21; hour++) {
+                // Schedule Reminders (Safely within Android Exact limits (~500 max))
+                // We space these out across reasonable waking hours (8 AM to 10 PM)
+                // Schedule for the next 4 days.
+                // Schedule Random Duas/Dhikr/Salawat every 10 minutes (24/7)
+                // Android has a hard limit of ~500 Exact Alarms per app. 24h * 6 = 144 alarms/day.
+                // We schedule for the next 2 days (288 alarms) to remain safely under the limit.
+                if (duasScheduledDays < 2) {
+                    for (let hour = 0; hour <= 23; hour++) {
                         for (let minute = 0; minute < 60; minute += 10) {
                             const duaSchedule = new Date(year, month - 1, dayDate.getDate(), hour, minute, 0);
                             if (duaSchedule > now) {
-                                const randomDua = RANDOM_DUAS[idCounter % RANDOM_DUAS.length];
+                                // Cycle through types based on minute: 0,30=Dhikr | 10,40=Duas | 20,50=Salawat
+                                let title, body;
+                                if (minute % 30 === 0) {
+                                    title = 'تذكير بذكر الله';
+                                    body = RANDOM_DHIKR[idCounter % RANDOM_DHIKR.length];
+                                } else if (minute % 30 === 10) {
+                                    title = 'دعاء';
+                                    body = RANDOM_DUAS[idCounter % RANDOM_DUAS.length];
+                                } else {
+                                    title = 'صلِّ على النبي';
+                                    body = RANDOM_SALAWAT[idCounter % RANDOM_SALAWAT.length];
+                                }
+
                                 notifications.push({
                                     id: idCounter++,
-                                    title: 'تذكير بذكر الله',
-                                    body: randomDua,
-                                    channelId: 'general_channel',
+                                    title: title,
+                                    body: body,
+                                    channelId: 'general_channel_v2',
                                     schedule: { at: duaSchedule, allowWhileIdle: true },
                                 });
                             }
                         }
                     }
+                    // 08:00 AM - Hadith Daily
+                    const hadithSchedule = new Date(year, month - 1, dayDate.getDate(), 8, 0, 0);
+                    if (hadithSchedule > now) {
+                        notifications.push({
+                            id: idCounter++,
+                            title: 'حديث اليوم',
+                            body: DAILY_HADITHS[idCounter % DAILY_HADITHS.length],
+                            channelId: 'general_channel_v2',
+                            schedule: { at: hadithSchedule, allowWhileIdle: true },
+                        });
+                    }
                 }
+
+                // Friday specific reminder (Surah Al-Kahf & Salawat)
+                if (dayDate.getDay() === 5) { // 5 is Friday
+                    const fridayDate = new Date(year, month - 1, dayDate.getDate(), 9, 30, 0); // 9:30 AM
+                    if (fridayDate > now) {
+                        notifications.push({
+                            id: idCounter++,
+                            title: 'سنن يوم الجمعة 🕌',
+                            body: 'لا تنسَ قراءة سورة الكهف، والإكثار من الصلاة على النبي ﷺ.',
+                            channelId: 'general_channel_v2',
+                            schedule: { at: fridayDate, allowWhileIdle: true },
+                        });
+                    }
+                }
+
+                duasScheduledDays++;
             }); // End of days.forEach
+
             // ---------------------------------------------------------------------------------
 
             // 5. Schedule in Capacitor in chunks of 50 to avoid Android Binder Transaction limits
             const CHUNK_SIZE = 50;
 
-            if (!isWebEnv) {
+            if (!isWeb) {
                 for (let i = 0; i < notifications.length; i += CHUNK_SIZE) {
                     const chunk = notifications.slice(i, i + CHUNK_SIZE);
                     try {
