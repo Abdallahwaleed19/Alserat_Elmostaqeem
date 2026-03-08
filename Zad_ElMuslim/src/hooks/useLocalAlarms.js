@@ -203,14 +203,15 @@ export function useLocalAlarms() {
                     try {
                         await LocalNotifications.schedule({
                             notifications: [{
-                                id: 9999,
+                                id: Math.floor(Date.now() / 1000) + 8888, // Dynamic ID to prevent OS caching drops
                                 title: 'تطبيق الصراط المستقيم 🕌',
                                 body: 'تم تفعيل الإشعارات بنجاح. ستصلك الآن مواقيت الصلاة والأذكار.',
-                                channelId: 'general_channel',
-                                schedule: { at: new Date(new Date().getTime() + 1000), allowWhileIdle: true }
+                                channelId: 'general_channel'
+                                // CRITICAL EXCEPTION: Omitting `schedule` natively instructs Capacitor to FIRE INSTANTLY.
+                                // Minimal future timestamps (< 5s) are notoriously dropped by Android 12+ Exact Alarms.
                             }]
                         });
-                        console.log("[Welcome Alert] Instant Native Android Notification Dispatched.");
+                        console.log("[Welcome Alert] True-Instant Native Android Notification Dispatched.");
                     } catch (e) { console.error("Native Android Welcome failed:", e); }
                 }
             }
