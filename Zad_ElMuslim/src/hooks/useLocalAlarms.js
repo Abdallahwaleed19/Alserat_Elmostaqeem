@@ -168,13 +168,18 @@ export function useLocalAlarms() {
 
         try {
             // 3. Request Location Permission natively if needed
-            if (isWeb) {
-                try { await Geolocation.requestPermissions(); } catch (e) { }
-            } else {
-                const locPerm = await Geolocation.checkPermissions();
-                if (locPerm.location !== 'granted') {
+            // MUST happen before the Welcome Notification to prevent Android's systemic Anti-Hijack modal suppression!
+            try {
+                if (isWeb) {
                     await Geolocation.requestPermissions();
+                } else {
+                    const locPerm = await Geolocation.checkPermissions();
+                    if (locPerm.location !== 'granted') {
+                        await Geolocation.requestPermissions();
+                    }
                 }
+            } catch (e) {
+                console.warn("Location prompt failed/denied, proceeding anyway:", e);
             }
 
             // 4. Clear old alarms (NATIVE ONLY)
@@ -189,8 +194,8 @@ export function useLocalAlarms() {
                 }
             }
 
-            // --- FIRE WELCOME NOTIFICATION IMMEDIATELY AFTER PROMPTS AND ALARM PURGE ---
-            // Must execute AFTER `LocalNotifications.cancel` so the Pending Welcome payload isn't immediately aborted!
+            // --- FIRE WELCOME NOTIFICATION AFTER ALL SYSTEM MODALS HAVE CLOSED ---
+            // If fired simultaneously with a Permission Modal, Android's kernel will silently ban and drop the Heads-Up Notification (HUN).
             if (!isSilent) {
                 if (isWeb && Notification.permission === 'granted') {
                     try {
@@ -203,15 +208,15 @@ export function useLocalAlarms() {
                     try {
                         await LocalNotifications.schedule({
                             notifications: [{
-                                id: Math.floor(Date.now() / 1000) + 8888, // Dynamic ID to prevent OS caching drops
+                                id: Math.floor(Date.now() / 1000) + 8888,
                                 title: 'تطبيق الصراط المستقيم 🕌',
                                 body: 'تم تفعيل الإشعارات بنجاح. ستصلك الآن مواقيت الصلاة والأذكار.',
-                                channelId: 'general_channel'
-                                // CRITICAL EXCEPTION: Omitting `schedule` natively instructs Capacitor to FIRE INSTANTLY.
-                                // Minimal future timestamps (< 5s) are notoriously dropped by Android 12+ Exact Alarms.
+                                channelId: 'general_channel',
+                                // Safe padded buffer to ensure the Activity UI thread is unblocked from modal teardown
+                                schedule: { at: new Date(new Date().getTime() + 1500), allowWhileIdle: true }
                             }]
                         });
-                        console.log("[Welcome Alert] True-Instant Native Android Notification Dispatched.");
+                        console.log("[Welcome Alert] Post-Modal Native Android Notification Dispatched.");
                     } catch (e) { console.error("Native Android Welcome failed:", e); }
                 }
             }
