@@ -143,31 +143,31 @@ export function useLocalAlarms() {
         }
 
         setLoading(true);
-        try {
-            // 2. Setup Android Notification Channels
-            if (window.Capacitor && window.Capacitor.getPlatform() === 'android') {
-                try {
-                    await LocalNotifications.createChannel({
-                        id: 'adhan_channel_v4',
-                        name: 'Adhan Alarms v4',
-                        description: 'High priority alarms for prayer times',
-                        importance: 5,
-                        visibility: 1,
-                        vibration: true,
-                        sound: 'adhan.wav'
-                    });
-                    await LocalNotifications.createChannel({
-                        id: 'general_channel',
-                        name: 'General Reminders',
-                        description: 'Standard notifications for reminders and welcomes',
-                        importance: 3,
-                        visibility: 1,
-                        vibration: true,
-                    });
-                } catch (err) { console.warn("Failed to create Alarms channel:", err); }
-            }
+        // 2. Setup Android Notification Channels FIRST (Guaranteed setup)
+        if (window.Capacitor && window.Capacitor.getPlatform() === 'android') {
+            try {
+                await LocalNotifications.createChannel({
+                    id: 'adhan_channel_v4',
+                    name: 'Adhan Alarms v4',
+                    description: 'High priority alarms for prayer times',
+                    importance: 5,
+                    visibility: 1,
+                    vibration: true,
+                    sound: 'adhan.wav'
+                });
+                await LocalNotifications.createChannel({
+                    id: 'general_channel',
+                    name: 'General Reminders',
+                    description: 'Standard notifications for reminders and welcomes',
+                    importance: 3,
+                    visibility: 1,
+                    vibration: true,
+                });
+            } catch (err) { console.warn("Failed to create Alarms channel:", err); }
+        }
 
-            // 3. Request Location Permission natively if needed, OR web will prompt on `getCurrentPosition`
+        try {
+            // 3. Request Location Permission natively if needed
             if (isWeb) {
                 try { await Geolocation.requestPermissions(); } catch (e) { }
             } else {
@@ -185,12 +185,12 @@ export function useLocalAlarms() {
                         await LocalNotifications.cancel({ notifications: pending.notifications });
                     }
                 } catch (err) {
-                    console.warn("Failed to clear old alarms (probably unsupported on this platform):", err);
+                    console.warn("Failed to clear old alarms:", err);
                 }
             }
 
-            // --- FIRE WELCOME NOTIFICATION IMMEDIATELY AFTER PROMPT MODALS CLOSE ---
-            // This guarantees zero-latency user feedback before the heavy GPS satellite locking loops begin.
+            // --- FIRE WELCOME NOTIFICATION IMMEDIATELY AFTER PROMPTS AND ALARM PURGE ---
+            // Must execute AFTER `LocalNotifications.cancel` so the Pending Welcome payload isn't immediately aborted!
             if (!isSilent) {
                 if (isWeb && Notification.permission === 'granted') {
                     try {
@@ -201,14 +201,13 @@ export function useLocalAlarms() {
                     } catch (e) { console.error("Welcome Web Notification blocked:", e); }
                 } else if (!isWeb) {
                     try {
-                        // Restore a minimal 2-second timestamp padding to prevent certain OEM AlarmManagers from dropping the payload
                         await LocalNotifications.schedule({
                             notifications: [{
                                 id: 9999,
                                 title: 'تطبيق الصراط المستقيم 🕌',
                                 body: 'تم تفعيل الإشعارات بنجاح. ستصلك الآن مواقيت الصلاة والأذكار.',
                                 channelId: 'general_channel',
-                                schedule: { at: new Date(new Date().getTime() + 2000), allowWhileIdle: true }
+                                schedule: { at: new Date(new Date().getTime() + 1000), allowWhileIdle: true }
                             }]
                         });
                         console.log("[Welcome Alert] Instant Native Android Notification Dispatched.");

@@ -41,12 +41,12 @@ function App() {
         if (!isWeb) {
           // Native Android/iOS: Evaluate if this is a first-time user before prompting
           // We use localStorage because OS Permission Checks falsely return 'granted' on Android < 13
-          // Token bumped to v4 to defeat Android 10+ Google Drive Auto-Backup silent restores during testing
-          const hasLaunched = localStorage.getItem('zad_mobile_launch_v4');
+          // Token bumped to v6 to defeat Android 10+ Google Drive Auto-Backup silent restores during testing
+          const hasLaunched = localStorage.getItem('zad_mobile_launch_v6');
           const isFirstTime = !hasLaunched;
 
           if (isFirstTime) {
-            localStorage.setItem('zad_mobile_launch_v4', 'true');
+            localStorage.setItem('zad_mobile_launch_v6', 'true');
           }
 
           // Pass !isFirstTime to the isSilent token. 
