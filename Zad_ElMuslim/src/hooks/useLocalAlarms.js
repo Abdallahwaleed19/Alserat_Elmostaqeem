@@ -55,7 +55,7 @@ export function useLocalAlarms() {
         }
     };
 
-    const requestPermission = async () => {
+    const requestPermission = async (isSilent = false) => {
         try {
             const isWeb = !window.Capacitor || window.Capacitor.getPlatform() === 'web';
 
@@ -76,20 +76,61 @@ export function useLocalAlarms() {
             // Native Android/iOS permission request
             let req = await LocalNotifications.requestPermissions();
 
-            // On Android 13+, check if exact alarm permission is needed and granted
-            if (window.Capacitor && window.Capacitor.getPlatform() === 'android') {
-                try {
-                    const exactPerms = await LocalNotifications.checkPermissions();
-                    if (exactPerms.exact_alarm === 'prompt' || exactPerms.exact_alarm === 'prompt-with-rationale') {
-                        if (LocalNotifications.requestExactAlarm) {
-                            await LocalNotifications.requestExactAlarm();
-                        }
-                    }
-                } catch (e) { console.warn('checkPermissions exact_alarm failed', e); }
-            }
-
             if (req.display === 'granted') {
                 setHasPermission(true);
+
+                // --- APEX NATIVE WELCOME NOTIFICATION DISPATCH ---
+                // Executes strictly immediately after the OS Permission Resolver returns 'granted'.
+                // Completely decoupled from Geolocation or heavy background timers.
+                if (!isSilent && window.Capacitor && window.Capacitor.getPlatform() === 'android') {
+                    try {
+                        // Natively ensure channels exist immediately before dispatching
+                        await LocalNotifications.createChannel({
+                            id: 'adhan_channel_v4',
+                            name: 'Adhan Alarms v4',
+                            description: 'High priority alarms for prayer times',
+                            importance: 5,
+                            visibility: 1,
+                            vibration: true,
+                            sound: 'adhan.wav'
+                        });
+                        await LocalNotifications.createChannel({
+                            id: 'general_channel',
+                            name: 'General Reminders',
+                            description: 'Standard notifications for reminders and welcomes',
+                            importance: 5, // 5 = MAX (forces Heads-Up rendering visual over the UI)
+                            visibility: 1,
+                            vibration: true,
+                        });
+
+                        setTimeout(async () => {
+                            await LocalNotifications.schedule({
+                                notifications: [{
+                                    id: Math.floor(Date.now() / 1000) + 777,
+                                    title: 'تطبيق الصراط المستقيم 🕌',
+                                    body: 'تم تفعيل الإشعارات بنجاح. ستصلك الآن مواقيت الصلاة والأذكار.',
+                                    channelId: 'general_channel',
+                                    schedule: { at: new Date(new Date().getTime() + 1000), allowWhileIdle: true }
+                                }]
+                            });
+                            console.log("Apex Native Welcome Deployed.");
+                        }, 500); // UI unblock buffer
+                    } catch (err) {
+                        console.error("Apex Dispatch failed:", err);
+                    }
+                }
+
+                if (window.Capacitor && window.Capacitor.getPlatform() === 'android') {
+                    try {
+                        const exactPerms = await LocalNotifications.checkPermissions();
+                        if (exactPerms.exact_alarm === 'prompt' || exactPerms.exact_alarm === 'prompt-with-rationale') {
+                            if (LocalNotifications.requestExactAlarm) {
+                                await LocalNotifications.requestExactAlarm();
+                            }
+                        }
+                    } catch (e) { console.warn('checkPermissions exact_alarm failed', e); }
+                }
+
                 return "just_granted";
             }
             return false;
@@ -110,10 +151,15 @@ export function useLocalAlarms() {
     };
 
     const fetchMonthPrayerTimes = async (lat, lon, month, year) => {
-        const url = `https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${lat}&longitude=${lon}&method=5`;
-        const res = await fetch(url);
-        const data = await res.json();
-        return data?.data || [];
+        try {
+            const url = `https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${lat}&longitude=${lon}&method=5`;
+            const res = await fetch(url);
+            const data = await res.json();
+            return data?.data || [];
+        } catch (e) {
+            console.error("Aladhan network fetch failed:", e);
+            return [];
+        }
     };
 
     const scheduleOfflineAlarms = async (isSilent = false) => {
@@ -121,7 +167,6 @@ export function useLocalAlarms() {
         // Must be done immediately before any 'await' to satisfy browsers' strict Autoplay/Prompt policy
         const isWeb = !window.Capacitor || window.Capacitor.getPlatform() === 'web';
 
-        let grantedStatus = false;
         if (isWeb) {
             // Audio unlock
             if (!window.webAdhanAudio) {
@@ -131,19 +176,33 @@ export function useLocalAlarms() {
                     window.webAdhanAudio.currentTime = 0;
                 }).catch(e => console.log('Audio unlock failed:', e));
             }
-            // 1. Request Notifications FIRST directly in the sync click path
-            grantedStatus = await requestPermission();
-        } else {
-            grantedStatus = await requestPermission();
-        }
-
-        if (!grantedStatus) {
-            if (!isSilent) alert('عذراً، يجب الموافقة على الإشعارات لتفعيل التطبيق');
-            return;
         }
 
         setLoading(true);
-        // 2. Setup Android Notification Channels FIRST (Guaranteed setup)
+
+        // 1. Request Location Permission natively FIRST! (User Explicit Constraint)
+        try {
+            if (isWeb) {
+                await Geolocation.requestPermissions();
+            } else {
+                const locPerm = await Geolocation.checkPermissions();
+                if (locPerm.location !== 'granted') {
+                    await Geolocation.requestPermissions();
+                }
+            }
+        } catch (e) {
+            console.warn("Location prompt failed/denied, proceeding anyway:", e);
+        }
+
+        // 2. Request Notifications SECOND!
+        let grantedStatus = false;
+        grantedStatus = await requestPermission(isSilent);
+
+        if (!grantedStatus) {
+            // User explicitly requested to remove the "You must enable notifications" alert
+            return;
+        }
+        // 3. Setup Android Notification Channels FIRST (Guaranteed setup)
         if (window.Capacitor && window.Capacitor.getPlatform() === 'android') {
             try {
                 await LocalNotifications.createChannel({
@@ -159,7 +218,7 @@ export function useLocalAlarms() {
                     id: 'general_channel',
                     name: 'General Reminders',
                     description: 'Standard notifications for reminders and welcomes',
-                    importance: 3,
+                    importance: 5, // 5 = MAX (forces Heads-Up rendering visual)
                     visibility: 1,
                     vibration: true,
                 });
@@ -167,20 +226,6 @@ export function useLocalAlarms() {
         }
 
         try {
-            // 3. Request Location Permission natively if needed
-            // MUST happen before the Welcome Notification to prevent Android's systemic Anti-Hijack modal suppression!
-            try {
-                if (isWeb) {
-                    await Geolocation.requestPermissions();
-                } else {
-                    const locPerm = await Geolocation.checkPermissions();
-                    if (locPerm.location !== 'granted') {
-                        await Geolocation.requestPermissions();
-                    }
-                }
-            } catch (e) {
-                console.warn("Location prompt failed/denied, proceeding anyway:", e);
-            }
 
             // 4. Clear old alarms (NATIVE ONLY)
             if (!isWeb) {
@@ -194,31 +239,14 @@ export function useLocalAlarms() {
                 }
             }
 
-            // --- FIRE WELCOME NOTIFICATION AFTER ALL SYSTEM MODALS HAVE CLOSED ---
-            // If fired simultaneously with a Permission Modal, Android's kernel will silently ban and drop the Heads-Up Notification (HUN).
-            if (!isSilent) {
-                if (isWeb && Notification.permission === 'granted') {
-                    try {
-                        new Notification('تطبيق الصراط المستقيم 🕌', {
-                            body: 'تم تفعيل الإشعارات بنجاح. ستصلك الآن مواقيت الصلاة والأذكار.',
-                            icon: '/zad_splash_logo.png'
-                        });
-                    } catch (e) { console.error("Welcome Web Notification blocked:", e); }
-                } else if (!isWeb) {
-                    try {
-                        await LocalNotifications.schedule({
-                            notifications: [{
-                                id: Math.floor(Date.now() / 1000) + 8888,
-                                title: 'تطبيق الصراط المستقيم 🕌',
-                                body: 'تم تفعيل الإشعارات بنجاح. ستصلك الآن مواقيت الصلاة والأذكار.',
-                                channelId: 'general_channel',
-                                // Safe padded buffer to ensure the Activity UI thread is unblocked from modal teardown
-                                schedule: { at: new Date(new Date().getTime() + 1500), allowWhileIdle: true }
-                            }]
-                        });
-                        console.log("[Welcome Alert] Post-Modal Native Android Notification Dispatched.");
-                    } catch (e) { console.error("Native Android Welcome failed:", e); }
-                }
+            // Web Fallback Welcome Notification Array
+            if (!isSilent && isWeb && Notification.permission === 'granted') {
+                try {
+                    new Notification('تطبيق الصراط المستقيم 🕌', {
+                        body: 'تم تفعيل الإشعارات بنجاح. ستصلك الآن مواقيت الصلاة والأذكار.',
+                        icon: '/zad_splash_logo.png'
+                    });
+                } catch (e) { console.error("Welcome Web Notification blocked:", e); }
             }
 
             // 3. NOW fetch location and API (this takes time! GPS lock can take 5-15 seconds)
@@ -234,7 +262,7 @@ export function useLocalAlarms() {
             const now = new Date();
             let idCounter = 1;
 
-            days.forEach(day => {
+            days.forEach((day, dayIndex) => {
                 const dayDate = new Date(day.date.readable);
                 // Skip past days
                 if (dayDate.getDate() < now.getDate()) return;

@@ -41,12 +41,12 @@ function App() {
         if (!isWeb) {
           // Native Android/iOS: Evaluate if this is a first-time user before prompting
           // We use localStorage because OS Permission Checks falsely return 'granted' on Android < 13
-          // Token bumped to v8 to defeat Android 10+ Google Drive Auto-Backup silent restores during testing
-          const hasLaunched = localStorage.getItem('zad_mobile_launch_v8');
+          // Token bumped to v12 to defeat Android 10+ Google Drive Auto-Backup silent restores during testing
+          const hasLaunched = localStorage.getItem('zad_mobile_launch_v12');
           const isFirstTime = !hasLaunched;
 
           if (isFirstTime) {
-            localStorage.setItem('zad_mobile_launch_v8', 'true');
+            localStorage.setItem('zad_mobile_launch_v12', 'true');
           }
 
           // Pass !isFirstTime to the isSilent token. 
@@ -90,8 +90,8 @@ function App() {
         document.addEventListener('touchstart', handleSilentInit, { passive: true });
       }
     }
-  }, [isWeb, scheduleOfflineAlarms]);
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isWeb]);
   return (
     <>
       <div className={`splash-container ${!showSplash ? 'fade-out' : ''}`}>
