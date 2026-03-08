@@ -100,8 +100,8 @@ export function useLocalAlarms() {
                     try {
                         // Natively ensure channels exist immediately before dispatching
                         await LocalNotifications.createChannel({
-                            id: 'adhan_channel_v4',
-                            name: 'Adhan Alarms v4',
+                            id: 'adhan_channel_v5',
+                            name: 'Adhan Alarms v5',
                             description: 'High priority alarms for prayer times',
                             importance: 5,
                             visibility: 1,
@@ -109,8 +109,8 @@ export function useLocalAlarms() {
                             sound: 'adhan.mp3'
                         });
                         await LocalNotifications.createChannel({
-                            id: 'general_channel',
-                            name: 'General Reminders',
+                            id: 'general_channel_v3',
+                            name: 'General Reminders v3',
                             description: 'Standard notifications for reminders and welcomes',
                             importance: 5, // 5 = MAX (forces Heads-Up rendering visual over the UI)
                             visibility: 1,
@@ -123,7 +123,8 @@ export function useLocalAlarms() {
                                     id: Math.floor(Date.now() / 1000) + 777,
                                     title: 'تطبيق الصراط المستقيم 🕌',
                                     body: 'تم تفعيل الإشعارات بنجاح. ستصلك الآن مواقيت الصلاة والأذكار.',
-                                    channelId: 'general_channel_v2'
+                                    channelId: 'general_channel_v3',
+                                    sound: 'chime.wav'
                                 }]
                             });
                             console.log("Apex Native Welcome Deployed.");
@@ -254,8 +255,8 @@ export function useLocalAlarms() {
         if (window.Capacitor && window.Capacitor.getPlatform() === 'android') {
             try {
                 await LocalNotifications.createChannel({
-                    id: 'adhan_channel_v4',
-                    name: 'Adhan Alarms v4',
+                    id: 'adhan_channel_v5',
+                    name: 'Adhan Alarms v5',
                     description: 'High priority alarms for prayer times',
                     importance: 5,
                     visibility: 1,
@@ -263,8 +264,8 @@ export function useLocalAlarms() {
                     sound: 'adhan.mp3'
                 });
                 await LocalNotifications.createChannel({
-                    id: 'general_channel_v2',
-                    name: 'General Reminders',
+                    id: 'general_channel_v3',
+                    name: 'General Reminders v3',
                     description: 'Standard notifications for reminders and welcomes',
                     importance: 5, // 5 = MAX (forces Heads-Up rendering visual)
                     visibility: 1,
@@ -335,8 +336,8 @@ export function useLocalAlarms() {
                             title: `حان الآن وقت صلاة ${PRAYER_NAMES_AR[prayerKey]}`,
                             body: 'حَيَّ عَلَى الصَّلَاةِ',
                             schedule: { at: scheduleDate, allowWhileIdle: true },
-                            sound: 'adhan', // Native android raw file
-                            channelId: 'adhan_channel_v4',
+                            sound: 'adhan.mp3', // Native android raw file explicit extension
+                            channelId: 'adhan_channel_v5',
                         });
 
                         // 15 Minutes Before Prayer Alert
@@ -355,7 +356,8 @@ export function useLocalAlarms() {
                                 title: preAlertTitle,
                                 body: preAlertBody,
                                 schedule: { at: preAlertDate, allowWhileIdle: true },
-                                channelId: 'general_channel_v2',
+                                channelId: 'general_channel_v3',
+                                sound: 'chime.wav',
                             });
                         }
 
@@ -368,7 +370,8 @@ export function useLocalAlarms() {
                                 title: 'دعاء الإفطار 🌙',
                                 body: 'اللهم إني لك صمت، وعلى رزقك أفطرت، وبك آمنت، وعليك توكلت، ذهب الظمأ، وابتلت العروق، وثبت الأجر إن شاء الله.',
                                 schedule: { at: iftarDuaDate, allowWhileIdle: true },
-                                channelId: 'general_channel_v2',
+                                channelId: 'general_channel_v3',
+                                sound: 'chime.wav',
                             });
                         }
                     }
@@ -402,7 +405,8 @@ export function useLocalAlarms() {
                                     id: idCounter++,
                                     title: title,
                                     body: body,
-                                    channelId: 'general_channel_v2',
+                                    channelId: 'general_channel_v3',
+                                    sound: 'chime.wav',
                                     schedule: { at: duaSchedule, allowWhileIdle: true },
                                 });
                             }
@@ -415,7 +419,8 @@ export function useLocalAlarms() {
                             id: idCounter++,
                             title: 'حديث اليوم',
                             body: DAILY_HADITHS[idCounter % DAILY_HADITHS.length],
-                            channelId: 'general_channel_v2',
+                            channelId: 'general_channel_v3',
+                            sound: 'chime.wav',
                             schedule: { at: hadithSchedule, allowWhileIdle: true },
                         });
                     }
@@ -429,7 +434,8 @@ export function useLocalAlarms() {
                             id: idCounter++,
                             title: 'سنن يوم الجمعة 🕌',
                             body: 'لا تنسَ قراءة سورة الكهف، والإكثار من الصلاة على النبي ﷺ.',
-                            channelId: 'general_channel_v2',
+                            channelId: 'general_channel_v3',
+                            sound: 'chime.wav',
                             schedule: { at: fridayDate, allowWhileIdle: true },
                         });
                     }
