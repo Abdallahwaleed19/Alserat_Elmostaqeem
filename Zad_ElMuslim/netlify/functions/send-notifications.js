@@ -127,14 +127,14 @@ const functionHandler = async (event, context) => {
                 }
             }
 
-            // Rule B: Dua exactly on the hour or half hour (every 30 mins) to reduce frequency and fit 15m cron
-            else if (minutes === 0 || minutes === 30) {
+            // Rule B: Dua exactly every 10 minutes (0, 10, 20, 30, 40, 50)
+            else if (minutes % 10 === 0) {
                 const sentKey = `${dateKey}-${hours}-${minutes}-dua`;
                 if (!lastSent[sentKey]) {
                     lastSent[sentKey] = true;
                     needsUpdate = true;
                     notificationPayload = {
-                        title: 'تذكير دعاء',
+                        title: 'تذكير ذِكر',
                         body: DUAS[Math.floor(Math.random() * DUAS.length)],
                         url: '/',
                     };
@@ -203,5 +203,5 @@ const functionHandler = async (event, context) => {
 };
 
 // Netlify scheduled function syntax
-// Cron expression for every 5 minutes (to catch Adhan times precisely)
-export const handler = schedule('*/5 * * * *', functionHandler);
+// Cron expression for every 1 minute (to catch Adhan times precisely)
+export const handler = schedule('*/1 * * * *', functionHandler);

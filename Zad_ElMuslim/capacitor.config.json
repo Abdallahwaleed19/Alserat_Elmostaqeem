@@ -1,0 +1,21 @@
+{
+  "appId": "com.zadelmuslim.app",
+  "appName": "Alserat-Almostaqeem",
+  "webDir": "dist",
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#D4AF37",
+      "sound": "adhan"
+    }
+  },
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true,
+    "allowNavigation": [
+      "*.radiojar.com",
+      "*.radioca.st",
+      "*.quranradioo.com"
+    ]
+  }
+}

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, X } from 'lucide-react';
-import { usePushNotifications } from '../hooks/usePushNotifications';
+import { useLocalAlarms } from '../hooks/useLocalAlarms';
 
 export default function NotificationPrompt() {
-    const { isSupported, permission, isSubscribed, loading, subscribe } = usePushNotifications();
+    const { hasPermission, loading, scheduleOfflineAlarms } = useLocalAlarms();
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        // Show prompt if supported, not already subscribed, and not permanently denied
-        if (isSupported && !isSubscribed && permission !== 'denied') {
+        // Show prompt if not already granted
+        if (!hasPermission) {
             const dismissed = localStorage.getItem('notification_prompt_dismissed');
             if (!dismissed) {
                 // Small delay to let the app load first
@@ -18,7 +18,7 @@ export default function NotificationPrompt() {
         } else {
             setIsVisible(false);
         }
-    }, [isSupported, isSubscribed, permission]);
+    }, [hasPermission]);
 
     if (!isVisible) return null;
 
@@ -28,7 +28,7 @@ export default function NotificationPrompt() {
     };
 
     const handleSubscribe = async () => {
-        await subscribe();
+        await scheduleOfflineAlarms();
         setIsVisible(false);
     };
 

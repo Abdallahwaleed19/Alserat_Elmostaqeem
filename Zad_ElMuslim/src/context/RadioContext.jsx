@@ -43,13 +43,6 @@ export function RadioProvider({ children }) {
   const clearAudio = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.removeAttribute('src');
-      audioRef.current.load();
-      audioRef.current.onplay = null;
-      audioRef.current.onpause = null;
-      audioRef.current.onended = null;
-      audioRef.current.onerror = null;
-      audioRef.current = null;
     }
     if (retryTimeoutRef.current) {
       clearTimeout(retryTimeoutRef.current);
@@ -59,31 +52,13 @@ export function RadioProvider({ children }) {
 
   const playWithRetry = useCallback(() => {
     clearAudio();
-    if (!isActiveRef.current) return;
+    if (!isActiveRef.current || !audioRef.current) return;
 
     const url = RADIO_URLS[urlIndexRef.current];
-    const a = new Audio(url);
-    a.preload = 'none';
-    audioRef.current = a;
+    const a = audioRef.current;
 
-    a.onplay = () => {
-      if (!isActiveRef.current) {
-        a.pause();
-        return;
-      }
-      setRadioError(null);
-      setIsPlaying(true);
-      if ('mediaSession' in navigator) {
-        navigator.mediaSession.playbackState = 'playing';
-      }
-    };
-
-    a.onpause = () => {
-      setIsPlaying(false);
-      if ('mediaSession' in navigator) {
-        navigator.mediaSession.playbackState = 'paused';
-      }
-    };
+    a.src = url;
+    a.load();
 
     const handleErrorOrDrop = () => {
       if (!isActiveRef.current) return;
@@ -94,20 +69,18 @@ export function RadioProvider({ children }) {
       // Move to next URL
       urlIndexRef.current = (urlIndexRef.current + 1) % RADIO_URLS.length;
 
-      // Wait a bit before aggressively retrying to avoid spamming the browser
       clearTimeout(retryTimeoutRef.current);
       retryTimeoutRef.current = setTimeout(() => {
         if (isActiveRef.current) {
           playWithRetry();
         }
-      }, 3000); // Increased wait time to 3 seconds to let network breathe
+      }, 3000);
     };
 
     a.onended = handleErrorOrDrop;
     a.onerror = handleErrorOrDrop;
     a.onstalled = () => {
       console.warn('Audio stalled. Checking recovery...');
-      // If we are supposed to be active, trigger a reconnect
       if (isActiveRef.current) handleErrorOrDrop();
     };
 
@@ -137,18 +110,7 @@ export function RadioProvider({ children }) {
             const timer = setTimeout(() => {
               if (isActiveRef.current) {
                 urlIndexRef.current = (urlIndexRef.current + 1) % RADIO_URLS.length;
-
-                const url = RADIO_URLS[urlIndexRef.current];
-                const a = new Audio(url);
-                a.preload = 'none';
-                audioRef.current = a;
-
-                a.onplay = () => setIsPlaying(true);
-                a.onpause = () => setIsPlaying(false);
-                a.onended = () => setIsPlaying(false);
-                a.onerror = () => setIsPlaying(false);
-
-                a.play().catch(console.error);
+                playWithRetry();
               }
             }, 1000);
             return () => clearTimeout(timer);
@@ -164,7 +126,7 @@ export function RadioProvider({ children }) {
     }, 2000);
 
     return () => clearInterval(watchdog);
-  }, [isPlaying, clearAudio]);
+  }, [isPlaying, clearAudio, playWithRetry]);
 
   const startRadio = useCallback(() => {
     urlIndexRef.current = 0; // Reset index on fresh start
@@ -214,7 +176,30 @@ export function RadioProvider({ children }) {
     stopRadio,
   };
 
-  return <RadioContext.Provider value={value}>{children}</RadioContext.Provider>;
+  return (
+    <RadioContext.Provider value={value}>
+      {children}
+      <audio
+        ref={audioRef}
+        preload="none"
+        style={{ display: 'none' }}
+        onPlay={() => {
+          if (!isActiveRef.current) {
+            audioRef.current?.pause();
+            return;
+          }
+          setRadioError(null);
+          setIsPlaying(true);
+          if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+        }}
+        onPause={() => {
+          setIsPlaying(false);
+          if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+        }}
+        onEnded={stopRadio}
+      />
+    </RadioContext.Provider>
+  );
 }
 
 export function useRadio() {

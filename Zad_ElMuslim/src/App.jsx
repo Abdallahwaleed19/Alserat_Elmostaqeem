@@ -25,47 +25,115 @@ import LaylatAlQadr from './pages/LaylatAlQadr/LaylatAlQadr';
 import Favorites from './pages/Favorites/Favorites';
 import DownloadApp from './pages/DownloadApp/DownloadApp';
 import Terms from './pages/Terms/Terms';
-import { usePushNotifications } from './hooks/usePushNotifications';
+import { useLocalAlarms } from './hooks/useLocalAlarms';
+import { App as CapApp } from '@capacitor/app';
+import { SplashScreen } from '@capacitor/splash-screen';
 
 function App() {
-  usePushNotifications();
+  const { scheduleOfflineAlarms, loading } = useLocalAlarms();
+  const [showSplash, setShowSplash] = React.useState(true);
+  const isWeb = !window.Capacitor || window.Capacitor.getPlatform() === 'web';
+
+  React.useEffect(() => {
+
+    const initApp = async () => {
+      try {
+        if (!isWeb) {
+          // Native Android/iOS: Evaluate if this is a first-time user before prompting
+          // We use localStorage because OS Permission Checks falsely return 'granted' on Android < 13
+          const hasLaunched = localStorage.getItem('zad_mobile_has_launched');
+          const isFirstTime = !hasLaunched;
+
+          if (isFirstTime) {
+            localStorage.setItem('zad_mobile_has_launched', 'true');
+          }
+
+          // Pass !isFirstTime to the isSilent token. 
+          // New installs (isFirstTime = true) will trigger (isSilent = false) causing the instantaneous Welcome Notification.
+          await scheduleOfflineAlarms(!isFirstTime);
+        }
+        // Hide the native static splash immediately after logic load
+        if (window.Capacitor) {
+          await SplashScreen.hide();
+        }
+      } catch (err) {
+        console.error("Failed to init background tasks", err);
+      }
+    };
+
+    // Slight delay to ensure native plugins are fully initialized
+    setTimeout(() => {
+      initApp();
+      // Wait 2.5s to play our CSS animation, then fade it out.
+      setTimeout(() => setShowSplash(false), 2500);
+    }, 1500);
+
+    if (isWeb && "Notification" in window) {
+      if (Notification.permission !== "granted") {
+        // First-time visitor: Trigger visual prompts and final Welcome OS Notification
+        const handleFirstInteraction = async () => {
+          document.removeEventListener('click', handleFirstInteraction);
+          document.removeEventListener('touchstart', handleFirstInteraction, { passive: true });
+          await scheduleOfflineAlarms(false);
+        };
+        document.addEventListener('click', handleFirstInteraction);
+        document.addEventListener('touchstart', handleFirstInteraction, { passive: true });
+      } else {
+        // Returning visitor: Silently initialize Alarms and Audio unlock in the background
+        const handleSilentInit = async () => {
+          document.removeEventListener('click', handleSilentInit);
+          document.removeEventListener('touchstart', handleSilentInit, { passive: true });
+          await scheduleOfflineAlarms(true);
+        };
+        document.addEventListener('click', handleSilentInit);
+        document.addEventListener('touchstart', handleSilentInit, { passive: true });
+      }
+    }
+  }, [isWeb, scheduleOfflineAlarms]);
 
   return (
-    <ErrorBoundary>
-      <LanguageProvider>
-        <ThemeProvider>
-          <AudioProvider>
-            <RadioProvider>
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Layout />}>
-                    <Route index element={<Home />} />
-                    <Route path="quran" element={<Quran />} />
-                    <Route path="reciters" element={<Reciters />} />
-                    <Route path="sunnah" element={<Sunnah />} />
-                    <Route path="adhkar" element={<Adhkar />} />
-                    <Route path="tasbeeh" element={<Tasbeeh />} />
-                    <Route path="bookmarks" element={<Bookmarks />} />
-                    <Route path="pillars" element={<Pillars />} />
-                    <Route path="zakat" element={<Zakat />} />
-                    <Route path="seerah" element={<Seerah />} />
-                    <Route path="calendar" element={<HijriCalendar />} />
-                    <Route path="discover" element={<Discover />} />
-                    <Route path="discover/isra-miraj" element={<IsraMiraj />} />
-                    <Route path="discover/qibla" element={<QiblaChange />} />
-                    <Route path="discover/laylat-alqadr" element={<LaylatAlQadr />} />
-                    <Route path="discover/favorites" element={<Favorites />} />
-                    <Route path="download-app" element={<DownloadApp />} />
-                    <Route path="wudu" element={<Wudu />} />
-                    <Route path="terms" element={<Terms />} />
-                  </Route>
-                </Routes>
-              </BrowserRouter>
-            </RadioProvider>
-          </AudioProvider>
-        </ThemeProvider>
-      </LanguageProvider>
-    </ErrorBoundary>
+    <>
+      <div className={`splash-container ${!showSplash ? 'fade-out' : ''}`}>
+        <img src="/zad_splash_logo.png" alt="Zad El Muslim Logo" className="splash-logo" />
+        <h1 className="splash-title">الصراط المستقيم</h1>
+      </div>
+
+      <ErrorBoundary>
+        <LanguageProvider>
+          <ThemeProvider>
+            <AudioProvider>
+              <RadioProvider>
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Layout />}>
+                      <Route index element={<Home />} />
+                      <Route path="quran" element={<Quran />} />
+                      <Route path="reciters" element={<Reciters />} />
+                      <Route path="sunnah" element={<Sunnah />} />
+                      <Route path="adhkar" element={<Adhkar />} />
+                      <Route path="tasbeeh" element={<Tasbeeh />} />
+                      <Route path="bookmarks" element={<Bookmarks />} />
+                      <Route path="pillars" element={<Pillars />} />
+                      <Route path="zakat" element={<Zakat />} />
+                      <Route path="seerah" element={<Seerah />} />
+                      <Route path="calendar" element={<HijriCalendar />} />
+                      <Route path="discover" element={<Discover />} />
+                      <Route path="discover/isra-miraj" element={<IsraMiraj />} />
+                      <Route path="discover/qibla" element={<QiblaChange />} />
+                      <Route path="discover/laylat-alqadr" element={<LaylatAlQadr />} />
+                      <Route path="discover/favorites" element={<Favorites />} />
+                      <Route path="download-app" element={<DownloadApp />} />
+                      <Route path="wudu" element={<Wudu />} />
+                      <Route path="terms" element={<Terms />} />
+                    </Route>
+                  </Routes>
+                </BrowserRouter>
+              </RadioProvider>
+            </AudioProvider>
+          </ThemeProvider>
+        </LanguageProvider>
+      </ErrorBoundary>
+    </>
   );
 }
 

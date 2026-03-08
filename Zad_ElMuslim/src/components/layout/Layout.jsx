@@ -7,6 +7,7 @@ import AudioPlayer from '../audio/AudioPlayer';
 import RadioPlayerBar from '../audio/RadioPlayerBar';
 import { useHijriDate } from '../../utils/useHijriDate';
 import { useSoftProtection } from '../../hooks/useSoftProtection';
+import NotificationPrompt from '../NotificationPrompt';
 import './Layout.css';
 
 const Layout = () => {
