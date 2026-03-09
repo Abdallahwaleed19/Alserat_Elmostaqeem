@@ -12,7 +12,15 @@ const RANDOM_DUAS = [
     "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ، وَشُكْرِكَ، وَحُسْنِ عِبَادَتِكَ",
     "لا إِلَهَ إِلا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
     "رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ",
-    "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي"
+    "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي",
+    "رَبَّنَا لا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِنْ لَدُنْكَ رَحْمَةً",
+    "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ",
+    "اللَّهُمَّ اشْفِ مَرْضَانَا وَارْحَمْ مَوْتَانَا",
+    "رَبِّ اشْرَحْ لِي صَدْرِي * وَيَسِّرْ لِي أَمْرِي",
+    "يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَى دِينِكَ",
+    "اللَّهُمَّ اغْفِرْ لِلْمُسْلِمِينَ وَالْمُسْلِمَاتِ الْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ",
+    "رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ",
+    "اللَّهُمَّ اجْعَلْنَا مِنَ الَّذِينَ يَسْتَمِعُونَ الْقَوْلَ فَيَتَّبِعُونَ أَحْسَنَهُ"
 ];
 
 const RANDOM_DHIKR = [
@@ -24,6 +32,11 @@ const RANDOM_DHIKR = [
     "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ",
     "سُبْحَانَ اللَّهِ الْعَظِيمِ",
     "أَسْتَغْفِرُ اللَّهَ",
+    "حَسْبِيَ اللَّهُ وَنِعْمَ الْوَكِيلُ",
+    "سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ",
+    "أَسْتَغْفِرُ اللَّهَ الَّذِي لا إِلَهَ إِلا هُوَ الْحَيُّ الْقَيُّومُ وَأَتُوبُ إِلَيْهِ",
+    "يَا ذَا الْجَلَالِ وَالْإِكْرَامِ",
+    "سُبْحَانَ الْمَلِكِ الْقُدُّوسِ"
 ];
 
 const RANDOM_SALAWAT = [
@@ -314,11 +327,18 @@ export function useLocalAlarms() {
             let idCounter = 1;
 
             let duasScheduledDays = 0;
+            let prayerDaysScheduled = 0;
 
             days.forEach((day, dayIndex) => {
                 const dayDate = new Date(day.date.readable);
                 // Skip past days
                 if (dayDate.getDate() < now.getDate()) return;
+
+                // CRITICAL: Android 14 enforces a hard limit of exactly 500 exact alarms per app.
+                // 2 days of Duas (144/day) = 288 alarms.
+                // If we also schedule 30 days of prayers (11/day) = 330 alarms. 288 + 330 = 618 > 500.
+                // We MUST limit the prayer scheduling to 14 days max (154 alarms) to prevent a native app crash.
+                if (prayerDaysScheduled >= 14) return;
 
                 const timings = day.timings;
 
@@ -360,6 +380,35 @@ export function useLocalAlarms() {
                                 channelId: 'general_channel_v5',
                                 sound: 'chime2.wav',
                             });
+                        }
+
+                        // Ramadan Fajr (Imsak and Fasting Start)
+                        if (isRamadan && prayerKey === 'Fajr') {
+                            // Imsak Alert: 1 Hour before Fajr
+                            const imsakAlertDate = new Date(scheduleDate.getTime() - 60 * 60000); // 60 minutes
+                            if (imsakAlertDate > new Date()) {
+                                notifications.push({
+                                    id: idCounter++,
+                                    title: 'وقت الإمساك 🌙',
+                                    body: 'باقي ساعة على أذان الفجر، استعد للإمساك وتسحر.',
+                                    schedule: { at: imsakAlertDate, allowWhileIdle: true },
+                                    channelId: 'general_channel_v5',
+                                    sound: 'chime2.wav',
+                                });
+                            }
+
+                            // Fasting Begin Dua exactly at Fajr + 2 seconds (to let Adhan play)
+                            const fastingBeginDate = new Date(scheduleDate.getTime() + 2000);
+                            if (fastingBeginDate > new Date()) {
+                                notifications.push({
+                                    id: idCounter++,
+                                    title: 'نية الصيام 🌙',
+                                    body: 'اللهم إني نويت أن أصوم رمضان إيماناً واحتساباً، فاغفر لي ما تقدم من ذنبي وما تأخر.',
+                                    schedule: { at: fastingBeginDate, allowWhileIdle: true },
+                                    channelId: 'general_channel_v5',
+                                    sound: 'chime2.wav',
+                                });
+                            }
                         }
 
                         // Ramadan Maghrib Exact Iftar Dua
@@ -442,7 +491,9 @@ export function useLocalAlarms() {
                     }
                 }
 
+
                 duasScheduledDays++;
+                prayerDaysScheduled++;
             }); // End of days.forEach
 
             // ---------------------------------------------------------------------------------
