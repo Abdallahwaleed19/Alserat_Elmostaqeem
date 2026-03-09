@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import { CapacitorMusicControls } from 'capacitor-music-controls-plugin';
 
 const AudioContext = createContext();
 
@@ -91,25 +92,155 @@ export const AudioProvider = ({ children }) => {
     const [currentReciter, setCurrentReciter] = useState(RECITERS[0]);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
+    const mediaSessionActiveRef = useRef(false);
 
     const audioRef = useRef(new Audio());
     const verseQueueRef = useRef([]);
     const verseIndexRef = useRef(0);
     const lastSingleSurahRef = useRef(null); // { reciter, surahNumber } عند تشغيل سورة كاملة (غير آية بآية)
 
+    /** إيقاف القراءة بالكامل وإخفاء الشريط */
+    const stopPlay = React.useCallback(() => {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+        setCurrentTime(0);
+        setDuration(0);
+        verseQueueRef.current = [];
+        verseIndexRef.current = 0;
+        setCurrentSurah(null);
+        setIsPlaying(false);
+
+        if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+            CapacitorMusicControls.destroy();
+        }
+    }, []);
+
     useEffect(() => {
         const audio = audioRef.current;
-        const setTime = () => setCurrentTime(audio.currentTime);
-        const setAudioDuration = () => setDuration(audio.duration);
+
+        const setTime = () => {
+            setCurrentTime(audio.currentTime);
+            try {
+                if (mediaSessionActiveRef.current) {
+                    CapacitorMusicControls.updateElapsed({
+                        elapsed: Math.floor(audio.currentTime * 1000),
+                        isPlaying: !audio.paused
+                    });
+                }
+            } catch (e) { }
+        };
+
+        const setAudioDuration = () => {
+            const newDur = audio.duration;
+            setDuration(newDur);
+            if (currentSurah && currentReciter && !audio.paused) {
+                updateMediaSession(currentSurah.name, currentReciter.nameAr);
+            }
+        };
 
         audio.addEventListener('timeupdate', setTime);
         audio.addEventListener('loadedmetadata', setAudioDuration);
+        audio.addEventListener('durationchange', () => {
+            setAudioDuration();
+            // Trigger a refresh of the media session once duration is known
+            if (currentSurah && currentReciter && !audio.paused) {
+                updateMediaSession(currentSurah.name, currentReciter.nameAr);
+            }
+        });
+
+        // Native OS Music Controls Event Listener - Handle events from the document bridge
+        const handleNotification = (event) => {
+            let action = event;
+            try {
+                // If it's a CustomEvent, the data is in event.detail
+                // If it came from triggerJSEvent, it's often a stringified JSON
+                if (event.detail && typeof event.detail === 'string') {
+                    action = JSON.parse(event.detail);
+                } else if (event.detail) {
+                    action = event.detail;
+                } else if (typeof event === 'string') {
+                    action = JSON.parse(event);
+                }
+            } catch (e) {
+                console.error('Media control action parse error', e);
+                return;
+            }
+
+            if (!action || !action.message) return;
+            const msg = action.message;
+
+            if (msg === 'music-controls-play') {
+                audio.play().catch(e => console.warn('Native play failed:', e));
+                setIsPlaying(true);
+                if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+                    CapacitorMusicControls.updateIsPlaying({ isPlaying: true });
+                }
+            } else if (msg === 'music-controls-pause') {
+                audio.pause();
+                setIsPlaying(false);
+                if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+                    CapacitorMusicControls.updateIsPlaying({ isPlaying: false });
+                }
+            } else if (msg === 'music-controls-destroy') {
+                stopPlay();
+            } else if (msg === 'music-controls-seek-to') {
+                const seekMs = action.position;
+                if (typeof seekMs === 'number') {
+                    const seekSec = seekMs / 1000;
+                    audio.currentTime = Math.min(seekSec, audio.duration || 0);
+                    setCurrentTime(audio.currentTime);
+                }
+            }
+        };
+
+        document.addEventListener('controlsNotification', handleNotification);
 
         return () => {
             audio.removeEventListener('timeupdate', setTime);
             audio.removeEventListener('loadedmetadata', setAudioDuration);
+            audio.removeEventListener('durationchange', setAudioDuration);
+            document.removeEventListener('controlsNotification', handleNotification);
         };
-    }, []);
+    }, [stopPlay, currentSurah, currentReciter]);
+
+    const updateMediaSession = (surahName, reciterName) => {
+        if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+            const audio = audioRef.current;
+            if (!audio || !surahName) return;
+
+            mediaSessionActiveRef.current = true;
+            CapacitorMusicControls.create({
+                track: `سورة ${surahName}`,
+                artist: reciterName,
+                cover: 'icons/icon-512x512.png',
+                duration: audio.duration && !isNaN(audio.duration) ? Math.floor(audio.duration * 1000) : 0,
+                elapsed: Math.floor(audio.currentTime * 1000) || 0,
+                isPlaying: !audio.paused,
+                dismissable: true,
+                hasPrev: false,
+                hasNext: false,
+                hasClose: true,
+                hasScrubbing: true,
+                playIcon: '',
+                pauseIcon: '',
+                closeIcon: '',
+                notificationIcon: ''
+            }).then(() => {
+                CapacitorMusicControls.updateIsPlaying({ isPlaying: !audio.paused });
+            }).catch(e => console.warn('MusicControls create error', e));
+        }
+    };
+
+    // Reactive Synchronization: Ensure Media Session is always in sync with state
+    useEffect(() => {
+        if (isPlaying && currentSurah && currentReciter) {
+            updateMediaSession(currentSurah.name, currentReciter.nameAr);
+        } else if (!isPlaying && mediaSessionActiveRef.current) {
+            if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+                CapacitorMusicControls.updateIsPlaying({ isPlaying: false });
+            }
+        }
+    }, [isPlaying, currentSurah, currentReciter, audioRef.current?.src]);
 
     useEffect(() => {
         const savedReciterId = localStorage.getItem('zad_reciter');
@@ -180,8 +311,13 @@ export const AudioProvider = ({ children }) => {
         lastSingleSurahRef.current = null;
         setCurrentSurah({ number: surahNumber, name: surahName });
         setIsPlaying(true);
+        updateMediaSession(surahName, currentReciter.nameAr);
         audioRef.current.src = urls[0];
         audioRef.current.play().catch(() => setIsPlaying(false));
+
+        if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+            CapacitorMusicControls.updateIsPlaying({ isPlaying: true });
+        }
     };
 
     /**
@@ -202,9 +338,15 @@ export const AudioProvider = ({ children }) => {
                 audioRef.current.pause();
                 verseQueueRef.current = [];
                 setIsPlaying(false);
+                if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+                    CapacitorMusicControls.updateIsPlaying({ isPlaying: false });
+                }
             } else {
                 if (verseQueueRef.current.length) {
                     audioRef.current.play().catch(() => setIsPlaying(false));
+                    if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+                        CapacitorMusicControls.updateIsPlaying({ isPlaying: true });
+                    }
                 } else if (reciter.verseByVerseId) {
                     fetch(`${AYAH_API}/${surahNumber}/${reciter.verseByVerseId}`)
                         .then((res) => res.json())
@@ -215,6 +357,9 @@ export const AudioProvider = ({ children }) => {
                         .catch(() => setIsPlaying(false));
                 } else {
                     audioRef.current.play().catch(() => setIsPlaying(false));
+                    if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+                        CapacitorMusicControls.updateIsPlaying({ isPlaying: true });
+                    }
                 }
             }
             return;
@@ -271,21 +416,14 @@ export const AudioProvider = ({ children }) => {
         if (isPlaying) {
             audioRef.current.pause();
         } else {
-            audioRef.current.play();
+            const p = audioRef.current.play();
+            if (p && typeof p.catch === 'function') {
+                p.catch(() => {
+                    setIsPlaying(false);
+                });
+            }
         }
         setIsPlaying(!isPlaying);
-    };
-
-    /** إيقاف القراءة بالكامل وإخفاء الشريط */
-    const stopPlay = () => {
-        audioRef.current.pause();
-        audioRef.current.src = '';
-        setCurrentTime(0);
-        setDuration(0);
-        verseQueueRef.current = [];
-        verseIndexRef.current = 0;
-        setCurrentSurah(null);
-        setIsPlaying(false);
     };
 
     // Handle audio end: إما انتهت السورة أو ننتقل للآية التالية (آية بآية)

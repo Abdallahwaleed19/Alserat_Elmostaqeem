@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
+import { CapacitorMusicControls } from 'capacitor-music-controls-plugin';
 
 // إذاعة القرآن الكريم من القاهرة - المصدر: https://www.holyquranradio.com/
 // روابط البث المباشر لنفس الإذاعة (مع بدائل عند الفشل)
@@ -23,9 +24,36 @@ export function RadioProvider({ children }) {
   const audioRef = useRef(null);
   const urlIndexRef = useRef(0);
   const retryTimeoutRef = useRef(null);
+  const mediaSessionActiveRef = useRef(false);
 
-  const initMediaSession = useCallback((playFn, pauseFn) => {
-    if ('mediaSession' in navigator) {
+  const stopRadioRef = useRef(null); // To hold the stopRadio function for event listeners
+
+  const updateMediaSession = useCallback(() => {
+    if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+      const audio = audioRef.current;
+      if (!audio || !isActiveRef.current) return;
+
+      mediaSessionActiveRef.current = true;
+      CapacitorMusicControls.create({
+        track: 'إذاعة القرآن الكريم',
+        artist: 'بث مباشر',
+        cover: 'icons/icon-512x512.png',
+        isPlaying: isPlaying,
+        dismissable: true,
+        hasPrev: false,
+        hasNext: false,
+        hasClose: true,
+        hasScrubbing: false,
+        duration: 0,
+        elapsed: 0,
+        playIcon: '',
+        pauseIcon: '',
+        closeIcon: '',
+        notificationIcon: ''
+      }).then(() => {
+        CapacitorMusicControls.updateIsPlaying({ isPlaying: isPlaying });
+      }).catch(e => console.warn('Radio MusicControls create error', e));
+    } else if ('mediaSession' in navigator) {
       navigator.mediaSession.metadata = new window.MediaMetadata({
         title: 'إذاعة القرآن الكريم',
         artist: 'القاهرة',
@@ -35,10 +63,8 @@ export function RadioProvider({ children }) {
           { src: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' }
         ]
       });
-      navigator.mediaSession.setActionHandler('play', playFn);
-      navigator.mediaSession.setActionHandler('pause', pauseFn);
     }
-  }, []);
+  }, [isPlaying]);
 
   const clearAudio = useCallback(() => {
     if (audioRef.current) {
@@ -65,6 +91,9 @@ export function RadioProvider({ children }) {
 
       console.warn(`Radio stream dropped on URL index ${urlIndexRef.current}. Retrying with next URL...`);
       setIsPlaying(false);
+      if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+        CapacitorMusicControls.updateIsPlaying({ isPlaying: false });
+      }
 
       // Move to next URL
       urlIndexRef.current = (urlIndexRef.current + 1) % RADIO_URLS.length;
@@ -128,15 +157,17 @@ export function RadioProvider({ children }) {
     return () => clearInterval(watchdog);
   }, [isPlaying, clearAudio, playWithRetry]);
 
-  const startRadio = useCallback(() => {
+  const startRadio = useCallback(async () => {
     urlIndexRef.current = 0; // Reset index on fresh start
     isActiveRef.current = true;
     setIsActive(true);
     setRadioError(null);
     playWithRetry();
+
+    // Media session is now managed by a reactive useEffect
   }, [playWithRetry]);
 
-  const stopRadio = useCallback(() => {
+  const stopRadio = useCallback(async () => {
     isActiveRef.current = false;
     setIsActive(false);
     setIsPlaying(false);
@@ -145,18 +176,79 @@ export function RadioProvider({ children }) {
     if ('mediaSession' in navigator) {
       navigator.mediaSession.playbackState = 'none';
     }
+
+    // Media session is now managed by a reactive useEffect
   }, [clearAudio]);
+
+  // Store stopRadio in a ref for use in event listeners
+  useEffect(() => {
+    stopRadioRef.current = stopRadio;
+  }, [stopRadio]);
 
   // Initialize media session handlers once
   useEffect(() => {
-    initMediaSession(startRadio, stopRadio);
-  }, [initMediaSession, startRadio, stopRadio]);
+    const handleNotification = (event) => {
+      let action = event;
+      try {
+        if (event.detail && typeof event.detail === 'string') {
+          action = JSON.parse(event.detail);
+        } else if (event.detail) {
+          action = event.detail;
+        } else if (typeof event === 'string') {
+          action = JSON.parse(event);
+        }
+      } catch (e) {
+        return;
+      }
+
+      if (!action || !action.message) return;
+      const msg = action.message;
+
+      if (msg === 'music-controls-play') {
+        startRadio();
+      } else if (msg === 'music-controls-pause' || msg === 'music-controls-destroy') {
+        stopRadio();
+      }
+    };
+
+    document.addEventListener('controlsNotification', handleNotification);
+    return () => {
+      document.removeEventListener('controlsNotification', handleNotification);
+    };
+  }, [startRadio, stopRadio]);
+
+  useEffect(() => {
+    if (isActive && isPlaying) {
+      updateMediaSession();
+    } else if (!isActive && mediaSessionActiveRef.current) {
+      if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+        CapacitorMusicControls.destroy();
+      }
+      mediaSessionActiveRef.current = false;
+    } else if (!isPlaying && mediaSessionActiveRef.current) {
+      if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+        CapacitorMusicControls.updateIsPlaying({ isPlaying: false });
+      }
+    }
+  }, [isActive, isPlaying, updateMediaSession]);
 
   const togglePlayPause = useCallback(() => {
     if (isActiveRef.current) {
       stopRadio();
     } else {
       startRadio();
+    }
+  }, [startRadio, stopRadio]);
+
+  // Web Media Session handlers (avoid undefined references inside updateMediaSession)
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      navigator.mediaSession.setActionHandler('play', () => startRadio());
+      navigator.mediaSession.setActionHandler('pause', () => stopRadio());
+      navigator.mediaSession.setActionHandler('stop', () => stopRadio());
+    } catch (e) {
+      // Some browsers throw if action is unsupported
     }
   }, [startRadio, stopRadio]);
 
@@ -191,6 +283,9 @@ export function RadioProvider({ children }) {
           setRadioError(null);
           setIsPlaying(true);
           if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+          if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+            CapacitorMusicControls.updateIsPlaying({ isPlaying: true });
+          }
         }}
         onPause={() => {
           setIsPlaying(false);

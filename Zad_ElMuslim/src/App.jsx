@@ -28,6 +28,7 @@ import Terms from './pages/Terms/Terms';
 import { useLocalAlarms } from './hooks/useLocalAlarms';
 import { App as CapApp } from '@capacitor/app';
 import { SplashScreen } from '@capacitor/splash-screen';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 function App() {
   const { scheduleOfflineAlarms, loading } = useLocalAlarms();
@@ -39,23 +40,30 @@ function App() {
     const initApp = async () => {
       try {
         if (!isWeb) {
+          // Hide the native static splash early so permission dialogs can attach reliably
+          if (window.Capacitor) {
+            await SplashScreen.hide();
+            // Give Android OS time to transition from splash to main activity.
+            // Without this, the first permission dialog can be missed on some OEM ROMs.
+            await new Promise(r => setTimeout(r, 1000));
+          }
+
           // Native Android/iOS: Evaluate if this is a first-time user before prompting
           // We use localStorage because OS Permission Checks falsely return 'granted' on Android < 13
           // Token bumped to v12 to defeat Android 10+ Google Drive Auto-Backup silent restores during testing
           const hasLaunched = localStorage.getItem('zad_mobile_launch_v12');
           const isFirstTime = !hasLaunched;
 
+          // Check actual notification permission status natively
+          const permStatus = await LocalNotifications.checkPermissions();
+          const needsPrompt = permStatus.display !== 'granted';
+
           if (isFirstTime) {
             localStorage.setItem('zad_mobile_launch_v12', 'true');
           }
 
-          // Pass !isFirstTime to the isSilent token. 
-          // New installs (isFirstTime = true) will trigger (isSilent = false) causing the instantaneous Welcome Notification.
-          await scheduleOfflineAlarms(!isFirstTime);
-        }
-        // Hide the native static splash immediately after logic load
-        if (window.Capacitor) {
-          await SplashScreen.hide();
+          // scheduleOfflineAlarms chains: Notification prompt first, then Location prompt.
+          await scheduleOfflineAlarms(!needsPrompt && !isFirstTime);
         }
       } catch (err) {
         console.error("Failed to init background tasks", err);
@@ -64,10 +72,11 @@ function App() {
 
     // Slight delay to ensure native plugins are fully initialized
     setTimeout(() => {
-      initApp();
-      // Wait 2.5s to play our CSS animation, then fade it out.
-      setTimeout(() => setShowSplash(false), 2500);
-    }, 1500);
+      initApp().then(() => {
+        // Only hide the JS-side splash after logic and permission chain starts
+        setTimeout(() => setShowSplash(false), 500);
+      });
+    }, 1000);
 
     if (isWeb && "Notification" in window) {
       if (Notification.permission !== "granted") {

@@ -12,7 +12,15 @@ const RANDOM_DUAS = [
     "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ، وَشُكْرِكَ، وَحُسْنِ عِبَادَتِكَ",
     "لا إِلَهَ إِلا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
     "رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ",
-    "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي"
+    "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي",
+    "رَبَّنَا لا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِنْ لَدُنْكَ رَحْمَةً",
+    "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ",
+    "اللَّهُمَّ اشْفِ مَرْضَانَا وَارْحَمْ مَوْتَانَا",
+    "رَبِّ اشْرَحْ لِي صَدْرِي * وَيَسِّرْ لِي أَمْرِي",
+    "يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَى دِينِكَ",
+    "اللَّهُمَّ اغْفِرْ لِلْمُسْلِمِينَ وَالْمُسْلِمَاتِ الْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ",
+    "رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ",
+    "اللَّهُمَّ اجْعَلْنَا مِنَ الَّذِينَ يَسْتَمِعُونَ الْقَوْلَ فَيَتَّبِعُونَ أَحْسَنَهُ"
 ];
 
 const RANDOM_DHIKR = [
@@ -24,6 +32,11 @@ const RANDOM_DHIKR = [
     "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ",
     "سُبْحَانَ اللَّهِ الْعَظِيمِ",
     "أَسْتَغْفِرُ اللَّهَ",
+    "حَسْبِيَ اللَّهُ وَنِعْمَ الْوَكِيلُ",
+    "سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ",
+    "أَسْتَغْفِرُ اللَّهَ الَّذِي لا إِلَهَ إِلا هُوَ الْحَيُّ الْقَيُّومُ وَأَتُوبُ إِلَيْهِ",
+    "يَا ذَا الْجَلَالِ وَالْإِكْرَامِ",
+    "سُبْحَانَ الْمَلِكِ الْقُدُّوسِ"
 ];
 
 const RANDOM_SALAWAT = [
@@ -88,11 +101,13 @@ export function useLocalAlarms() {
             }
 
             // Native Android/iOS permission request
+            console.log('NATIVE: Requesting LocalNotifications permissions...');
             let req = await LocalNotifications.requestPermissions();
+            console.log('NATIVE: Permission request result:', JSON.stringify(req));
 
             if (req.display === 'granted') {
                 setHasPermission(true);
-
+                console.log('NATIVE: Permission GRANTED');
                 // --- APEX NATIVE WELCOME NOTIFICATION DISPATCH ---
                 // Executes strictly immediately after the OS Permission Resolver returns 'granted'.
                 // Completely decoupled from Geolocation or heavy background timers.
@@ -109,12 +124,13 @@ export function useLocalAlarms() {
                             sound: 'adhan.mp3'
                         });
                         await LocalNotifications.createChannel({
-                            id: 'general_channel_v3',
-                            name: 'General Reminders v3',
+                            id: 'general_channel_v5',
+                            name: 'General Reminders v5',
                             description: 'Standard notifications for reminders and welcomes',
                             importance: 5, // 5 = MAX (forces Heads-Up rendering visual over the UI)
                             visibility: 1,
                             vibration: true,
+                            sound: 'chime2.wav'
                         });
 
                         setTimeout(async () => {
@@ -123,8 +139,8 @@ export function useLocalAlarms() {
                                     id: Math.floor(Date.now() / 1000) + 777,
                                     title: 'تطبيق الصراط المستقيم 🕌',
                                     body: 'تم تفعيل الإشعارات بنجاح. ستصلك الآن مواقيت الصلاة والأذكار.',
-                                    channelId: 'general_channel_v3',
-                                    sound: 'chime.wav'
+                                    channelId: 'general_channel_v5',
+                                    sound: 'chime2.wav'
                                 }]
                             });
                             console.log("Apex Native Welcome Deployed.");
@@ -229,28 +245,35 @@ export function useLocalAlarms() {
 
         setLoading(true);
 
-        // 1. Request Location Permission natively FIRST! (User Explicit Constraint)
+        // 1. Request Notifications FIRST! (User Request: Notification then Location, and FAST)
+        console.log('INIT: Starting permission chain...');
+        let notificationResult = await requestPermission(isSilent);
+
+        // STABILIZATION: Increased delay to 1000ms (1 full second)
+        // Some Android versions (MIUI/ColorOS) take longer to clear the first dialog from the stack.
+        // A short delay causes the second prompt to be ignored.
+        await new Promise(r => setTimeout(r, 1000));
+
+        // 2. Request Location Permission SECOND! 
+        console.log('INIT: Requesting Location permission...');
         try {
             if (isWeb) {
                 await Geolocation.requestPermissions();
             } else {
                 const locPerm = await Geolocation.checkPermissions();
+                console.log('INIT: Current Loc Perm:', locPerm.location);
                 if (locPerm.location !== 'granted') {
-                    await Geolocation.requestPermissions();
+                    const reqLoc = await Geolocation.requestPermissions();
+                    console.log('INIT: Loc request result:', reqLoc.location);
                 }
             }
         } catch (e) {
-            console.warn("Location prompt failed/denied, proceeding anyway:", e);
+            console.error("Location prompt failed/denied:", e);
         }
 
-        // 2. Request Notifications SECOND!
-        let grantedStatus = false;
-        grantedStatus = await requestPermission(isSilent);
+        // Even if notification was denied (false), we continue to setup channels
+        // so that if they enable it later in settings, the app is ready.
 
-        if (!grantedStatus) {
-            // User explicitly requested to remove the "You must enable notifications" alert
-            return;
-        }
         // 3. Setup Android Notification Channels FIRST (Guaranteed setup)
         if (window.Capacitor && window.Capacitor.getPlatform() === 'android') {
             try {
@@ -264,13 +287,13 @@ export function useLocalAlarms() {
                     sound: 'adhan.mp3'
                 });
                 await LocalNotifications.createChannel({
-                    id: 'general_channel_v3',
-                    name: 'General Reminders v3',
+                    id: 'general_channel_v5',
+                    name: 'General Reminders v5',
                     description: 'Standard notifications for reminders and welcomes',
                     importance: 5, // 5 = MAX (forces Heads-Up rendering visual)
                     visibility: 1,
                     vibration: true,
-                    sound: 'chime.wav'
+                    sound: 'chime2.wav'
                 });
             } catch (err) { console.warn("Failed to create Alarms channel:", err); }
         }
@@ -313,11 +336,18 @@ export function useLocalAlarms() {
             let idCounter = 1;
 
             let duasScheduledDays = 0;
+            let prayerDaysScheduled = 0;
 
             days.forEach((day, dayIndex) => {
                 const dayDate = new Date(day.date.readable);
                 // Skip past days
                 if (dayDate.getDate() < now.getDate()) return;
+
+                // CRITICAL: Android 14 enforces a hard limit of exactly 500 exact alarms per app.
+                // 2 days of Duas (144/day) = 288 alarms.
+                // If we also schedule 30 days of prayers (11/day) = 330 alarms. 288 + 330 = 618 > 500.
+                // We MUST limit the prayer scheduling to 14 days max (154 alarms) to prevent a native app crash.
+                if (prayerDaysScheduled >= 14) return;
 
                 const timings = day.timings;
 
@@ -356,9 +386,38 @@ export function useLocalAlarms() {
                                 title: preAlertTitle,
                                 body: preAlertBody,
                                 schedule: { at: preAlertDate, allowWhileIdle: true },
-                                channelId: 'general_channel_v3',
-                                sound: 'chime.wav',
+                                channelId: 'general_channel_v5',
+                                sound: 'chime2.wav',
                             });
+                        }
+
+                        // Ramadan Fajr (Imsak and Fasting Start)
+                        if (isRamadan && prayerKey === 'Fajr') {
+                            // Imsak Alert: 1 Hour before Fajr
+                            const imsakAlertDate = new Date(scheduleDate.getTime() - 60 * 60000); // 60 minutes
+                            if (imsakAlertDate > new Date()) {
+                                notifications.push({
+                                    id: idCounter++,
+                                    title: 'وقت الإمساك 🌙',
+                                    body: 'باقي ساعة على أذان الفجر، استعد للإمساك وتسحر.',
+                                    schedule: { at: imsakAlertDate, allowWhileIdle: true },
+                                    channelId: 'general_channel_v5',
+                                    sound: 'chime2.wav',
+                                });
+                            }
+
+                            // Fasting Begin Dua exactly at Fajr + 2 seconds (to let Adhan play)
+                            const fastingBeginDate = new Date(scheduleDate.getTime() + 2000);
+                            if (fastingBeginDate > new Date()) {
+                                notifications.push({
+                                    id: idCounter++,
+                                    title: 'نية الصيام 🌙',
+                                    body: 'اللهم إني نويت أن أصوم رمضان إيماناً واحتساباً، فاغفر لي ما تقدم من ذنبي وما تأخر.',
+                                    schedule: { at: fastingBeginDate, allowWhileIdle: true },
+                                    channelId: 'general_channel_v5',
+                                    sound: 'chime2.wav',
+                                });
+                            }
                         }
 
                         // Ramadan Maghrib Exact Iftar Dua
@@ -370,8 +429,8 @@ export function useLocalAlarms() {
                                 title: 'دعاء الإفطار 🌙',
                                 body: 'اللهم إني لك صمت، وعلى رزقك أفطرت، وبك آمنت، وعليك توكلت، ذهب الظمأ، وابتلت العروق، وثبت الأجر إن شاء الله.',
                                 schedule: { at: iftarDuaDate, allowWhileIdle: true },
-                                channelId: 'general_channel_v3',
-                                sound: 'chime.wav',
+                                channelId: 'general_channel_v5',
+                                sound: 'chime2.wav',
                             });
                         }
                     }
@@ -405,8 +464,8 @@ export function useLocalAlarms() {
                                     id: idCounter++,
                                     title: title,
                                     body: body,
-                                    channelId: 'general_channel_v3',
-                                    sound: 'chime.wav',
+                                    channelId: 'general_channel_v5',
+                                    sound: 'chime2.wav',
                                     schedule: { at: duaSchedule, allowWhileIdle: true },
                                 });
                             }
@@ -419,8 +478,8 @@ export function useLocalAlarms() {
                             id: idCounter++,
                             title: 'حديث اليوم',
                             body: DAILY_HADITHS[idCounter % DAILY_HADITHS.length],
-                            channelId: 'general_channel_v3',
-                            sound: 'chime.wav',
+                            channelId: 'general_channel_v5',
+                            sound: 'chime2.wav',
                             schedule: { at: hadithSchedule, allowWhileIdle: true },
                         });
                     }
@@ -434,14 +493,16 @@ export function useLocalAlarms() {
                             id: idCounter++,
                             title: 'سنن يوم الجمعة 🕌',
                             body: 'لا تنسَ قراءة سورة الكهف، والإكثار من الصلاة على النبي ﷺ.',
-                            channelId: 'general_channel_v3',
-                            sound: 'chime.wav',
+                            channelId: 'general_channel_v5',
+                            sound: 'chime2.wav',
                             schedule: { at: fridayDate, allowWhileIdle: true },
                         });
                     }
                 }
 
+
                 duasScheduledDays++;
+                prayerDaysScheduled++;
             }); // End of days.forEach
 
             // ---------------------------------------------------------------------------------
