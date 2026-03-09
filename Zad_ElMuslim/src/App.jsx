@@ -28,6 +28,7 @@ import Terms from './pages/Terms/Terms';
 import { useLocalAlarms } from './hooks/useLocalAlarms';
 import { App as CapApp } from '@capacitor/app';
 import { SplashScreen } from '@capacitor/splash-screen';
+import { Geolocation } from '@capacitor/geolocation';
 
 function App() {
   const { scheduleOfflineAlarms, loading } = useLocalAlarms();
@@ -47,6 +48,13 @@ function App() {
 
           if (isFirstTime) {
             localStorage.setItem('zad_mobile_launch_v12', 'true');
+            // Chain the permission requests so the OS doesn't clash them.
+            // Request Location first, wait for the user to answer, then request Notifications.
+            try {
+              await Geolocation.requestPermissions();
+            } catch (e) {
+              console.warn('Geolocation permission request bypassed or failed', e);
+            }
           }
 
           // Pass !isFirstTime to the isSilent token. 
