@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Geolocation } from '@capacitor/geolocation';
 import { Coordinates, CalculationMethod, PrayerTimes } from 'adhan';
+// Typed bridge to native foreground service + battery settings on Android
+// (safe no-op on web/iOS)
+// @ts-ignore - JS file importing TS helper
+import { PersistentAdhan } from '../plugins/persistentAdhan';
 
 const PRAYER_KEYS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 const PRAYER_NAMES_AR = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
@@ -153,6 +157,22 @@ export function useLocalAlarms() {
                 if (window.Capacitor && window.Capacitor.getPlatform() === 'android') {
                     try {
                         const exactPerms = await LocalNotifications.checkPermissions();
+                        if (exactPerms.display === 'granted') {
+                            // Ensure battery optimization reminder for Samsung/Chinese OEMs
+                            const isSamsung = navigator.userAgent.toLowerCase().includes('samsung');
+                            if (!localStorage.getItem('zad_battery_reminded')) {
+                                console.log("Android device detected, opening battery optimization settings for better Adhan reliability.");
+                                try {
+                                    if (window.Capacitor && window.Capacitor.getPlatform() === 'android') {
+                                        await PersistentAdhan.openBatteryOptimizationSettings();
+                                    }
+                                } catch (openErr) {
+                                    console.warn('Battery optimization settings open failed:', openErr);
+                                }
+                                localStorage.setItem('zad_battery_reminded', '1');
+                            }
+                        }
+
                         if (exactPerms.exact_alarm === 'prompt' || exactPerms.exact_alarm === 'prompt-with-rationale') {
                             if (LocalNotifications.requestExactAlarm) {
                                 await LocalNotifications.requestExactAlarm();
@@ -249,10 +269,17 @@ export function useLocalAlarms() {
         console.log('INIT: Starting permission chain...');
         let notificationResult = await requestPermission(isSilent);
 
-        // STABILIZATION: Increased delay to 1000ms (1 full second)
-        // Some Android versions (MIUI/ColorOS) take longer to clear the first dialog from the stack.
-        // A short delay causes the second prompt to be ignored.
-        await new Promise(r => setTimeout(r, 1000));
+        // STABILIZATION: Increased delay to 1500ms for heavy Android skins (Samsung OneUI, MIUI)
+        await new Promise(r => setTimeout(r, 1500));
+
+        // 1b. On Android, start foreground service with persistent notification
+        if (window.Capacitor && window.Capacitor.getPlatform() === 'android') {
+            try {
+                await PersistentAdhan.startForegroundService();
+            } catch (e) {
+                console.warn('Failed to start PersistentAdhan foreground service', e);
+            }
+        }
 
         // 2. Request Location Permission SECOND! 
         console.log('INIT: Requesting Location permission...');
@@ -368,6 +395,9 @@ export function useLocalAlarms() {
                             schedule: { at: scheduleDate, allowWhileIdle: true },
                             sound: 'adhan.mp3', // Native android raw file explicit extension
                             channelId: 'adhan_channel_v5',
+                            ongoing: true, // Attempt to keep it in status bar
+                            sticky: true, // Extra hint for OEMs that support sticky notifications
+                            autoCancel: true // But allow dismissal when tapped
                         });
 
                         // 15 Minutes Before Prayer Alert

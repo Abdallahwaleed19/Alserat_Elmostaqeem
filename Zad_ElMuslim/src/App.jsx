@@ -64,6 +64,19 @@ function App() {
 
           // scheduleOfflineAlarms chains: Notification prompt first, then Location prompt.
           await scheduleOfflineAlarms(!needsPrompt && !isFirstTime);
+
+          // Battery Optimization Check (Samsung specific hint)
+          const isSamsung = navigator.userAgent.toLowerCase().includes('samsung');
+          if (isSamsung && !localStorage.getItem('zad_battery_hint_shown')) {
+            setTimeout(() => {
+              alert(
+                lang === 'ar'
+                  ? 'لضمان عمل الأذان في موعده بدقة على جهاز سامسونج، يرجى استثناء التطبيق من "تحسين البطارية" (Battery Optimization) من إعدادات الهاتف.'
+                  : 'To ensure Adhan works accurately on your Samsung device, please disable "Battery Optimization" for this app in your phone settings.'
+              );
+              localStorage.setItem('zad_battery_hint_shown', 'true');
+            }, 5000);
+          }
         }
       } catch (err) {
         console.error("Failed to init background tasks", err);
