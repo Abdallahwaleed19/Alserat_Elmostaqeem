@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getEgyptHijriDateParts } from '../utils/egyptTime';
 
 const ThemeContext = createContext();
 
@@ -6,15 +7,14 @@ export const ThemeProvider = ({ children }) => {
   const [themePreference, setThemePreference] = useState(() => {
     const saved = localStorage.getItem('zad_theme_pref');
     if (saved === 'ramadan' || saved === 'default' || saved === 'auto') return saved;
-    return 'default';
+    // أول تشغيل: نستخدم "auto" ليتم اختيار رمضان/العيد/العادي تلقائياً حسب التاريخ الهجري
+    return 'auto';
   });
 
   const [theme, setTheme] = useState(() => {
     try {
-      const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { month: 'numeric', day: 'numeric' });
-      const parts = formatter.formatToParts(new Date());
-      const hijriMonth = parseInt(parts.find(p => p.type === 'month')?.value || '1', 10);
-      const hijriDay = parseInt(parts.find(p => p.type === 'day')?.value || '1', 10);
+      const { day: hijriDay, monthIndex } = getEgyptHijriDateParts();
+      const hijriMonth = monthIndex + 1;
 
       // Force Eid al-Fitr during Shawwal 1-3
       if (hijriMonth === 10 && hijriDay <= 3) return 'eid-fitr';
@@ -44,10 +44,8 @@ export const ThemeProvider = ({ children }) => {
 
     let effectiveTheme = themePreference;
     try {
-      const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { month: 'numeric', day: 'numeric' });
-      const parts = formatter.formatToParts(new Date());
-      const hijriMonth = parseInt(parts.find(p => p.type === 'month')?.value || '1', 10);
-      const hijriDay = parseInt(parts.find(p => p.type === 'day')?.value || '1', 10);
+      const { day: hijriDay, monthIndex } = getEgyptHijriDateParts();
+      const hijriMonth = monthIndex + 1;
 
       if (hijriMonth === 10 && hijriDay <= 3) {
         effectiveTheme = 'eid-fitr';

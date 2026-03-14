@@ -161,31 +161,31 @@
 
 /* ☀️ RAMADAN LIGHT VARIANT (uses same decorations مع ألوان أفتح) */
 [data-theme='ramadan'][data-color-mode='light'] {
-  --bg-main: #F9F4E8;
-  --bg-gradient: linear-gradient(180deg, #F9F4E8, #F2E8CF);
+  --bg-main: #FFFDF5;
+  --bg-gradient: linear-gradient(180deg, #FFFDF5, #FFF9E6);
   --bg-card: #FFFFFF;
 
   --text-main: #1F2933;
   --text-sub: #4B5563;
-  --text-muted: #6B7280;
+  --text-muted: #71717A;
 
   --color-background: var(--bg-main);
   --color-surface: var(--bg-card);
-  --color-surface-hover: #F3E9D8;
+  --color-surface-hover: #FFF9E6;
 
   --color-text: var(--text-main);
   --color-text-muted: var(--text-muted);
-  --color-border: rgba(201, 162, 77, 0.35);
+  --color-border: rgba(201, 162, 77, 0.4);
 
-  --shadow-sm: 0 2px 4px rgba(201, 162, 77, 0.12);
-  --shadow-md: 0 4px 12px rgba(201, 162, 77, 0.18);
-  --shadow-lg: 0 8px 24px rgba(201, 162, 77, 0.25);
-  --shadow-glow: 0 0 28px rgba(201, 162, 77, 0.45);
+  --shadow-sm: 0 4px 6px rgba(201, 162, 77, 0.15);
+  --shadow-md: 0 8px 16px rgba(201, 162, 77, 0.2);
+  --shadow-lg: 0 12px 32px rgba(201, 162, 77, 0.25);
+  --shadow-glow: 0 0 35px rgba(201, 162, 77, 0.5);
 
-  --bg-glass: rgba(255, 255, 255, 0.9);
-  --shadow-glass: 0 12px 30px rgba(148, 119, 48, 0.25);
-  --border-gold: rgba(201, 162, 77, 0.75);
-  --mosque-gradient: linear-gradient(135deg, #FACC15 0%, #FBBF24 35%, #16A34A 100%);
+  --bg-glass: rgba(255, 255, 255, 0.92);
+  --shadow-glass: 0 14px 35px rgba(201, 162, 77, 0.3);
+  --border-gold: rgba(201, 162, 77, 0.85);
+  --mosque-gradient: linear-gradient(135deg, #FBBF24 0%, #F59E0B 40%, #065F46 100%);
 }
 
 /* 🕋 يوم عرفة */

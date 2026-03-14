@@ -10,9 +10,6 @@ const HomeHero = () => {
     const { t, lang } = useLanguage();
 
     const [city, setCity] = useState('');
-    const [prayerTimes, setPrayerTimes] = useState(null); // { fajr, maghrib }
-    const [timerState, setTimerState] = useState(null); // { target, labelAr, labelEn, showTimer, messageAr, messageEn }
-    const [timeLeft, setTimeLeft] = useState(null);
     const { hijriShort: hijriDateStr } = useHijriDate(lang);
 
     useEffect(() => {
@@ -24,22 +21,6 @@ const HomeHero = () => {
                     const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=${lang}`);
                     const geoData = await geoRes.json();
                     setCity(geoData.city || geoData.locality || '');
-
-                    const date = new Date();
-                    const ptRes = await fetch(`https://api.aladhan.com/v1/timings/${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}?latitude=${latitude}&longitude=${longitude}&method=5`);
-                    const ptData = await ptRes.json();
-                    const maghribStr = ptData.data.timings.Maghrib;
-                    const fajrStr = ptData.data.timings.Fajr;
-
-                    const [mHours, mMins] = maghribStr.split(':');
-                    const maghribDate = new Date();
-                    maghribDate.setHours(parseInt(mHours, 10), parseInt(mMins, 10), 0, 0);
-
-                    const [fHours, fMins] = fajrStr.split(':');
-                    const fajrDate = new Date();
-                    fajrDate.setHours(parseInt(fHours, 10), parseInt(fMins, 10), 0, 0);
-
-                    setPrayerTimes({ fajr: fajrDate, maghrib: maghribDate });
                 } catch (err) {
                     console.error("Error fetching location info", err);
                 }
@@ -47,55 +28,6 @@ const HomeHero = () => {
             () => console.log("Geolocation permission denied")
         );
     }, [lang]);
-
-    useEffect(() => {
-        if (!prayerTimes) return;
-
-        const interval = setInterval(() => {
-            const now = new Date();
-            const { fajr, maghrib } = prayerTimes;
-
-            // 1 hr before Fajr is Imsak
-            const imsakTime = new Date(fajr);
-            imsakTime.setHours(fajr.getHours() - 1);
-
-            let newState = null;
-
-            if (now < imsakTime) {
-                newState = { target: fajr, labelAr: 'وقت بداية الصيام', labelEn: 'Fasting Begins', showTimer: true };
-            } else if (now >= imsakTime && now < fajr) {
-                newState = { target: fajr, labelAr: 'وقت الإمساك', labelEn: 'Imsak Time', showTimer: true };
-            } else if (now >= fajr && now < maghrib) {
-                newState = { target: maghrib, labelAr: 'باقي على الإفطار', labelEn: 'Time until Iftar', showTimer: true };
-            } else {
-                // Post-Iftar, past Maghrib
-                newState = { showTimer: false, messageAr: 'تقبل الله صيامكم وطاعتكم', messageEn: 'May Allah accept your fast' };
-            }
-
-            setTimerState(newState);
-
-            if (newState.showTimer) {
-                const diff = newState.target - now;
-                if (diff > 0) {
-                    const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                    const m = Math.floor((diff / 1000 / 60) % 60);
-                    const s = Math.floor((diff / 1000) % 60);
-
-                    setTimeLeft({
-                        hours: h.toString().padStart(2, '0'),
-                        minutes: m.toString().padStart(2, '0'),
-                        seconds: s.toString().padStart(2, '0')
-                    });
-                } else {
-                    setTimeLeft(null);
-                }
-            } else {
-                setTimeLeft(null);
-            }
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [prayerTimes]);
 
     return (
         <div className={`home-hero ${theme === 'ramadan' ? 'ramadan-hero' : ''}`}>

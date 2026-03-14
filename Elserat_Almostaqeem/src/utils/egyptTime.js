@@ -75,10 +75,10 @@ export function getEgyptHijriDateParts(date = new Date()) {
       return { day: parseInt(get('day'), 10), monthIndex: parseInt(get('month'), 10) - 1, year: parseInt(get('year'), 10) };
     }
     // basic fallback
-    return { day: 1, monthIndex: 8, year: 1447 };
+    return { day: 1, monthIndex: 0, year: 1447 };
   } catch (err) {
     // If islamic calendar unsupported
-    return { day: 1, monthIndex: 8, year: 1447 }; // fallback
+    return { day: 1, monthIndex: 0, year: 1447 }; // fallback
   }
 }
 

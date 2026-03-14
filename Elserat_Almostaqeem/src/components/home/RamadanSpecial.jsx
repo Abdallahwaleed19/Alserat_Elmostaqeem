@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
 import { Moon, Sun, Book } from 'lucide-react';
+import { getEgyptHijriDateParts } from '../../utils/egyptTime';
 import './RamadanSpecial.css';
 
 const RamadanSpecial = () => {
     const { lang } = useLanguage();
+    const { theme } = useTheme();
     const [hijriDate, setHijriDate] = useState({ month: 9, day: 1 });
     const [prayerTimes, setPrayerTimes] = useState(null);
     const [iftarCountdown, setIftarCountdown] = useState('--:--:--');
@@ -14,11 +17,10 @@ const RamadanSpecial = () => {
     useEffect(() => {
         // Get Hijri Date
         try {
-            const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { month: 'numeric', day: 'numeric' });
-            const parts = formatter.formatToParts(new Date());
+            const { day: hDay, monthIndex } = getEgyptHijriDateParts();
             setHijriDate({
-                month: parseInt(parts.find(p => p.type === 'month')?.value || '9', 10),
-                day: parseInt(parts.find(p => p.type === 'day')?.value || '1', 10)
+                month: monthIndex + 1,
+                day: hDay
             });
         } catch (e) {
             console.error("Hijri calibration failed", e);
@@ -96,10 +98,10 @@ const RamadanSpecial = () => {
         return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
-    const isRamadan = hijriDate.month === 9;
-    const isEid = hijriDate.month === 10 && hijriDate.day <= 3;
+    const isRamadan = hijriDate.month === 9 && theme === 'ramadan';
+    const isEid = hijriDate.month === 10 && hijriDate.day <= 3 && theme === 'eid-fitr';
 
-    // خارج رمضان وأيام العيد لا نظهر أي كارت
+    // خارج رمضان وأيام العيد، أو عندما يكون الثيم "عادي"، لا نظهر أي كارت
     if (!isRamadan && !isEid) return null;
 
     if (isEid) {
