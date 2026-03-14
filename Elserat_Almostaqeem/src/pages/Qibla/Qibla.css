@@ -1,0 +1,131 @@
+.qibla-container {
+    padding-bottom: 6rem;
+}
+
+.qibla-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 3rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+.qibla-compass-wrapper {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    margin: 2rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.compass-outer-ring {
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--color-border);
+    border-radius: 50%;
+    background: radial-gradient(circle, transparent 40%, var(--color-primary-10) 100%);
+}
+
+.compass-inner-ring {
+    position: absolute;
+    inset: 20px;
+    border: 1px dashed var(--color-accent);
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+.compass-direction {
+    position: absolute;
+    font-weight: bold;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+}
+
+.dir-n { top: 10px; }
+.dir-s { bottom: 10px; }
+.dir-e { right: 10px; }
+.dir-w { left: 10px; }
+
+.qibla-arrow-container {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.qibla-pointer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.kaaba-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    background: #000;
+    border: 2px solid var(--color-accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.kaaba-dot {
+    width: 100%;
+    height: 15px;
+    background: var(--color-accent);
+    position: absolute;
+    top: 10px;
+}
+
+.qibla-line {
+    width: 4px;
+    height: 100px;
+    background: linear-gradient(to top, var(--color-accent), transparent);
+    margin-top: -10px;
+    border-radius: 4px;
+}
+
+.qibla-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.stat-box {
+    background: var(--color-background);
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+@media (max-width: 640px) {
+    .qibla-compass-wrapper {
+        width: 240px;
+        height: 240px;
+    }
+}

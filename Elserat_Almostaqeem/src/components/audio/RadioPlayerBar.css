@@ -1,0 +1,138 @@
+.radio-player-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 16px;
+  right: 16px;
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-border);
+  z-index: 999;
+  animation: radioBarSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 768px) {
+  .radio-player-bar {
+    width: 100%;
+  }
+}
+
+.radio-player-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  gap: 0.75rem;
+}
+
+.radio-player-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.radio-player-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+[data-theme='ramadan'] .radio-player-icon {
+  background: linear-gradient(135deg, var(--gold-main) 0%, var(--lantern) 100%);
+  color: var(--color-primary-dark);
+}
+
+.radio-player-text {
+  min-width: 0;
+}
+
+.radio-player-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.radio-player-error {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.radio-player-error .radio-error-link {
+  color: var(--color-primary, #0ea5e9);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.radio-player-error .radio-error-link:hover {
+  opacity: 0.9;
+}
+
+.radio-player-sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.radio-player-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.radio-player-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.15s;
+}
+
+.radio-player-btn:active {
+  transform: scale(0.95);
+}
+
+.radio-player-btn-play {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.radio-player-btn-play:hover {
+  filter: brightness(1.1);
+}
+
+.radio-player-btn-close {
+  background: var(--color-surface-hover, var(--color-border));
+  color: var(--color-text-muted);
+}
+
+.radio-player-btn-close:hover {
+  background: var(--color-error, #c62828);
+  color: #fff;
+}
+
+@keyframes radioBarSlideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

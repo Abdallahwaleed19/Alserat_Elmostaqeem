@@ -1,0 +1,120 @@
+.floating-navbar-container {
+    position: fixed;
+    bottom: 5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: auto;
+    max-width: 90vw;
+    display: flex;
+    justify-content: center;
+    transition: all var(--transition-normal);
+}
+
+.floating-navbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem 1.75rem;
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-gold);
+    box-shadow: var(--shadow-glass);
+    position: relative;
+    overflow: hidden;
+}
+
+.floating-navbar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, rgba(201, 162, 77, 0.1), transparent 70%);
+    pointer-events: none;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: var(--radius-full);
+    transition: all var(--transition-normal);
+    position: relative;
+    min-width: 70px;
+}
+
+.nav-icon {
+    transition: all var(--transition-normal);
+    width: 24px;
+    height: 24px;
+}
+
+.nav-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    opacity: 0.7;
+    transition: all var(--transition-normal);
+}
+
+.nav-item:hover {
+    color: var(--primary);
+    background: rgba(var(--primary-rgb), 0.05);
+}
+
+.nav-item.active {
+    color: var(--primary);
+    background: var(--mosque-gradient);
+}
+
+.nav-item.active .nav-icon {
+    color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.nav-item.active .nav-label {
+    color: white;
+    opacity: 1;
+}
+
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    width: 4px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent);
+}
+
+@media (max-width: 640px) {
+    .floating-navbar-container {
+        bottom: 4.5rem;
+    }
+    
+    .floating-navbar {
+        padding: 0.5rem 1rem;
+        gap: 0.25rem;
+    }
+    
+    .nav-item {
+        padding: 0.5rem 0.5rem;
+        min-width: 65px;
+    }
+    
+    .nav-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .nav-label {
+        font-size: 0.65rem;
+    }
+}

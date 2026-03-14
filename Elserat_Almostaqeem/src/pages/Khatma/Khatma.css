@@ -1,0 +1,157 @@
+.khatma-page {
+    padding-bottom: 2rem;
+}
+
+.khatma-hero {
+    text-align: center;
+    padding: var(--space-6) var(--space-4);
+    margin-bottom: var(--space-6);
+    background: linear-gradient(135deg, var(--color-primary) 0%, #083b2f 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.khatma-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L33 27L60 30L33 33L30 60L27 33L0 30L27 27L30 0Z' fill='rgba(255,255,255,0.05)' fill-rule='evenodd'/%3E%3C/svg%3E");
+    background-size: 80px 80px;
+    opacity: 0.3;
+}
+
+.khatma-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+    font-family: var(--font-arabic-title, 'Amiri', serif);
+    position: relative;
+    z-index: 1;
+}
+
+.khatma-sub {
+    font-size: 1rem;
+    opacity: 0.9;
+    position: relative;
+    z-index: 1;
+}
+
+.khatma-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-4);
+}
+
+.khatma-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+    flex: 1;
+    text-decoration: none;
+    color: var(--color-text);
+}
+
+.khatma-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary);
+    background: var(--color-surface-hover);
+}
+
+.khatma-card-icon-wrapper {
+    background: var(--color-primary-10);
+    color: var(--color-primary);
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-theme='dark'] .khatma-card-icon-wrapper {
+    background: rgba(15, 93, 74, 0.2);
+}
+
+.khatma-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.khatma-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-primary);
+}
+
+.khatma-card-desc {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* نافذة إدخال اسم القارئ في الختمة */
+.khatma-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.khatma-modal {
+    width: 100%;
+    max-width: 420px;
+    background: var(--color-surface);
+    border-radius: var(--radius-xl);
+    padding: 1.75rem 1.5rem;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--color-border);
+}
+
+.khatma-modal-title {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.khatma-modal-text {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.25rem;
+}
+
+.khatma-modal-input {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    background: var(--color-background);
+    color: var(--color-text);
+    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
+}
+
+.khatma-modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}

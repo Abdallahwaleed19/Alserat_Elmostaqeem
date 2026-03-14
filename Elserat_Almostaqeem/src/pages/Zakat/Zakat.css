@@ -1,0 +1,372 @@
+.zakat-page {
+  padding: var(--space-lg);
+  max-width: 900px;
+  margin: 0 auto;
+  color: var(--text-main);
+}
+
+.zakat-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-lg);
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-main) 100%);
+  border: 1px solid var(--border-light);
+}
+
+.zakat-hero-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--color-primary-light) 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.zakat-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 var(--space-sm);
+  color: var(--text-main);
+}
+
+.zakat-subtitle {
+  font-size: 1rem;
+  color: var(--text-sub);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.zakat-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-xl);
+  background: var(--color-primary-10);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+}
+
+.zakat-disclaimer svg {
+  color: var(--primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.zakat-disclaimer p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-sub);
+}
+
+.zakat-section {
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+}
+
+.zakat-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-lg);
+  color: var(--primary);
+}
+
+.zakat-section-title svg {
+  flex-shrink: 0;
+}
+
+.zakat-content h3 {
+  font-size: 1.1rem;
+  margin: var(--space-md) 0 var(--space-sm);
+  color: var(--text-main);
+}
+
+.zakat-content p {
+  margin: 0 0 var(--space-sm);
+  color: var(--text-sub);
+  line-height: 1.7;
+}
+
+.zakat-types-list {
+  margin: 0;
+  padding-inline-start: 1.5rem;
+  color: var(--text-sub);
+  line-height: 2;
+}
+
+/* Calculator */
+.zakat-calc-section .zakat-prices-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-main);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.zakat-prices-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  font-size: 0.9rem;
+  color: var(--text-sub);
+}
+
+.zakat-prices-info strong {
+  color: var(--text-main);
+}
+
+.zakat-nisab {
+  color: var(--primary);
+}
+
+.zakat-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--bg-card);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.zakat-refresh-btn:hover:not(:disabled) {
+  background: var(--primary);
+  color: white;
+}
+
+.zakat-refresh-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.zakat-refresh-btn .spin {
+  animation: zakat-spin 0.8s linear infinite;
+}
+
+@keyframes zakat-spin {
+  to { transform: rotate(360deg); }
+}
+
+.zakat-last-updated {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-lg);
+}
+
+.zakat-calc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.zakat-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font-size: 0.95rem;
+  color: var(--text-sub);
+}
+
+.zakat-label input {
+  padding: var(--space-md);
+  font-size: 1.1rem;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+.zakat-label input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--color-primary-10);
+}
+
+.zakat-result {
+  padding: var(--space-lg);
+  background: var(--bg-main);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+}
+
+.zakat-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-sm) 0;
+  font-size: 1rem;
+}
+
+.zakat-result-main {
+  padding: var(--space-md) 0;
+  margin-top: var(--space-sm);
+  border-top: 1px solid var(--border-light);
+}
+
+.zakat-amount {
+  font-size: 1.5rem !important;
+  color: var(--primary) !important;
+}
+
+.zakat-result-desc {
+  margin: var(--space-md) 0 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.text-success { color: var(--primary); }
+.text-muted { color: var(--text-muted); }
+
+/* Zakat al-Fitr */
+.zakat-fitr-desc {
+  margin: 0 0 var(--space-lg);
+  color: var(--text-sub);
+  line-height: 1.6;
+}
+
+.zakat-fitr-calc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xl);
+}
+
+.zakat-fitr-calc .zakat-label {
+  max-width: 140px;
+}
+
+.zakat-fitr-result {
+  font-size: 1rem;
+  color: var(--text-sub);
+}
+
+.zakat-fitr-result strong {
+  color: var(--text-main);
+  margin-inline-start: var(--space-sm);
+}
+
+.zakat-fitr-total strong {
+  font-size: 1.25rem;
+  color: var(--primary);
+}
+
+/* Masarif */
+.zakat-verse {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  line-height: 1.9;
+  color: var(--text-main);
+  margin: 0 0 var(--space-sm);
+  padding: var(--space-lg);
+  background: var(--bg-main);
+  border-inline-start: 4px solid var(--primary);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+[dir="ltr"] .zakat-verse {
+  border-inline-start: none;
+  border-inline-end: 4px solid var(--primary);
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.zakat-verse-ref {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-lg);
+}
+
+.zakat-masarif-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-md);
+}
+
+.zakat-masarif-card {
+  padding: var(--space-md);
+  text-align: center;
+}
+
+.zakat-masarif-ar {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: var(--space-xs);
+}
+
+.zakat-masarif-en {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-sub);
+}
+
+/* Theme */
+[data-theme='dark'] .zakat-hero-icon {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--color-primary-light) 100%);
+}
+
+[data-theme='dark'] .zakat-disclaimer {
+  background: rgba(15, 93, 74, 0.15);
+}
+
+[data-theme='ramadan'] .zakat-hero-icon {
+  background: linear-gradient(135deg, var(--gold-main) 0%, var(--lantern) 100%);
+}
+
+[data-theme='ramadan'] .zakat-section-title {
+  color: var(--gold-main);
+}
+
+[data-theme='ramadan'] .zakat-amount {
+  color: var(--gold-main) !important;
+}
+
+[data-theme='ramadan'] .zakat-fitr-total strong {
+  color: var(--gold-main);
+}
+
+@media (max-width: 768px) {
+  .zakat-page {
+    padding: var(--space-md);
+  }
+
+  .zakat-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .zakat-calc-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .zakat-prices-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .zakat-fitr-calc {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

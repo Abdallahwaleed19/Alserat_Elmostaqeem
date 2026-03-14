@@ -1,0 +1,33 @@
+{
+  "name": "الصِّرَاطُ الْمُسْتَقِيمُ",
+  "short_name": "الصراط",
+  "description": "منصة رقمية إسلامية حديثة للقرآن، الأذكار، ومواقيت الصلاة",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDFBF7",
+  "theme_color": "#0F5A47",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-light.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": [
+    "education",
+    "lifestyle"
+  ]
+}

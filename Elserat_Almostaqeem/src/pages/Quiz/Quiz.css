@@ -1,0 +1,114 @@
+.quiz-container {
+    padding-bottom: 6rem;
+    max-width: 600px;
+}
+
+.quiz-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.quiz-progress {
+    height: 8px;
+    background: var(--color-border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.quiz-progress-bar {
+    height: 100%;
+    background: var(--color-primary);
+    transition: width 0.3s;
+}
+
+.question-text {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.options-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.option-btn {
+    padding: 1rem 1.5rem;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: transparent;
+    text-align: right;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+    position: relative;
+}
+
+.option-btn:hover:not(:disabled) {
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary-40);
+}
+
+.option-btn.selected {
+    border-color: var(--color-primary);
+    background: var(--color-primary-5);
+}
+
+.option-btn.correct {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+    color: #166534;
+}
+
+.option-btn.wrong {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    color: #991b1b;
+}
+
+.quiz-footer {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.result-card {
+    text-align: center;
+}
+
+.score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 6px solid var(--color-primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem auto;
+}
+
+.score-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+.score-label {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
