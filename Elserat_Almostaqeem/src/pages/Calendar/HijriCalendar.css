@@ -1,6 +1,6 @@
 .hijri-calendar-page {
     min-height: 100vh;
-    padding-bottom: 5rem;
+    padding-bottom: 7.5rem;
 }
 
 .calendar-hero {
@@ -197,6 +197,10 @@
 }
 
 @media (max-width: 640px) {
+    .hijri-calendar-page {
+        padding-bottom: 9.5rem; /* مساحة إضافية تحت للتقويم على الموبايل بعيداً عن الشريط السفلي */
+    }
+
     .hijri-calendar-grid {
         gap: 0.4rem;
         padding: 1rem;

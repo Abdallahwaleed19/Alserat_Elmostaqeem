@@ -8,6 +8,7 @@ import RadioPlayerBar from '../audio/RadioPlayerBar';
 import FloatingNavbar from './FloatingNavbar';
 import { useHijriDate } from '../../utils/useHijriDate';
 import { useSoftProtection } from '../../hooks/useSoftProtection';
+import IslamicAssistantSidebar from '../assistant/IslamicAssistantSidebar';
 import './Layout.css';
 
 const Layout = () => {
@@ -115,7 +116,8 @@ const Layout = () => {
                     <div className="eid-adha-stars"></div>
                 </div>
             )}
-            
+
+            <IslamicAssistantSidebar />
             <FloatingNavbar />
         </div>
     );
