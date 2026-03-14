@@ -62,18 +62,21 @@ const Favorites = () => {
 
                     const isWeb = !window.Capacitor || window.Capacitor.getPlatform() === 'web';
                     if (!isWeb) {
-                        // Write base64 to filesystem cache
                         const fileName = `zad-share-${Date.now()}.png`;
-                        const res = await Filesystem.writeFile({
+                        await Filesystem.writeFile({
                             path: fileName,
-                            data: imgData.split(',')[1], // remove data:image/png;base64,
+                            data: imgData.split(',')[1],
                             directory: Directory.Cache
                         });
-
+                        const { uri } = await Filesystem.getUri({
+                            path: fileName,
+                            directory: Directory.Cache
+                        });
                         await Share.share({
-                            files: [res.uri],
+                            url: uri,
                             title: lang === 'ar' ? 'مشاركة من زاد المسلم' : 'Share from Zad Al-Muslim',
-                            text: lang === 'ar' ? 'تطبيق زاد المسلم' : 'Zad Al-Muslim App'
+                            text: lang === 'ar' ? 'تطبيق زاد المسلم' : 'Zad Al-Muslim App',
+                            dialogTitle: lang === 'ar' ? 'مشاركة' : 'Share'
                         });
                     } else if (navigator.share) {
                         await navigator.share({

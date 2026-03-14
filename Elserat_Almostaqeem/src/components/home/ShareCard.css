@@ -1,0 +1,129 @@
+/* بطاقات المشاركة المزخرفة - للتصدير فقط (آية، حديث، دعاء) */
+.share-card-export {
+    box-sizing: border-box;
+    width: 520px;
+    min-height: 680px;
+    padding: 40px 36px 56px 36px;
+    background: linear-gradient(165deg, #0F5D4A 0%, #0A3D2F 50%, #0F5D4A 100%);
+    border: 3px solid rgba(201, 162, 77, 0.8);
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Scheherazade New', 'Amiri', serif;
+}
+
+/* زخرفة الزوايا */
+.share-card-export::before,
+.share-card-export::after {
+    content: '';
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border: 2px solid rgba(201, 162, 77, 0.6);
+    border-radius: 12px;
+    pointer-events: none;
+}
+.share-card-export::before {
+    top: 16px;
+    left: 16px;
+    border-right: none;
+    border-bottom: none;
+}
+.share-card-export::after {
+    top: 16px;
+    right: 16px;
+    border-left: none;
+    border-bottom: none;
+}
+.share-card-export .share-card-corner-b {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border: 2px solid rgba(201, 162, 77, 0.6);
+    border-radius: 12px;
+    bottom: 16px;
+    left: 16px;
+    border-right: none;
+    border-top: none;
+}
+.share-card-export .share-card-corner-br {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border: 2px solid rgba(201, 162, 77, 0.6);
+    border-radius: 12px;
+    bottom: 16px;
+    right: 16px;
+    border-left: none;
+    border-top: none;
+}
+
+/* شريط علوي ذهبي */
+.share-card-export .share-card-header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid rgba(201, 162, 77, 0.5);
+}
+.share-card-export .share-card-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #E6C87A;
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+.share-card-export .share-card-subtitle {
+    font-size: 0.95rem;
+    color: rgba(230, 200, 122, 0.9);
+    margin: 6px 0 0;
+}
+
+/* النص الرئيسي */
+.share-card-export .share-card-body {
+    font-size: 1.85rem;
+    line-height: 1.95;
+    color: #F7F4EE;
+    text-align: center;
+    margin: 0;
+    padding: 0 8px;
+}
+.share-card-export .share-card-body-ar {
+    font-family: 'Scheherazade New', 'Amiri', serif;
+    font-size: 2rem;
+}
+.share-card-export .share-card-translation {
+    font-size: 1rem;
+    color: rgba(247, 244, 238, 0.85);
+    font-style: italic;
+    text-align: center;
+    margin: 16px 0 0;
+}
+
+/* رقم الآية أو المصدر */
+.share-card-export .share-card-meta {
+    margin-top: 24px;
+    font-size: 0.9rem;
+    color: rgba(201, 162, 77, 0.95);
+    text-align: center;
+}
+
+/* تذييل التطبيق */
+.share-card-export .share-card-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 14px 20px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 0 0 22px 22px;
+    font-size: 0.9rem;
+    color: rgba(230, 200, 122, 0.95);
+    font-weight: 600;
+}
+
+/* نمط خاص بالدعاء (خلفية ذهبية خفيفة) */
+.share-card-export.share-card-dua {
+    background: linear-gradient(165deg, #1a4d3a 0%, #0F5D4A 30%, #C9A24D 100%);
+    border-color: rgba(230, 200, 122, 0.9);
+}

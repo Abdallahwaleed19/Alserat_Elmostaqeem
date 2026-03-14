@@ -5,6 +5,7 @@ import { useHijriDate } from '../../utils/useHijriDate';
 import { ArrowLeft, ArrowRight, Download, Share2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
+import { shareImageDataUrl, saveImageDataUrlToDevice } from '../../utils/shareImageNative';
 import './GreetingCards.css';
 
 const TEMPLATES = [
@@ -92,17 +93,11 @@ const GreetingCards = () => {
 
         try {
             if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-                // We'd have to write file using absolute path via @capacitor/filesystem then share.
-                // For simplicity web share:
-                const blob = await (await fetch(dataUrl)).blob();
-                const file = new File([blob], 'greeting_card.png', { type: blob.type });
-                
-                if (navigator.share) {
-                    await navigator.share({
-                        title: 'Zad El Muslim Greeting Card',
-                        files: [file]
-                    });
-                }
+                await shareImageDataUrl(
+                    dataUrl,
+                    lang === 'ar' ? 'بطاقة تهنئة' : 'Greeting Card',
+                    lang === 'ar' ? 'مشاركة البطاقة' : 'Share Card'
+                );
             } else {
                 // Web Fallback if share API supports files
                 const blob = await (await fetch(dataUrl)).blob();
@@ -113,12 +108,18 @@ const GreetingCards = () => {
                         title: 'Greeting Card'
                     });
                 } else {
-                    handleDownload(dataUrl);
+                    const link = document.createElement('a');
+                    link.download = `zad_${selectedTemplate.id}.png`;
+                    link.href = dataUrl;
+                    link.click();
                 }
             }
         } catch (e) {
             console.error("Share failed", e);
-            handleDownload(dataUrl);
+            const link = document.createElement('a');
+            link.download = `zad_${selectedTemplate.id}.png`;
+            link.href = dataUrl;
+            link.click();
         }
     };
 
@@ -126,14 +127,23 @@ const GreetingCards = () => {
         setIsGenerating(true);
         const dataUrl = await generateImage();
         setIsGenerating(false);
-        if (dataUrl) handleDownload(dataUrl);
-    };
-
-    const handleDownload = (dataUrl) => {
-        const link = document.createElement('a');
-        link.download = `zad_${selectedTemplate.id}.png`;
-        link.href = dataUrl;
-        link.click();
+        if (!dataUrl) return;
+        try {
+            if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+                await saveImageDataUrlToDevice(
+                    dataUrl,
+                    `zad_${selectedTemplate.id}.png`,
+                    lang === 'ar' ? 'حفظ الصورة' : 'Save image'
+                );
+            } else {
+                const link = document.createElement('a');
+                link.download = `zad_${selectedTemplate.id}.png`;
+                link.href = dataUrl;
+                link.click();
+            }
+        } catch (e) {
+            console.error('Download failed', e);
+        }
     };
 
     return (

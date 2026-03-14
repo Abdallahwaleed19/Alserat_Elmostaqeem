@@ -44,7 +44,7 @@ const IslamicAssistantSidebar = () => {
         try {
             // NOTE: This endpoint should be implemented on the backend
             // to answer from trusted Islamic sources (Quran, Sunnah, major scholars).
-            const res = await fetch('/api/islamic-assistant', {
+            const res = await fetch('/.netlify/functions/islamic-assistant', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -67,6 +67,7 @@ const IslamicAssistantSidebar = () => {
             const assistantMessage = {
                 role: 'assistant',
                 content: answerText,
+                sources: data?.sources || '',
                 id: Date.now() + 1,
             };
 
@@ -154,7 +155,12 @@ const IslamicAssistantSidebar = () => {
                                     className={`assistant-message assistant-message-${msg.role}`}
                                 >
                                     <div className="assistant-message-bubble">
-                                        {msg.content}
+                                        <div className="assistant-message-text">{msg.content}</div>
+                                        {msg.sources && (
+                                            <div className="assistant-message-sources">
+                                                <strong>{lang === 'ar' ? 'المصدر:' : 'Source:'}</strong> {msg.sources}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}

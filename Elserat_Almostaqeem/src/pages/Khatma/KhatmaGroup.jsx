@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { ArrowRight, ArrowLeft, Users, CheckCircle2, Circle, Plus, Share2 } from 'lucide-react';
+import { Share } from '@capacitor/share';
 import { useNavigate } from 'react-router-dom';
 import './Khatma.css';
 
@@ -122,23 +123,21 @@ const KhatmaGroup = () => {
 
     const handleShare = async () => {
         if (!currentKhatma) return;
-        
-        const text = lang === 'ar' 
+        const text = lang === 'ar'
             ? `شارك في ختمة القرآن الجماعية: ${currentKhatma.name}. احجز جزئك الأخر الآن لنتعاون على البر والتقوى.`
             : `Join the Group Khatma: ${currentKhatma.name}. Reserve your Juz now.`;
-            
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'Zad El Muslim Khatma',
-                    text: text,
-                    url: window.location.href, // In real app, this would be a deep link
-                });
-            } catch (err) {
-                console.error("Share failed", err);
+        const title = 'Zad El Muslim Khatma';
+        const url = window.location.origin + window.location.pathname + (window.location.search || '');
+        try {
+            if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+                await Share.share({ title, text, url, dialogTitle: title });
+            } else if (navigator.share) {
+                await navigator.share({ title, text, url });
+            } else {
+                alert(text);
             }
-        } else {
-            alert(text); // Fallback
+        } catch (err) {
+            console.error("Share failed", err);
         }
     };
 
