@@ -38,5 +38,5 @@
 9. Add the following environment variables:
    - SUPABASE_URL: https://bfjgllinvcqintthsnyv.supabase.co
    - SUPABASE_KEY: sb_publishable_zTYxn-iY3paxVQyb_bKpHw_P0xCcTuJ
-   - VAPID_PUBLIC_KEY: BJ2u75yRNiCoWtNtWhhUHeSQwGevdIE117JkYMMcG4qYh74nwFGcfgYdlIMHNGNeR30Ghc3bFOFbxSuqcGJ5-2mks
-   - VAPID_PRIVATE_KEY: TBmod54RqtBgYo9c5dgyiXy4vgeRfsuTmkkvunzP958
+   - VAPID_PUBLIC_KEY: BHGV9Ny_1auejJfxy3lMZKoXmwoCBgK4sK_jFOOQIt220B1e7qUiAXVVPqIMYOWSfhBqcHPmZuVPwRvAaZNgZNM
+   - VAPID_PRIVATE_KEY: _gAWDNv_riSskuRneyKhlAhOm0BRnbCqTqCbkb-gAvU
