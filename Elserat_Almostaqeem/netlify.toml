@@ -1,8 +1,6 @@
-# إعدادات النشر على Netlify
 [build]
-  # لو المستودع فيه المشروع داخل مجلد (مثلاً Zad_ElMuslim)، شغّل السطر اللي تحت
-  # base = "Zad_ElMuslim"
-  command = "rm -rf node_modules package-lock.json && npm install && npm run build"
+  base = "/"
+  command = "npm run build"
   publish = "dist"
 
 [build.environment]
