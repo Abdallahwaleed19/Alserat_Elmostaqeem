@@ -19,7 +19,7 @@
 7. Copy the "Project URL" and the "anon" public key.
 8. Go to your Netlify dashboard -> Site settings -> Environment variables.
 9. Add the following environment variables:
-   - SUPABASE_URL: (your project URL)
-   - SUPABASE_KEY: (your anon public key)
+   - SUPABASE_URL: https://bfjgllinvcqintthsnyv.supabase.co
+   - SUPABASE_KEY: sb_publishable_zTYxn-iY3paxVQyb_bKpHw_P0xCcTuJ
    - VAPID_PUBLIC_KEY: BJI5AGT1x4jx2_sZZRMyCMCwN9XqeNlxIKiufW4sLJyCnCsH5VVINbpuVl-xqSt5vACzEMmHAUUv9nfu7i7RAL1A
    - VAPID_PRIVATE_KEY: jRwfNvogyWZuieWe5L9kPH-YZ_YMbprEpGrjvwwfMSs
