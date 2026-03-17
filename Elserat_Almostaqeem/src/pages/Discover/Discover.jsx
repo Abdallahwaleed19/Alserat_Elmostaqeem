@@ -280,20 +280,6 @@ const Discover = () => {
                         </div>
                     </Link>
 
-                    {/* Nearest Mosque */}
-                    <Link to="/discover/mosques" className="discover-card" style={{ borderColor: 'var(--color-primary)' }}>
-                        <div className="card-icon" style={{ color: 'var(--color-primary)' }}>
-                            <Map size={32} />
-                        </div>
-                        <div className="card-content">
-                            <h2>{lang === 'ar' ? 'أقرب مسجد' : 'Nearest Mosque'}</h2>
-                            <p>{lang === 'ar' ? 'حدد موقع المساجد القريبة منك وتوجه إليها بسهولة.' : 'Locate nearby mosques and navigate to them easily.'}</p>
-                        </div>
-                        <div className="card-cta">
-                            <span>{lang === 'ar' ? 'بحث عن مساجد' : 'Find Mosques'}</span>
-                            <ArrowLeft size={18} className="cta-arrow" />
-                        </div>
-                    </Link>
 
                     {/* Islamic Quiz */}
                     <Link to="/discover/quiz" className="discover-card" style={{ borderColor: 'var(--color-accent)' }}>

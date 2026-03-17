@@ -143,10 +143,17 @@ const DuaOfDay = () => {
                 <button 
                     onClick={handleShare}
                     className="icon-btn" 
+<<<<<<< HEAD
                     style={{ position: 'absolute', bottom: '10px', left: lang === 'ar' ? '10px' : 'auto', right: lang === 'en' ? '10px' : 'auto', zIndex: 20, opacity: isSharing ? 0.5 : 1 }}
                     disabled={isSharing}
                 >
                     <Share2 size={16} />
+=======
+                    style={{ position: 'absolute', bottom: '1rem', left: lang === 'ar' ? '1rem' : 'auto', right: lang === 'en' ? '1rem' : 'auto', zIndex: 20, opacity: isSharing ? 0.5 : 1, backgroundColor: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(4px)', border: '1px solid var(--color-border)', padding: '0.6rem', borderRadius: '50%', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s ease', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}
+                    disabled={isSharing}
+                >
+                    <Share2 size={18} />
+>>>>>>> 0d5412d (update the app)
                 </button>
             </div>
         </>

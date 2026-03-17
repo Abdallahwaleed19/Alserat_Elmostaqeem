@@ -249,15 +249,6 @@ const GreetingCards = () => {
                     <Share2 size={20} />
                     {isGenerating ? (lang === 'ar' ? 'جاري التجهيز...' : 'Generating...') : (lang === 'ar' ? 'مشاركة البطاقة' : 'Share Card')}
                 </button>
-                <button 
-                    onClick={handleDownloadClick} 
-                    disabled={isGenerating}
-                    className="btn btn-outline" 
-                    style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem', borderRadius: '100px' }}
-                >
-                    <Download size={20} />
-                    {lang === 'ar' ? 'حفظ الصـورة' : 'Save Image'}
-                </button>
             </div>
         </div>
     );

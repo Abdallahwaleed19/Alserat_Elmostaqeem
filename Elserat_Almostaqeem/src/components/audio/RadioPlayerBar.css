@@ -1,6 +1,6 @@
 .radio-player-bar {
   position: fixed;
-  bottom: 8.5rem; /* أعلى من الـ floating navbar */
+  bottom: 11.5rem; /* أعلى من الـ floating navbar */
   left: 50%;
   transform: translateX(-50%);
   max-width: 90vw;

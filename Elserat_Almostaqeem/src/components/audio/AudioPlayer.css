@@ -1,6 +1,6 @@
 .audio-player-container {
     position: fixed;
-    bottom: 8.5rem; /* أعلى من الـ floating navbar */
+    bottom: 11.5rem; /* أعلى من الـ floating navbar */
     left: 50%;
     transform: translateX(-50%);
     max-width: 90vw;
@@ -14,7 +14,7 @@
 
 @media (min-width: 768px) {
     .audio-player-container {
-        bottom: 8.5rem;
+        bottom: 11.5rem;
         width: auto;
     }
 }
@@ -137,34 +137,29 @@
 }
 
 .audio-timeline-slider {
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.audio-timeline-slider:hover,
-.audio-timeline-slider:active {
     opacity: 1;
 }
 
 .audio-timeline-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 14px;
-    height: 14px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    background: var(--color-primary);
+    background: #e53935;
+    border: 3px solid white;
     cursor: pointer;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
 .audio-timeline-slider::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    background: var(--color-primary);
+    background: #e53935;
+    border: 3px solid white;
     cursor: pointer;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-    border: none;
 }
 
 .audio-time-display {

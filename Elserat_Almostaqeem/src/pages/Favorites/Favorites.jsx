@@ -13,23 +13,23 @@ const Favorites = () => {
     const { lang, t } = useLanguage();
     const { theme, colorMode } = useTheme();
     const { playSurah } = useAudio();
-    const [activeTab, setActiveTab] = useState('ayahs'); // 'ayahs', 'hadiths'
-    const [favAyahs, setFavAyahs] = useState([]);
+    const [activeTab, setActiveTab] = useState('pages'); // 'pages', 'hadiths'
+    const [favPages, setFavPages] = useState([]);
     const [favHadiths, setFavHadiths] = useState([]);
     const [readerConfig, setReaderConfig] = useState(null);
     const [shareItem, setShareItem] = useState(null); // { type: 'ayah' | 'hadith', data: obj }
     const shareCardRef = useRef(null);
 
     useEffect(() => {
-        setFavAyahs(JSON.parse(localStorage.getItem('zad_ayah_favs') || '[]'));
+        setFavPages(JSON.parse(localStorage.getItem('zad_page_favs') || '[]'));
         setFavHadiths(JSON.parse(localStorage.getItem('zad_hadith_favs') || '[]'));
     }, []);
 
-    const removeAyah = (e, number) => {
+    const removePage = (e, pageNum) => {
         e.stopPropagation();
-        const updated = favAyahs.filter(a => a.number !== number);
-        setFavAyahs(updated);
-        localStorage.setItem('zad_ayah_favs', JSON.stringify(updated));
+        const updated = favPages.filter(p => p !== pageNum);
+        setFavPages(updated);
+        localStorage.setItem('zad_page_favs', JSON.stringify(updated));
     };
 
     const removeHadith = (e, number, collection) => {
@@ -129,10 +129,10 @@ const Favorites = () => {
                     <div className="tabs-container mb-8">
                         <div className="flex justify-center gap-4 flex-wrap">
                             <button
-                                className={`btn ${activeTab === 'ayahs' ? 'btn-primary' : 'btn-outline'}`}
-                                onClick={() => setActiveTab('ayahs')}
+                                className={`btn ${activeTab === 'pages' ? 'btn-primary' : 'btn-outline'}`}
+                                onClick={() => setActiveTab('pages')}
                             >
-                                {lang === 'ar' ? 'الآيات المفضلة' : 'Favorite Ayahs'} ({favAyahs.length})
+                                {lang === 'ar' ? 'الصور المفضلة' : 'Favorite Pages'} ({favPages.length})
                             </button>
                             <button
                                 className={`btn ${activeTab === 'hadiths' ? 'btn-primary' : 'btn-outline'}`}
@@ -145,49 +145,44 @@ const Favorites = () => {
 
                     {/* Surahs tab removed entirely */}
 
-                    {/* Ayahs Tab */}
-                    {activeTab === 'ayahs' && (
-                        <div className="flex flex-col gap-4">
-                            {favAyahs.length === 0 ? (
-                                <div className="text-center text-muted py-8">
-                                    {lang === 'ar' ? 'لا يوجد آيات في المفضلة بعد.' : 'No favorited Ayahs yet.'}
+                    {/* Pages Tab */}
+                    {activeTab === 'pages' && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {favPages.length === 0 ? (
+                                <div className="col-span-full text-center text-muted py-8">
+                                    {lang === 'ar' ? 'لا يوجد صور في المفضلة بعد.' : 'No favorited pages yet.'}
                                 </div>
                             ) : (
-                                favAyahs.map((ayah) => (
-                                    <div key={ayah.number} className="card p-6 flex flex-col gap-4 relative shadow-sm border border-border/50">
+                                favPages.map((pageNum) => (
+                                    <div key={pageNum} className="card p-4 flex flex-col gap-4 relative shadow-sm border border-border/50 group overflow-hidden">
                                         <button
-                                            className="absolute top-4 left-4 text-muted hover:text-error transition"
-                                            onClick={(e) => removeAyah(e, ayah.number)}
+                                            className="absolute top-2 left-2 z-10 p-2 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-red-500"
+                                            onClick={(e) => removePage(e, pageNum)}
                                             title={lang === 'ar' ? 'إزالة' : 'Remove'}
                                         >
-                                            <X size={20} />
+                                            <X size={18} />
                                         </button>
+                                        
+                                        <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-white cursor-pointer" onClick={() => setReaderConfig({ type: 'page', value: pageNum })}>
+                                            <img 
+                                                src={`https://quran.islam-db.com/public/data/pages/quranpages_1024/images/page${pageNum.toString().padStart(3, '0')}.png`}
+                                                alt={`Page ${pageNum}`}
+                                                className="w-full h-full object-contain mix-blend-multiply transition group-hover:scale-105"
+                                            />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition" />
+                                        </div>
+
+                                        <div className="text-center font-bold text-primary">
+                                            {lang === 'ar' ? `صفحة ${convertToArabicNumber(pageNum)}` : `Page ${pageNum}`}
+                                        </div>
+
                                         <button
-                                            className="absolute top-4 left-12 text-muted hover:text-primary transition"
-                                            onClick={() => handleShare(ayah, 'ayah')}
-                                            title={lang === 'ar' ? 'مشاركة' : 'Share'}
+                                            className="btn btn-outline btn-sm w-full"
+                                            onClick={() => setReaderConfig({ type: 'page', value: pageNum })}
                                         >
-                                            <Share2 size={20} />
+                                            <BookOpen size={16} className="ml-2" />
+                                            {lang === 'ar' ? 'قراءة في المصحف' : 'Read in Mushaf'}
                                         </button>
-                                        <div className="text-primary font-bold mb-2">
-                                            سورة {ayah.surah.name.replace('سُورَةُ ', '')} -
-                                            {lang === 'ar' ? ' صفحة ' : ' Page '}{ayah.page}
-                                        </div>
-                                        <div className="quran-text text-xl sm:text-2xl leading-loose text-center py-4 px-8 border-y border-border/30">
-                                            {ayah.text}
-                                            <span className="ayah-end-badge mx-2 inline-flex items-center justify-center">
-                                                {convertToArabicNumber(ayah.numberInSurah)}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-center mt-2">
-                                            <button
-                                                className="btn btn-outline text-sm"
-                                                onClick={() => setReaderConfig({ type: 'page', value: ayah.page })}
-                                            >
-                                                <BookOpen size={16} className="ml-2" />
-                                                {lang === 'ar' ? 'قراءة في المصحف' : 'Read in Mushaf'}
-                                            </button>
-                                        </div>
                                     </div>
                                 ))
                             )}

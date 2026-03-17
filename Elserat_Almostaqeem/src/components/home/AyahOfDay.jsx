@@ -137,6 +137,7 @@ const AyahOfDay = () => {
                     <h2 className="share-card-title">{lang === 'ar' ? 'آية اليوم' : 'Ayah of the Day'}</h2>
                     <p className="share-card-subtitle">{metaLabel}</p>
                 </div>
+<<<<<<< HEAD
                 <p className="share-card-body share-card-body-ar">
                     {loading ? (lang === 'ar' ? 'جاري التحميل...' : 'Loading...') : ayah.text}
                     {!loading && <span> ۝ {ayah.number.toLocaleString('ar-EG')}</span>}
@@ -156,12 +157,42 @@ const AyahOfDay = () => {
                         <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <span className="daily-hadith-icon" style={{ display: 'inline-flex', flexShrink: 0, color: 'var(--color-primary)' }} aria-hidden>
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+=======
+                <p className="share-card-body share-card-body-ar" style={{ fontSize: '28px', lineHeight: '2' }}>
+                    {loading ? (lang === 'ar' ? 'جاري التحميل...' : 'Loading...') : ayah.text}
+                    {!loading && <span style={{ marginInlineStart: '10px' }}> ۝ </span>}
+                </p>
+                {!loading && ayah.translation && (
+                    <p className="share-card-translation" style={{ fontSize: '18px', opacity: 0.9 }}>"{ayah.translation}"</p>
+                )}
+                <div className="share-card-footer">الصراط المستقيم</div>
+            </div>
+
+            <div className="card h-full flex flex-col justify-center relative overflow-hidden animate-scale-in" style={{ 
+                minHeight: '220px',
+                background: 'linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-hover) 100%)',
+                border: '1px solid rgba(214, 175, 55, 0.2)',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                padding: '1.5rem'
+            }}>
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary-10 rounded-full blur-3xl opacity-30 transform translate-x-10 -translate-y-10"></div>
+
+                    <div className="flex justify-between items-center relative z-10" style={{ marginBottom: '1.2rem' }}>
+                        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--gold-main, #D4AF37)', fontSize: '1.1rem' }}>
+                            <span className="daily-hadith-icon" style={{ display: 'inline-flex', flexShrink: 0, color: 'var(--gold-main, #D4AF37)' }} aria-hidden>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+>>>>>>> 0d5412d (update the app)
                                     <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
                                 </svg>
                             </span>
                             {lang === 'ar' ? 'آية اليوم' : 'Ayah of the Day'}
                         </h3>
+<<<<<<< HEAD
                         <span className="badge" style={{ fontSize: '0.75rem', backgroundColor: 'var(--color-surface-hover)' }}>
+=======
+                        <span className="badge" style={{ fontSize: '0.7rem', backgroundColor: 'rgba(212, 175, 55, 0.1)', color: 'var(--gold-main, #D4AF37)', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+>>>>>>> 0d5412d (update the app)
                             {metaLabel}
                         </span>
                     </div>
@@ -183,10 +214,17 @@ const AyahOfDay = () => {
                     <button 
                         onClick={handleShare}
                         className="icon-btn" 
+<<<<<<< HEAD
                         style={{ position: 'absolute', bottom: '10px', left: lang === 'ar' ? '10px' : 'auto', right: lang === 'en' ? '10px' : 'auto', zIndex: 20, opacity: isSharing ? 0.5 : 1 }}
                         disabled={isSharing}
                     >
                         <Share2 size={16} />
+=======
+                        style={{ position: 'absolute', bottom: '1rem', left: lang === 'ar' ? '1rem' : 'auto', right: lang === 'en' ? '1rem' : 'auto', zIndex: 20, opacity: isSharing ? 0.5 : 1, backgroundColor: 'rgba(214, 175, 55, 0.1)', backdropFilter: 'blur(4px)', border: '1px solid rgba(214, 175, 55, 0.2)', padding: '0.6rem', borderRadius: '50%', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s ease', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}
+                        disabled={isSharing}
+                    >
+                        <Share2 size={18} />
+>>>>>>> 0d5412d (update the app)
                     </button>
                 )}
             </div>

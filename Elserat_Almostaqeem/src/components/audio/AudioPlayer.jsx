@@ -46,6 +46,7 @@ const AudioPlayer = () => {
                     max={duration || 0}
                     value={currentTime || 0}
                     onChange={handleSeek}
+                    dir="ltr"
                     className="audio-timeline-slider"
                     style={{
                         position: 'absolute', width: '100%', height: '100%', top: 0, left: 0,
@@ -57,7 +58,7 @@ const AudioPlayer = () => {
                     style={{
                         height: '100%',
                         width: `${duration ? (currentTime / duration) * 100 : 0}%`,
-                        background: 'var(--color-primary)',
+                        background: '#e53935',
                         position: 'absolute', top: 0, left: 0, zIndex: 1, pointerEvents: 'none'
                     }}
                 ></div>

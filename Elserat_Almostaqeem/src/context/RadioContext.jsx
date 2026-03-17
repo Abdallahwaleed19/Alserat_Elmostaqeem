@@ -233,12 +233,18 @@ export function RadioProvider({ children }) {
   }, [isActive, isPlaying, updateMediaSession]);
 
   const togglePlayPause = useCallback(() => {
-    if (isActiveRef.current) {
-      stopRadio();
-    } else {
+    if (!isActiveRef.current) {
       startRadio();
+    } else if (isPlaying) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    } else {
+      if (audioRef.current) {
+        audioRef.current.play().catch(e => console.error(e));
+      }
     }
-  }, [startRadio, stopRadio]);
+  }, [isActive, isPlaying, startRadio]);
 
   // Web Media Session handlers (avoid undefined references inside updateMediaSession)
   useEffect(() => {

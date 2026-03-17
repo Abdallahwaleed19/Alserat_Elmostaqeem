@@ -24,7 +24,7 @@ import Tasbeeh from './pages/Tasbeeh/Tasbeeh';
 import WorshipTracker from './pages/Tracker/WorshipTracker';
 import Achievements from './pages/Tracker/Achievements';
 import Wallpapers from './pages/Media/Wallpapers';
-import NearestMosque from './pages/Mosques/NearestMosque';
+
 import Quiz from './pages/Quiz/Quiz';
 import Zakat from './pages/Zakat/Zakat';
 import Wudu from './pages/Wudu/Wudu';
@@ -163,7 +163,7 @@ function App() {
                       <Route path="discover/isra-miraj" element={<IsraMiraj />} />
                       <Route path="discover/qibla" element={<QiblaChange />} />
                       <Route path="discover/compass" element={<Qibla />} />
-                      <Route path="discover/mosques" element={<NearestMosque />} />
+
                       <Route path="discover/quiz" element={<Quiz />} />
                       <Route path="discover/laylat-alqadr" element={<LaylatAlQadr />} />
                       <Route path="discover/favorites" element={<Favorites />} />

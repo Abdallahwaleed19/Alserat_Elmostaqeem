@@ -10,7 +10,6 @@ const HomeHero = () => {
     const { t, lang } = useLanguage();
 
     const [city, setCity] = useState('');
-    const { hijriShort: hijriDateStr } = useHijriDate(lang);
 
     useEffect(() => {
         if (!('geolocation' in navigator)) return;
@@ -39,15 +38,6 @@ const HomeHero = () => {
             )}
 
             <div className="hero-content">
-                <div className="hero-top-bar">
-                    <span className="hijri-date">{hijriDateStr}</span>
-                    {city && (
-                        <span className="city-name">
-                            <MapPin size={16} /> {city}
-                        </span>
-                    )}
-                </div>
-
                 <div className="hero-welcome text-center">
                     <h1 className="quran-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</h1>
                     <p>{lang === 'ar' ? 'مرحباً بك في الصِّرَاطِ الْمُسْتَقِيمِ، رفيقك اليومي.' : 'Welcome to As-Sirat Al-Mustaqeem, your daily companion.'}</p>

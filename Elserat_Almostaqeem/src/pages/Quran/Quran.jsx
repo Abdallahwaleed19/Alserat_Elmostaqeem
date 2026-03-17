@@ -53,31 +53,8 @@ const Quran = () => {
     const [showReciterModal, setShowReciterModal] = useState(false);
     const [surahForReciterPick, setSurahForReciterPick] = useState(null); // { number, name } عند الضغط على تشغيل
     const [showJuz, setShowJuz] = useState(false);
-    const [favoriteSurahs, setFavoriteSurahs] = useState(() => JSON.parse(localStorage.getItem('zad_surah_favs') || '[]'));
     const { currentSurah, isPlaying, playSurah, currentReciter, changeReciter, RECITERS } = useAudio();
 
-    const toggleFavoriteSurah = (surah, e) => {
-        e.stopPropagation();
-        let saved = JSON.parse(localStorage.getItem('zad_surah_favs') || '[]');
-        const exists = saved.find(s => s.number === surah.number);
-        if (exists) {
-            saved = saved.filter(s => s.number !== surah.number);
-        } else {
-            saved.push({
-                number: surah.number,
-                name: surah.name,
-                englishName: surah.englishName,
-                revelationType: surah.revelationType,
-                numberOfAyahs: surah.numberOfAyahs
-            });
-        }
-        localStorage.setItem('zad_surah_favs', JSON.stringify(saved));
-        setFavoriteSurahs(saved);
-    };
-
-    const isSurahFavorite = (surahNum) => {
-        return favoriteSurahs.some(s => s.number === surahNum);
-    };
 
     useEffect(() => {
         fetch('https://api.alquran.cloud/v1/surah')
@@ -277,14 +254,6 @@ const Quran = () => {
                                         title={isThisSurahPlaying ? (lang === 'ar' ? 'إيقاف' : 'Pause') : (lang === 'ar' ? 'تشغيل - اختر قارئاً' : 'Play - Choose reciter')}
                                     >
                                         {isThisSurahPlaying ? <Pause size={18} /> : <Play size={18} />}
-                                    </button>
-                                    <button
-                                        className="surah-action-btn read-btn"
-                                        onClick={(e) => toggleFavoriteSurah(surah, e)}
-                                        title={lang === 'ar' ? 'إضافة للمفضلة' : 'Add to Favorites'}
-                                        style={{ color: isSurahFavorite(surah.number) ? 'var(--color-error)' : 'inherit' }}
-                                    >
-                                        <Heart size={18} fill={isSurahFavorite(surah.number) ? 'currentColor' : 'none'} />
                                     </button>
                                 </div>
                             </div>

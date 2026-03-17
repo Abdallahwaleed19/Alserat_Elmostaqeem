@@ -1,0 +1,100 @@
+.home-top-bar {
+    width: 100%;
+    background-color: var(--primary-dark, #1a3b32);
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    direction: rtl;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.home-top-bar.ramadan {
+    background-color: var(--gold-main, #3b2c1a);
+}
+
+.home-top-bar-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-width: 800px; /* Force minimum width to show everything in one line like the image */
+}
+
+.top-bar-location {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.35rem 0.75rem;
+    border-radius: 1rem;
+}
+
+.top-bar-prayers {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    justify-content: center;
+}
+
+.prayer-title-box {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0 0.5rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.prayer-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.prayer-time {
+    font-weight: 700;
+    color: #e6c87a; /* Goldish color for times */
+}
+
+.prayer-item.next-prayer {
+    color: #ffffff;
+    background: #e53935;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.35rem;
+    box-shadow: 0 0 5px rgba(229, 57, 53, 0.4);
+}
+
+.prayer-item.next-prayer .prayer-time {
+    color: #ffffff;
+}
+
+.top-bar-date {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
+    padding-right: 1rem;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .home-top-bar {
+        padding: 0.5rem;
+        /* allow horizontal scrolling */
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .home-top-bar::-webkit-scrollbar {
+        height: 3px;
+    }
+    
+    .home-top-bar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+    }
+}

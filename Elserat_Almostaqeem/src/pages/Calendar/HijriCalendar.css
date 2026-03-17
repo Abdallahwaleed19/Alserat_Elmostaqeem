@@ -34,6 +34,15 @@
     padding: 1.5rem;
 }
 
+.current-weekday-header {
+    background: var(--color-primary);
+    color: white;
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 10px rgba(15, 93, 74, 0.2);
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+}
+
 .hijri-day-cell {
     aspect-ratio: 1;
     display: flex;
@@ -47,6 +56,8 @@
     position: relative;
     transition: all 0.2s;
     cursor: pointer;
+    min-width: 0; /* Allow shrinking in flex/grid */
+    overflow: hidden;
 }
 
 .hijri-day-cell:hover {
@@ -56,21 +67,23 @@
 }
 
 .hijri-day-today {
-    background: var(--color-primary-10);
+    background: var(--color-primary);
+    color: white;
     border: 2px solid var(--color-primary);
+    box-shadow: 0 4px 10px rgba(15, 93, 74, 0.3);
 }
 
 .hijri-today-badge {
     position: absolute;
     top: -8px;
     right: -8px;
-    background: var(--color-primary);
+    background: var(--color-accent);
     color: white;
     font-size: 0.65rem;
     padding: 2px 8px;
     border-radius: 100px;
     font-weight: bold;
-    box-shadow: 0 2px 5px rgba(15, 93, 74, 0.3);
+    box-shadow: 0 2px 5px rgba(201, 162, 77, 0.4);
     z-index: 2;
 }
 
@@ -202,14 +215,40 @@
     }
 
     .hijri-calendar-grid {
-        gap: 0.4rem;
-        padding: 1rem;
+        gap: 0.2rem;
+        padding: 0.5rem;
+    }
+    .hijri-calendar-grid > div:nth-child(-n+7) {
+        font-size: 0.65rem; /* Smaller font for weekdays header */
+        padding: 0.5rem 0.1rem !important;
+        word-break: break-word; /* allow long names to wrap slightly if needed */
+        line-height: 1.1;
     }
     .hijri-day-number {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
     .hijri-day-cell {
-        padding: 0.25rem;
+        padding: 0.15rem;
+        border-radius: var(--radius-md);
+    }
+    .hijri-occasion {
+        margin-top: 0.15rem;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    .hijri-occasion-text {
+        font-size: 0.5rem;
+        padding: 1px 2px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        display: block;
+        max-width: 100%;
+    }
+    .hijri-today-badge {
+        font-size: 0.5rem;
+        padding: 1px 4px;
+        top: -6px;
+        right: -6px;
     }
     .event-date-box {
         width: 50px;

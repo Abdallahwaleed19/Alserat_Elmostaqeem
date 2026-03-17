@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { CapacitorMusicControls } from 'capacitor-music-controls-plugin';
+import { SURAH_NAMES_VOWELLED } from '../data/surahNamesVowelled';
 
 const AudioContext = createContext();
 
@@ -64,6 +65,7 @@ export const RECITERS = [
     { id: 'ar.badralturki', nameAr: 'بدر التركي - مرتّل', nameEn: 'Badr Al-Turki (Murattal)', category: 'saudi', style: 'مرتّل', styleEn: 'Murattal', image: '/images/OIP.webp', mp3quranId: 'bader', dynamicUrl: 'https://server10.mp3quran.net/bader/Rewayat-Hafs-A-n-Assem/{n3}.mp3', serverUrl: 'https://server10.mp3quran.net/bader/Rewayat-Hafs-A-n-Assem/' }
 ];
 
+
 function getMp3QuranUrl(reciter, surahNumber, useFallback) {
     // 1. Dynamic scalable {n} and {n3} URL pattern matching (NEW LOGIC)
     if (reciter.dynamicUrl && !useFallback) {
@@ -98,6 +100,13 @@ export const AudioProvider = ({ children }) => {
     const verseQueueRef = useRef([]);
     const verseIndexRef = useRef(0);
     const lastSingleSurahRef = useRef(null); // { reciter, surahNumber } عند تشغيل سورة كاملة (غير آية بآية)
+
+    const currentSurahRef = useRef(null);
+    const playSurahRef = useRef(null);
+
+    useEffect(() => {
+        currentSurahRef.current = currentSurah;
+    }, [currentSurah]);
 
     /** إيقاف القراءة بالكامل وإخفاء الشريط */
     const stopPlay = React.useCallback(() => {
@@ -410,6 +419,8 @@ export const AudioProvider = ({ children }) => {
         setIsPlaying(true);
     };
 
+    playSurahRef.current = playSurah;
+
     const togglePlay = () => {
         if (!currentSurah) return;
 
@@ -438,11 +449,27 @@ export const AudioProvider = ({ children }) => {
                     audio.src = queue[next];
                     audio.play().catch(() => setIsPlaying(false));
                 } else {
-                    verseQueueRef.current = [];
-                    setIsPlaying(false);
+                    const surah = currentSurahRef.current;
+                    if (surah && surah.number < 114) {
+                        const nextNum = surah.number + 1;
+                        if (playSurahRef.current) {
+                            playSurahRef.current(nextNum, SURAH_NAMES_VOWELLED[nextNum - 1]);
+                        }
+                    } else {
+                        verseQueueRef.current = [];
+                        setIsPlaying(false);
+                    }
                 }
             } else {
-                setIsPlaying(false);
+                const surah = currentSurahRef.current;
+                if (surah && surah.number < 114) {
+                    const nextNum = surah.number + 1;
+                    if (playSurahRef.current) {
+                        playSurahRef.current(nextNum, SURAH_NAMES_VOWELLED[nextNum - 1]);
+                    }
+                } else {
+                    setIsPlaying(false);
+                }
             }
         };
         const handleError = () => {

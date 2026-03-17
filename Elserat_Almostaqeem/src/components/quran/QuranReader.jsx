@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Bookmark, X, Info, BookOpen, Heart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Bookmark, X, Info, BookOpen, Heart, Image as ImageIcon, Type, CheckCircle } from 'lucide-react';
+import Zoom from 'react-medium-image-zoom';
+import 'react-medium-image-zoom/dist/styles.css';
 import { useLanguage } from '../../context/LanguageContext';
 
 const TAFSIR_SOURCES = [
@@ -33,14 +35,10 @@ const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete })
     const { lang, t } = useLanguage();
     const [page, setPage] = useState(startPage);
     const [pageData, setPageData] = useState(null);
-    const [tafsirData, setTafsirData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [showTafsir, setShowTafsir] = useState(false);
     const [isBookmarked, setIsBookmarked] = useState(false);
-    const [favoriteAyahs, setFavoriteAyahs] = useState(() => JSON.parse(localStorage.getItem('zad_ayah_favs') || '[]'));
-
-    // Default tafsir based on language
-    const [tafsirSource, setTafsirSource] = useState(() => lang === 'ar' ? 'ar.muyassar' : 'en.asad');
+    const [isFavorited, setIsFavorited] = useState(false);
+    const [readMode] = useState('image'); // Hardcoded to image mode
 
     // دعم السحب (Swipe) لتقليب الصفحات
     const [touchStartX, setTouchStartX] = useState(null);
@@ -100,25 +98,20 @@ const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete })
         }
     }, [surahNumber]);
 
-    // Fetch Page Data and Tafsir
+    // Fetch Page Data (for progress and bookmarks)
     useEffect(() => {
         const fetchPage = async () => {
             setLoading(true);
             try {
-                // Fetch Quran Text (Uthmani)
-                const qRes = await fetch(`https://api.alquran.cloud/v1/page/${page}/quran-uthmani`);
-                const qData = await qRes.json();
-                setPageData(qData.data);
+                // Check Bookmark & Favorite
+                const savedBookmarks = JSON.parse(localStorage.getItem('zad_bookmarks') || '[]');
+                const savedFavs = JSON.parse(localStorage.getItem('zad_page_favs') || '[]');
+                setIsBookmarked(savedBookmarks.includes(page));
+                setIsFavorited(savedFavs.includes(page));
 
-                // Fetch Selected Tafsir
-                const tRes = await fetch(`https://api.alquran.cloud/v1/page/${page}/${tafsirSource}`);
-                const tData = await tRes.json();
-                setTafsirData(tData.data);
-
-                // Check Bookmark
-                const saved = JSON.parse(localStorage.getItem('zad_bookmarks') || '[]');
-                setIsBookmarked(saved.includes(page));
-
+                // Update Progress (for Home Card)
+                localStorage.setItem('zad_last_read_page', page.toString());
+                
             } catch (err) {
                 console.error('Error fetching page', err);
             } finally {
@@ -127,7 +120,7 @@ const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete })
         };
 
         fetchPage();
-    }, [page, tafsirSource, lang]);
+    }, [page, lang]);
 
     const toggleBookmark = () => {
         let saved = JSON.parse(localStorage.getItem('zad_bookmarks') || '[]');
@@ -141,6 +134,22 @@ const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete })
         localStorage.setItem('zad_bookmarks', JSON.stringify(saved));
     };
 
+    const toggleFavorite = () => {
+        let saved = JSON.parse(localStorage.getItem('zad_page_favs') || '[]');
+        if (isFavorited) {
+            saved = saved.filter(p => p !== page);
+            setIsFavorited(false);
+        } else {
+            saved.push(page);
+            setIsFavorited(true);
+        }
+        localStorage.setItem('zad_page_favs', JSON.stringify(saved));
+    };
+
+    const getImageUrl = (pageNum) => {
+        return `https://quran.islam-db.com/public/data/pages/quranpages_1024/images/page${pageNum.toString().padStart(3, '0')}.png`;
+    };
+
     const convertToArabicNumber = (n) => {
         return n.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
     };
@@ -149,205 +158,209 @@ const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete })
     const currentHizb = getApproxHizb(page);
 
     return (
-        <div className="quran-reader-container animate-slide-down">
+        <div className="quran-reader-container animate-fade-in" style={{ 
+            minHeight: '100vh', 
+            display: 'flex', 
+            flexDirection: 'column',
+            backgroundColor: 'var(--color-background)',
+            color: 'var(--color-text)'
+        }}>
             {/* Toolbar */}
-            <div className="reader-toolbar flex justify-between items-center card" style={{ padding: '1rem', marginBottom: '1.5rem', position: 'sticky', top: '70px', zIndex: 10 }}>
-                <div className="flex gap-2 items-center">
-                    <button onClick={onClose} className="btn btn-outline flex items-center justify-center p-2 rounded-full" title={lang === 'ar' ? 'إغلاق القارئ' : 'Close Reader'}>
-                        <X size={18} />
+            <div className="reader-toolbar flex justify-between items-center card" style={{ padding: '0.8rem 1.5rem', marginBottom: '1rem', zIndex: 50, borderRadius: '0 0 20px 20px' }}>
+                <div className="flex gap-4 items-center">
+                    <button onClick={onClose} className="btn-icon" title={lang === 'ar' ? 'إغلاق' : 'Close'}>
+                        <X size={20} />
                     </button>
-                    <span style={{ fontWeight: 'bold' }}>
-                        {lang === 'ar' ? `الجزء ${currentJuz}` : `Juz ${currentJuz}`} - {lang === 'ar' ? 'صفحة' : 'Page'} {page}
-                    </span>
+                    <div className="flex gap-2">
+                        <span className="reader-badge">
+                            {lang === 'ar' ? `الجزء ${convertToArabicNumber(currentJuz)}` : `Juz ${currentJuz}`}
+                        </span>
+                        <span className="reader-badge">
+                            {lang === 'ar' ? `الحزب ${convertToArabicNumber(currentHizb)}` : `Hizb ${currentHizb}`}
+                        </span>
+                        <span className="reader-badge">
+                            {lang === 'ar' ? `صفحة ${convertToArabicNumber(page)}` : `Page ${page}`}
+                        </span>
+                    </div>
                 </div>
 
                 <div className="flex gap-2">
-                    <button
-                        onClick={() => setShowTafsir(!showTafsir)}
-                        className={`btn ${showTafsir ? 'btn-primary' : 'btn-outline'} flex items-center gap-2`}
-                        style={{ padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-full)', fontSize: '0.8rem' }}
-                    >
-                        <Info size={16} /> <span className="hidden-mobile">{lang === 'ar' ? 'التفسير' : 'Tafsir'}</span>
-                    </button>
                     {onComplete && (
                         <button
                             onClick={onComplete}
                             className="btn btn-primary flex items-center gap-2"
-                            style={{ padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-full)', fontSize: '0.8rem' }}
+                            style={{ padding: '0.4rem 1.2rem', borderRadius: 'var(--radius-full)', fontSize: '0.86rem', background: 'var(--gold-main, #D4AF37)', color: '#1a1a1a', fontWeight: 'bold' }}
                         >
-                            {lang === 'ar' ? 'تم الانتهاء من القراءة' : 'Mark as completed'}
+                            <CheckCircle size={18} />
+                            <span className="hidden-mobile">{lang === 'ar' ? 'تم الانتهاء' : 'Mark as completed'}</span>
                         </button>
                     )}
                     <button
-                        onClick={toggleBookmark}
-                        className="btn btn-outline flex items-center justify-center p-2 rounded-full"
-                        style={{ color: isBookmarked ? 'var(--color-primary)' : 'inherit', borderColor: isBookmarked ? 'var(--color-primary)' : 'inherit' }}
-                        title={lang === 'ar' ? 'حفظ العلامة' : 'Bookmark'}
+                        onClick={toggleFavorite}
+                        className={`btn-icon ${isFavorited ? 'active' : ''}`}
+                        title={lang === 'ar' ? 'تفضيل الصفحة' : 'Favorite Page'}
+                        style={{ color: isFavorited ? 'var(--color-error, #ef4444)' : 'inherit' }}
                     >
-                        <Bookmark size={18} fill={isBookmarked ? 'currentColor' : 'none'} />
+                        <Heart size={20} fill={isFavorited ? 'currentColor' : 'none'} />
+                    </button>
+                    <button
+                        onClick={toggleBookmark}
+                        className={`btn-icon ${isBookmarked ? 'active' : ''}`}
+                        title={lang === 'ar' ? 'حفظ الصفحة' : 'Bookmark Page'}
+                        style={{ color: isBookmarked ? 'var(--gold-main, #D4AF37)' : 'inherit' }}
+                    >
+                        <Bookmark size={20} fill={isBookmarked ? 'currentColor' : 'none'} />
                     </button>
                 </div>
             </div>
 
             {/* Content Area */}
-            <div className={`reader-content-grid ${showTafsir ? 'showing-tafsir' : ''}`} style={{ display: 'grid', gridTemplateColumns: showTafsir ? '1fr 1fr' : '1fr', gap: '2rem' }}>
+            <div className="flex-1 relative p-2 sm:p-8" style={{ paddingBottom: '8rem' }}>
+                {/* Floating Side Arrows */}
+                <button
+                    className="floating-nav-btn right"
+                    onClick={() => setPage((p) => Math.min(604, p + 1))}
+                    disabled={page === 604}
+                    aria-label="Next Page"
+                >
+                    <ChevronRight size={32} />
+                </button>
+                <button
+                    className="floating-nav-btn left"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    aria-label="Previous Page"
+                >
+                    <ChevronLeft size={32} />
+                </button>
 
-                {/* Mushaf View */}
+                {/* Mushaf Image Wrapper */}
                 <div
-                    className="mushaf-page"
+                    className="mushaf-image-frame animate-scale-in"
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
                 >
-                    {/* بادجات الحزب على الحواف */}
-                    <div className="hizb-badge hizb-badge-right">
-                        {lang === 'ar' ? `حزب ${convertToArabicNumber(currentHizb)}` : `Hizb ${currentHizb}`}
-                    </div>
-                    <div className="hizb-badge hizb-badge-left">
-                        {lang === 'ar' ? `صفحة ${convertToArabicNumber(page)}` : `P. ${page}`}
-                    </div>
-
-                    {/* هيدر السورة المزخرف + البسملة في المنتصف */}
-                    {pageData && pageData.ayahs.length > 0 && pageData.ayahs[0].numberInSurah === 1 && (
-                        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-                            <div
-                                style={{
-                                    border: '3px solid #c9a227',
-                                    display: 'inline-block',
-                                    padding: '12px 45px',
-                                    borderRadius: '14px',
-                                    background: '#fff6d8',
-                                    fontSize: '30px',
-                                    color: '#111',
-                                    fontWeight: 'bold',
-                                    fontFamily: 'Amiri, serif'
-                                }}
-                            >
-                                {`سورة ${pageData.ayahs[0].surah.name.replace('سُورَةُ ', '')}`}
+                    {/* Decorative Border Internal */}
+                    <div className="mushaf-ornamental-corners" />
+                    
+                    <div className="mushaf-img-inner">
+                        {loading && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+                                <div className="spinner"></div>
                             </div>
-
-                            {pageData.ayahs[0].surah.number !== 9 && (
-                                <div
-                                    style={{
-                                        marginTop: '20px',
-                                        fontSize: '34px',
-                                        textAlign: 'center',
-                                        color: '#111',
-                                        fontFamily: 'Amiri, serif'
-                                    }}
-                                >
-                                    بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {pageData && pageData.ayahs.map((ayah) => {
-                        let text = ayah.text;
-
-                        // إزالة البسملة من نص الآية الأولى (لكن نظهرها في الهيدر فقط)
-                        if (ayah.numberInSurah === 1 && ayah.surah.number !== 9) {
-                            text = text
-                                .replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "")
-                                .replace("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", "")
-                                .trim();
-                        }
-
-                        return (
-                            <React.Fragment key={ayah.number}>
-                                <span
-                                    className="quran-text"
-                                    style={{
-                                        fontSize: '38px',
-                                        lineHeight: '2.9',
-                                        color: '#111',
-                                        fontFamily: 'Amiri, serif'
-                                    }}
-                                >
-                                    {text}{' '}
-                                    <span className="ayah-end-badge">
-                                        {convertToArabicNumber(ayah.numberInSurah)}
-                                    </span>
-                                </span>
-                            </React.Fragment>
-                        );
-                    })}
-                </div>
-
-                {/* Tafsir View */}
-                {showTafsir && (
-                    <div className="card tafsir-page" style={{ padding: '2rem', maxHeight: '80vh', overflowY: 'auto' }}>
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-border pb-4">
-                            <h3 style={{ margin: 0, color: 'var(--gold-main, #D4AF37)' }} className="flex items-center gap-2">
-                                <BookOpen size={20} />
-                                {lang === 'ar' ? 'التفسير / الترجمة' : 'Tafsir / Translation'}
-                            </h3>
-                            <select
-                                value={tafsirSource}
-                                onChange={(e) => setTafsirSource(e.target.value)}
-                                className="form-control text-sm bg-surface rounded-md border border-border p-2 focus:border-primary transition outline-none"
-                            >
-                                {TAFSIR_SOURCES.filter(s => s.lang === lang).map(source => (
-                                    <option key={source.id} value={source.id}>
-                                        {source.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {tafsirData && tafsirData.ayahs.map((ayah) => (
-                            <div key={`tafsir-${ayah.number}`} style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: 'var(--color-surface-hover)', borderRadius: '8px', borderRight: '4px solid var(--gold-main, #D4AF37)' }}>
-                                <div style={{ fontWeight: 'bold', color: 'var(--gold-main, #D4AF37)', marginBottom: '0.5rem' }}>
-                                    ({ayah.surah.name} - الآية {convertToArabicNumber(ayah.numberInSurah)}):
-                                </div>
-                                <div style={{ lineHeight: '1.8' }} className="text-foreground">
-                                    {ayah.text}
-                                </div>
-                            </div>
-                        ))}
+                        )}
+                        <Zoom>
+                            <img
+                                src={getImageUrl(page)}
+                                alt={`Quran Page ${page}`}
+                                className="mushaf-main-img"
+                                onLoad={() => setLoading(false)}
+                            />
+                        </Zoom>
                     </div>
-                )}
-            </div>
-
-            {/* Pagination Controls - شريط تقدم فقط */}
-            <div className="pagination-controls flex justify-center items-center gap-4" style={{ marginTop: '2rem' }}>
-                <div className="progress-indicator flex-1 card" style={{ height: '8px', padding: 0, overflow: 'hidden' }}>
-                    <div
-                        style={{
-                            height: '100%',
-                            width: `${(page / 604) * 100}%`,
-                            backgroundColor: 'var(--color-primary)',
-                            transition: 'width 0.3s',
-                        }}
-                    ></div>
                 </div>
             </div>
-            {/* Added for css targeting mobile layout */}
+
             <style>{`
+                .reader-badge {
+                    background: rgba(212, 175, 55, 0.1);
+                    color: var(--gold-main, #D4AF37);
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 8px;
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    border: 1px solid rgba(212, 175, 55, 0.2);
+                }
+
+                .btn-icon {
+                    width: 40px;
+                    height: 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 50%;
+                    border: 1px solid var(--color-border);
+                    background: transparent;
+                    color: var(--color-text-muted);
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .btn-icon:hover { border-color: var(--gold-main); color: var(--gold-main); }
+                .btn-icon.active { border-color: var(--gold-main); color: var(--gold-main); background: rgba(212, 175, 55, 0.05); }
+
+                .floating-nav-btn {
+                    position: fixed;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 56px;
+                    height: 56px;
+                    background: rgba(212, 175, 55, 0.9);
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    z-index: 100;
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+                    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                }
+                .floating-nav-btn:hover:not(:disabled) { background: #c9a227; transform: translateY(-50%) scale(1.1); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
+                .floating-nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+                .floating-nav-btn.right { right: 2rem; }
+                .floating-nav-btn.left { left: 2rem; }
+
+                .mushaf-image-frame {
+                    max-width: 850px;
+                    width: 100%;
+                    margin: 0 auto;
+                    background: white;
+                    position: relative;
+                    padding: 16px;
+                    border: 10px solid #e8dfc4;
+                    border-radius: 12px;
+                    box-shadow: 0 15px 45px rgba(0,0,0,0.2);
+                    background-image: url("https://www.transparenttextures.com/patterns/paper.png");
+                }
+
+                .mushaf-ornamental-corners {
+                    position: absolute;
+                    inset: -5px;
+                    border: 2px solid #d4af37;
+                    border-radius: 8px;
+                    pointer-events: none;
+                    opacity: 0.6;
+                }
+
+                .mushaf-main-img {
+                    width: 100%;
+                    height: auto;
+                    display: block;
+                    mix-blend-mode: multiply;
+                }
+
+                @media (max-width: 1100px) {
+                    .floating-nav-btn { width: 44px; height: 44px; }
+                    .floating-nav-btn.right { right: 0.8rem; }
+                    .floating-nav-btn.left { left: 0.8rem; }
+                }
+
                 @media (max-width: 768px) {
-                    .reader-content-grid.showing-tafsir {
-                        grid-template-columns: 1fr !important;
-                    }
                     .hidden-mobile { display: none; }
+                    .floating-nav-btn { display: none; } /* Hidden on mobile, use swipe */
+                    .mushaf-image-frame { 
+                        padding: 4px; 
+                        border-width: 4px; 
+                        max-width: 100vw;
+                        border-radius: 6px;
+                    }
+                    .mushaf-ornamental-corners {
+                        inset: -2px;
+                        border-width: 1px;
+                    }
                 }
             `}</style>
-
-            {/* أسهم تنقل جانبية على جوانب صفحة المصحف */}
-            <button
-                className="page-nav-arrow page-nav-arrow-right"
-                onClick={() => setPage((p) => Math.min(604, p + 1))}
-                disabled={page === 604}
-                aria-label={lang === 'ar' ? 'الصفحة التالية' : 'Next page'}
-            >
-                <ChevronRight size={20} />
-            </button>
-            <button
-                className="page-nav-arrow page-nav-arrow-left"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                aria-label={lang === 'ar' ? 'الصفحة السابقة' : 'Previous page'}
-            >
-                <ChevronLeft size={20} />
-            </button>
         </div>
     );
 };

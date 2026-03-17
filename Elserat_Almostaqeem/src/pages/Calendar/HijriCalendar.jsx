@@ -46,7 +46,7 @@ function getFirstDayWeekday(hijriYear, monthIndex1Based) {
         const y = parseInt(parts.find((p) => p.type === 'year')?.value || '0', 10);
         const m = parseInt(parts.find((p) => p.type === 'month')?.value || '0', 10);
         if (y === hijriYear && m === monthIndex1Based) {
-            return date.getUTCDay();
+            return (date.getUTCDay() + 1) % 7; // إضافة يوم واحد ليتماشى مع التعديل اليدوي في egyptTime
         }
     }
     return 0;
@@ -121,11 +121,14 @@ const HijriCalendar = () => {
                 </div>
 
                 <div className="hijri-calendar-grid">
-                    {['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'].map((d, i) => (
-                        <div key={i} className="text-center font-bold text-sm text-muted py-2">
-                            {lang === 'ar' ? d : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]}
-                        </div>
-                    ))}
+                    {['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'].map((d, i) => {
+                        const isCurrentDay = i === currentWeekday;
+                        return (
+                            <div key={i} className={`text-center font-bold text-sm ${isCurrentDay ? 'current-weekday-header' : 'text-muted'}`} style={{ padding: isCurrentDay ? '0.5rem 0' : '0.5rem 0' }}>
+                                {lang === 'ar' ? d : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]}
+                            </div>
+                        );
+                    })}
 
                     {Array.from({ length: firstDayWeekday }, (_, i) => (
                         <div key={`empty-${i}`} />
