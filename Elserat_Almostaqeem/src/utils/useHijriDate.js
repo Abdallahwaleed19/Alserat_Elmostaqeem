@@ -4,9 +4,9 @@ import { getEgyptHijriDateParts, getEgyptHijriShort, getMsUntilEgyptMidnight } f
 export function useHijriDate(lang = 'ar', theme = 'default') {
     const isEid = theme === 'eid-fitr';
     
-    // During Eid mode, we remove the -1 day lag to show 1 Shawwal
-    const getParts = () => getEgyptHijriDateParts(new Date(), isEid ? 0 : -1);
-    const getShort = () => getEgyptHijriShort(new Date(), lang, isEid ? 0 : -1);
+    // Use 0 day lag for accuracy during Eid, otherwise use -1 if required by sighting
+    const getParts = () => getEgyptHijriDateParts(new Date(), 0);
+    const getShort = () => getEgyptHijriShort(new Date(), lang, 0);
 
     const [hijriParts, setHijriParts] = useState(() => getParts());
     const [hijriShort, setHijriShort] = useState(() => getShort());
@@ -29,14 +29,14 @@ export function useHijriDate(lang = 'ar', theme = 'default') {
         timeout = setTimeout(updateDate, ms + 1000);
 
         // Update short format if language changes
-        setHijriShort(getEgyptHijriShort(new Date(), lang));
+        setHijriShort(getEgyptHijriShort(new Date(), lang, 0));
 
         // Fallback safety interval to catch drifts
         const interval = setInterval(() => {
-            const nowParts = getEgyptHijriDateParts();
+            const nowParts = getEgyptHijriDateParts(new Date(), 0);
             setHijriParts(prev => {
                 if (prev.day !== nowParts.day || prev.monthIndex !== nowParts.monthIndex || prev.year !== nowParts.year) {
-                    setHijriShort(getEgyptHijriShort(new Date(), lang));
+                    setHijriShort(getEgyptHijriShort(new Date(), lang, 0));
                     setCurrentWeekday(new Date().getDay());
                     return nowParts;
                 }
