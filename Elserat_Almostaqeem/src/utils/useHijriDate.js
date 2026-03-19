@@ -1,16 +1,22 @@
 import { useState, useEffect } from 'react';
 import { getEgyptHijriDateParts, getEgyptHijriShort, getMsUntilEgyptMidnight } from './egyptTime';
 
-export function useHijriDate(lang = 'ar') {
-    const [hijriParts, setHijriParts] = useState(() => getEgyptHijriDateParts());
-    const [hijriShort, setHijriShort] = useState(() => getEgyptHijriShort(new Date(), lang));
+export function useHijriDate(lang = 'ar', theme = 'default') {
+    const isEid = theme === 'eid-fitr';
+    
+    // During Eid mode, we remove the -1 day lag to show 1 Shawwal
+    const getParts = () => getEgyptHijriDateParts(new Date(), isEid ? 0 : -1);
+    const getShort = () => getEgyptHijriShort(new Date(), lang, isEid ? 0 : -1);
+
+    const [hijriParts, setHijriParts] = useState(() => getParts());
+    const [hijriShort, setHijriShort] = useState(() => getShort());
     const [currentWeekday, setCurrentWeekday] = useState(() => new Date().getDay());
 
     useEffect(() => {
         let timeout;
         const updateDate = () => {
-            setHijriParts(getEgyptHijriDateParts());
-            setHijriShort(getEgyptHijriShort(new Date(), lang));
+            setHijriParts(getParts());
+            setHijriShort(getShort());
             setCurrentWeekday(new Date().getDay());
 
             // Schedule next update right after next midnight

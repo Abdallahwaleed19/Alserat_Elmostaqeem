@@ -348,7 +348,16 @@ const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete })
 
                 @media (max-width: 768px) {
                     .hidden-mobile { display: none; }
-                    .floating-nav-btn { display: none; } /* Hidden on mobile, use swipe */
+                    .floating-nav-btn { 
+                        display: flex; 
+                        width: 40px; 
+                        height: 40px;
+                        background: rgba(212, 175, 55, 0.7); /* More transparent on mobile */
+                    }
+                    .floating-nav-btn svg { width: 20px; height: 20px; }
+                    .floating-nav-btn.right { right: 0.5rem; }
+                    .floating-nav-btn.left { left: 0.5rem; }
+
                     .mushaf-image-frame { 
                         padding: 4px; 
                         border-width: 4px; 

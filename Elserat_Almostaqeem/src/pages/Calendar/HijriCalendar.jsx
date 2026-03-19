@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
 import { useHijriDate } from '../../utils/useHijriDate';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Moon, Sun, Info } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Calendar as CalendarIcon, ExternalLink, Info } from 'lucide-react';
 import './HijriCalendar.css';
 
 const HIJRI_MONTHS_AR = [
@@ -54,7 +55,8 @@ function getFirstDayWeekday(hijriYear, monthIndex1Based) {
 
 const HijriCalendar = () => {
     const { lang } = useLanguage();
-    const { hijriParts: todayDate, currentWeekday } = useHijriDate(lang);
+    const { theme } = useTheme();
+    const { hijriParts: todayDate, currentWeekday } = useHijriDate(lang, theme);
 
     const [currentMonthIndex, setCurrentMonthIndex] = useState(() => todayDate.monthIndex);
     const [currentYear, setCurrentYear] = useState(() => todayDate.year);

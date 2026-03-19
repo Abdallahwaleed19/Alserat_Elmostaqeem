@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Home, BookOpen, Heart, Compass, Moon, Sun, Menu, X, Globe, Sparkles, Circle, Star, Map, Bookmark } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { usePrayer } from '../../context/PrayerContext';
 import { useLanguage } from '../../context/LanguageContext';
 import AudioPlayer from '../audio/AudioPlayer';
 import RadioPlayerBar from '../audio/RadioPlayerBar';
@@ -13,9 +14,17 @@ import './Layout.css';
 
 const Layout = () => {
     const { theme } = useTheme();
+    const { city } = usePrayer();
     const isRamadanOn = theme === 'ramadan';
     const { lang } = useLanguage();
-    const { hijriShort: hijriDateStr } = useHijriDate(lang);
+    const { hijriShort: hijriDateStr } = useHijriDate(lang, theme);
+
+    const getEidPrayerTime = () => {
+        if (city?.includes('شبين') || city?.includes('Shibin')) return '6:25';
+        return '6:24';
+    };
+
+    const eidTime = getEidPrayerTime();
 
     // Apply soft protection globally
     useSoftProtection();
@@ -36,8 +45,8 @@ const Layout = () => {
                         </h2>
                         <p className="eid-banner-subtitle">
                             {lang === 'ar'
-                                ? 'تقبل الله منا ومنكم صالح الأعمال. صلاة عيد الفطر بتوقيت مصر المحروسة في تمام الساعة 5:59 صباحاً'
-                                : 'May Allah accept from us and you. Eid Prayer in Egypt is at 5:59 AM'}
+                                ? `تقبل الله منا ومنكم صالح الأعمال. صلاة عيد الفطر بتوقيت ${city || 'مصر'} في تمام الساعة ${eidTime} صباحاً`
+                                : `May Allah accept from us and you. Eid Prayer in ${city || 'Egypt'} is at ${eidTime} AM`}
                         </p>
                     </div>
                 </div>
@@ -93,12 +102,18 @@ const Layout = () => {
 
             {/* Eid al-Fitr Decorations Overlay */}
             {theme === 'eid-fitr' && (
-                <div className="eid-decorations hidden-mobile">
-                    <div className="eid-balloon gold"></div>
-                    <div className="eid-balloon"></div>
-                    <div className="eid-balloon red"></div>
-                    <div className="eid-balloon"></div>
-                    <div className="eid-balloon gold"></div>
+                <div className="eid-decorations">
+                    <div className="eid-balloon gold" style={{ left: '10%', animationDelay: '0s' }}></div>
+                    <div className="eid-balloon purple" style={{ left: '30%', animationDelay: '2s' }}></div>
+                    <div className="eid-balloon" style={{ left: '50%', animationDelay: '4s' }}></div>
+                    <div className="eid-balloon cyan" style={{ left: '70%', animationDelay: '1s' }}></div>
+                    <div className="eid-balloon gold" style={{ left: '90%', animationDelay: '3s' }}></div>
+                    
+                    {/* Sparkles */}
+                    <div className="sparkle" style={{ top: '20%', left: '15%', animationDelay: '0.5s' }}></div>
+                    <div className="sparkle" style={{ top: '40%', left: '85%', animationDelay: '1.2s' }}></div>
+                    <div className="sparkle" style={{ top: '60%', left: '25%', animationDelay: '0.8s' }}></div>
+                    <div className="sparkle" style={{ top: '80%', left: '75%', animationDelay: '1.5s' }}></div>
                 </div>
             )}
 

@@ -1,59 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { usePrayer } from '../../context/PrayerContext';
+
 const PrayerTimesHome = () => {
   const { lang } = useLanguage();
   const { theme } = useTheme();
-  const [prayerTimes, setPrayerTimes] = useState(null);
+  const { prayerTimes, loading: prayerLoading, error: prayerError } = usePrayer();
   const [nextPrayer, setNextPrayer] = useState(null);
   const [timeToNext, setTimeToNext] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (!('geolocation' in navigator)) {
-      setError(
-        lang === 'ar'
-          ? 'متصفحك لا يدعم تحديد الموقع لمواقيت الصلاة.'
-          : 'Your browser does not support geolocation for prayer times.',
-      );
-      setLoading(false);
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const { latitude, longitude } = position.coords;
-          const date = new Date();
-          const res = await fetch(
-            `https://api.aladhan.com/v1/timings/${date.getDate()}-${date.getMonth() +
-            1}-${date.getFullYear()}?latitude=${latitude}&longitude=${longitude}&method=5`,
-          );
-          const data = await res.json();
-          setPrayerTimes(data.data.timings);
-        } catch (e) {
-          console.error(e);
-          setError(
-            lang === 'ar'
-              ? 'حدث خطأ أثناء جلب مواقيت الصلاة.'
-              : 'Error fetching prayer times.',
-          );
-        } finally {
-          setLoading(false);
-        }
-      },
-      () => {
-        setError(
-          lang === 'ar'
-            ? 'يرجى السماح بالوصول إلى الموقع الجغرافي لعرض مواقيت الصلاة.'
-            : 'Please allow location access to show prayer times.',
-        );
-        setLoading(false);
-      },
-    );
-  }, [lang]);
+  const loading = prayerLoading;
+  const error = prayerError;
 
   // تحديث الصلاة القادمة والعد التنازلي
   useEffect(() => {

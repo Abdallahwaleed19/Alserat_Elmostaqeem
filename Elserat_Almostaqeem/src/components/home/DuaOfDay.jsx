@@ -1,10 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
 import { getEgyptDateString } from '../../utils/egyptTime';
 import { Share2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { shareImageDataUrl } from '../../utils/shareImageNative';
 import './ShareCard.css';
+
+const EID_DUA = {
+    ar: "اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، لَا إِلَهَ إِلَّا اللَّهُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، وَلِلَّهِ الْحَمْدُ",
+    en: "Allah is the Greatest, Allah is the Greatest, Allah is the Greatest, there is no god but Allah. Allah is the Greatest, Allah is the Greatest, and to Allah belongs all praise."
+};
 
 const DAILY_DUAS = [
     {
@@ -39,6 +45,7 @@ const DAILY_DUAS = [
 
 const DuaOfDay = () => {
     const { lang } = useLanguage();
+    const { theme } = useTheme();
     const [dua, setDua] = useState(DAILY_DUAS[0]);
     const [egyptDateKey, setEgyptDateKey] = useState(() => getEgyptDateString());
     const cardRef = useRef(null);
@@ -55,10 +62,14 @@ const DuaOfDay = () => {
     }, []);
 
     useEffect(() => {
+        if (theme === 'eid-fitr') {
+            setDua(EID_DUA);
+            return;
+        }
         const dayHash = egyptDateKey.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0);
         const selectedIndex = dayHash % DAILY_DUAS.length;
         setDua(DAILY_DUAS[selectedIndex]);
-    }, [egyptDateKey]);
+    }, [egyptDateKey, theme]);
 
     const handleShare = async () => {
         if (!cardRef.current || isSharing) return;

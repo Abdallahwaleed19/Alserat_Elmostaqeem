@@ -85,16 +85,48 @@
 @media (max-width: 768px) {
     .home-top-bar {
         padding: 0.5rem;
-        /* allow horizontal scrolling */
-        -webkit-overflow-scrolling: touch;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+        white-space: normal; /* Allow wrapping */
     }
     
+    .home-top-bar-inner {
+        min-width: 0;
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+
+    .top-bar-location, .top-bar-date {
+        width: 100%;
+        justify-content: center;
+        border: none;
+        padding: 0.25rem 0;
+    }
+
+    .top-bar-prayers {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .prayer-item {
+        font-size: 0.75rem;
+        gap: 0.25rem;
+    }
+
+    .prayer-title-box {
+        display: none; /* Hide 'Prayer Times' title on mobile to save space */
+    }
+
+    .top-bar-date {
+        font-size: 0.75rem;
+        padding-right: 0;
+    }
+
     .home-top-bar::-webkit-scrollbar {
-        height: 3px;
-    }
-    
-    .home-top-bar::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 3px;
+        display: none;
     }
 }

@@ -59,8 +59,8 @@ export function getEgyptEpochDay(date = new Date()) {
 }
 
 /** أجزاء التاريخ الهجري الحالي بتوقيت مصر: { day, monthIndex, year } (monthIndex 0–11) */
-export function getEgyptHijriDateParts(date = new Date()) {
-  const adjustedDate = new Date(date.getTime() - 1 * 24 * 60 * 60 * 1000); // إرجاع التاريخ الهجري يوماً واحداً لضبطه ليكون 27 رمضان
+export function getEgyptHijriDateParts(date = new Date(), dayOffset = -1) {
+  const adjustedDate = new Date(date.getTime() + dayOffset * 24 * 60 * 60 * 1000); 
   try {
     const formatter = new Intl.DateTimeFormat('en-CA', {
       timeZone: EGYPT_TZ,
@@ -89,8 +89,8 @@ const HIJRI_MONTHS_EN = [
 ];
 
 /** التاريخ الهجري بتوقيت مصر (قصير) */
-export function getEgyptHijriShort(date = new Date(), lang = 'ar') {
-  const adjustedDate = new Date(date.getTime() - 1 * 24 * 60 * 60 * 1000); // إرجاع التاريخ الهجري يوماً واحداً لضبطه ليكون 27 رمضان
+export function getEgyptHijriShort(date = new Date(), lang = 'ar', dayOffset = -1) {
+  const adjustedDate = new Date(date.getTime() + dayOffset * 24 * 60 * 60 * 1000);
   try {
     if (lang === 'ar') {
       return new Intl.DateTimeFormat('ar-EG', {

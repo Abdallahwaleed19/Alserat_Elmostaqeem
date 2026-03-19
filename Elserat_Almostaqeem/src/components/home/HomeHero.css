@@ -151,19 +151,34 @@
 }
 
 /* Eid hero variant: ألوان مبهجة وواضحة */
-[data-theme='eid-fitr'] .home-hero {
+[data-theme='eid-fitr'][data-color-mode='light'] .home-hero {
     background: linear-gradient(145deg, #FEF9C3 0%, #FEF3C7 45%, #ECFDF5 100%);
     border: 1px solid rgba(202, 138, 4, 0.35);
     box-shadow: 0 14px 40px rgba(234, 179, 8, 0.24);
 }
 
-[data-theme='eid-fitr'] .hero-welcome h1 {
+[data-theme='eid-fitr'][data-color-mode='dark'] .home-hero {
+    background: linear-gradient(145deg, #1a0628 0%, #0d041a 100%);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='eid-fitr'][data-color-mode='light'] .hero-welcome h1 {
     color: #92400e;
     text-shadow: 0 0 32px rgba(250, 204, 21, 0.55);
 }
 
-[data-theme='eid-fitr'] .hero-welcome p {
+[data-theme='eid-fitr'][data-color-mode='dark'] .hero-welcome h1 {
+    color: var(--gold-light);
+    text-shadow: 0 0 32px rgba(212, 175, 55, 0.4);
+}
+
+[data-theme='eid-fitr'][data-color-mode='light'] .hero-welcome p {
     color: #4b5563;
+}
+
+[data-theme='eid-fitr'][data-color-mode='dark'] .hero-welcome p {
+    color: #bda6cc;
 }
 
 /* Iftar Countdown Widget */

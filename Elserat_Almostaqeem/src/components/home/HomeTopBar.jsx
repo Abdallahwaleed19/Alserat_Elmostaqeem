@@ -3,14 +3,14 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { MapPin, Sun, Sunrise, Sunset, Moon, CalendarDays, Clock } from 'lucide-react';
 import { useHijriDate } from '../../utils/useHijriDate';
+import { usePrayer } from '../../context/PrayerContext';
 import './HomeTopBar.css';
 
 const HomeTopBar = () => {
     const { lang } = useLanguage();
     const { theme } = useTheme();
-    const [prayerTimes, setPrayerTimes] = useState(null);
-    const [city, setCity] = useState('');
-    const { hijriShort } = useHijriDate(lang);
+    const { city, location, prayerTimes } = usePrayer();
+    const { hijriShort } = useHijriDate(lang, theme);
 
     const getGregorianDateString = () => {
         const date = new Date();
@@ -20,36 +20,10 @@ const HomeTopBar = () => {
         let day = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-EG' : 'en-US', optionsDays).format(date);
         const fullDate = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-EG' : 'en-US', optionsDate).format(date);
         
-
         return { day, fullDate };
     };
 
     const { day, fullDate } = getGregorianDateString();
-
-    useEffect(() => {
-        if (!('geolocation' in navigator)) return;
-
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const { latitude, longitude } = position.coords;
-                try {
-                    // Fetch city
-                    const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=${lang}`);
-                    const geoData = await geoRes.json();
-                    setCity(geoData.city || geoData.locality || '');
-
-                    // Fetch prayer times
-                    const date = new Date();
-                    const prayerRes = await fetch(`https://api.aladhan.com/v1/timings/${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}?latitude=${latitude}&longitude=${longitude}&method=5`);
-                    const prayerData = await prayerRes.json();
-                    setPrayerTimes(prayerData.data.timings);
-                } catch (err) {
-                    console.error("Error fetching data for top bar", err);
-                }
-            },
-            () => console.log("Geolocation permission denied for top bar")
-        );
-    }, [lang]);
 
     const prayerIcons = {
         Fajr: <Sunrise size={14} />,

@@ -1,10 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
 import { getEgyptDateString } from '../../utils/egyptTime';
 import { Share2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { shareImageDataUrl } from '../../utils/shareImageNative';
 import './ShareCard.css';
+
+const EID_HADITH = {
+    text: "عَنْ عَائِشَةَ رضي الله عنها قَالَتْ: قَالَ رَسُولُ اللَّهِ ﷺ: (يَوْمُ الْفِطْرِ، وَيَوْمُ الْأَضْحَى، وَأَيَّامُ التَّشْرِيقِ عِيدُنَا أَهْلَ الْإِسْلَامِ، وَهِيَ أَيَّامُ أَكْلٍ وَشُرْبٍ)",
+    source: "سنن النسائي",
+    sourceEn: "Sunan an-Nasa'i"
+};
 
 const BUKHARI_RANGE = 7563;
 
@@ -16,6 +23,7 @@ const DEFAULT_HADITH = {
 
 const DailyHadith = () => {
     const { lang } = useLanguage();
+    const { theme } = useTheme();
     const [hadith, setHadith] = useState(DEFAULT_HADITH);
     const [loading, setLoading] = useState(true);
     const [egyptDateKey, setEgyptDateKey] = useState(() => getEgyptDateString());
@@ -34,7 +42,13 @@ const DailyHadith = () => {
 
     useEffect(() => {
         const fetchDailyHadith = async () => {
+            if (theme === 'eid-fitr') {
+                setHadith(EID_HADITH);
+                setLoading(false);
+                return;
+            }
             const egyptToday = egyptDateKey;
+// ...
             const cached = localStorage.getItem('zad_daily_hadith');
             const cachedDate = localStorage.getItem('zad_daily_hadith_date');
 

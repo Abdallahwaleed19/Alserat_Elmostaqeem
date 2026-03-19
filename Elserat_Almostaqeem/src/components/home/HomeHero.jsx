@@ -1,32 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { MapPin, Moon as MoonIcon, CloudMoon } from 'lucide-react';
+import { usePrayer } from '../../context/PrayerContext';
+import { MapPin, Moon as MoonIcon, CloudMoon, Map } from 'lucide-react';
 import { useHijriDate } from '../../utils/useHijriDate';
 import './HomeHero.css';
 
 const HomeHero = () => {
     const { theme } = useTheme();
     const { t, lang } = useLanguage();
-
-    const [city, setCity] = useState('');
-
-    useEffect(() => {
-        if (!('geolocation' in navigator)) return;
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const { latitude, longitude } = position.coords;
-                try {
-                    const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=${lang}`);
-                    const geoData = await geoRes.json();
-                    setCity(geoData.city || geoData.locality || '');
-                } catch (err) {
-                    console.error("Error fetching location info", err);
-                }
-            },
-            () => console.log("Geolocation permission denied")
-        );
-    }, [lang]);
+    const { city } = usePrayer();
 
     return (
         <div className={`home-hero ${theme === 'ramadan' ? 'ramadan-hero' : ''}`}>

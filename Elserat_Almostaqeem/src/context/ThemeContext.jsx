@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getEgyptHijriDateParts } from '../utils/egyptTime';
+import { usePrayer } from './PrayerContext';
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
+  const { prayerTimes } = usePrayer();
   const [themePreference, setThemePreference] = useState(() => {
     const saved = localStorage.getItem('zad_theme_pref');
     if (saved === 'ramadan' || saved === 'default' || saved === 'auto') return saved;
@@ -43,11 +45,25 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem('zad_color_mode', colorMode);
 
     let effectiveTheme = themePreference;
+
     try {
       const { day: hijriDay, monthIndex } = getEgyptHijriDateParts();
       const hijriMonth = monthIndex + 1;
 
-      if (hijriMonth === 10 && hijriDay <= 3) {
+      const isEidFitrRange = (hijriMonth === 10 && hijriDay <= 3);
+      
+      // Check for Eid Eve transition (Ramadan 29/30 after Maghrib + 30 mins)
+      let isEidEveTransition = false;
+      if (hijriMonth === 9 && hijriDay >= 29 && prayerTimes?.Maghrib) {
+        const [h, m] = prayerTimes.Maghrib.split(':');
+        const maghrib = new Date();
+        maghrib.setHours(parseInt(h, 10), parseInt(m, 10), 0, 0);
+        if (new Date().getTime() > maghrib.getTime() + 30 * 60 * 1000) {
+          isEidEveTransition = true;
+        }
+      }
+
+      if (isEidFitrRange || isEidEveTransition) {
         effectiveTheme = 'eid-fitr';
       } else if (hijriMonth === 12 && hijriDay === 9) {
         effectiveTheme = 'arafah';
@@ -79,7 +95,7 @@ export const ThemeProvider = ({ children }) => {
     } else if (colorMode === 'dark') {
       root.setAttribute('data-theme', 'dark');
     }
-  }, [themePreference, colorMode]);
+  }, [themePreference, colorMode, prayerTimes]);
 
   const cycleThemePreference = () => {
     setThemePreference((prev) => {

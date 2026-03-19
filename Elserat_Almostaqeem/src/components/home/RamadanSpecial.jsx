@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { usePrayer } from '../../context/PrayerContext';
 import { Moon, Sun, Book } from 'lucide-react';
 import { getEgyptHijriDateParts } from '../../utils/egyptTime';
 import './RamadanSpecial.css';
@@ -8,8 +9,8 @@ import './RamadanSpecial.css';
 const RamadanSpecial = () => {
     const { lang } = useLanguage();
     const { theme } = useTheme();
+    const { prayerTimes } = usePrayer();
     const [hijriDate, setHijriDate] = useState({ month: 9, day: 1 });
-    const [prayerTimes, setPrayerTimes] = useState(null);
     const [iftarCountdown, setIftarCountdown] = useState('--:--:--');
     const [suhoorCountdown, setSuhoorCountdown] = useState('--:--:--');
     const [eidPrayerTime, setEidPrayerTime] = useState('--:--');
@@ -24,17 +25,6 @@ const RamadanSpecial = () => {
             });
         } catch (e) {
             console.error("Hijri calibration failed", e);
-        }
-
-        // Fetch Prayer Times for countdowns
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                const { latitude, longitude } = pos.coords;
-                const d = new Date();
-                const res = await fetch(`https://api.aladhan.com/v1/timings/${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}?latitude=${latitude}&longitude=${longitude}&method=5`);
-                const data = await res.json();
-                setPrayerTimes(data.data.timings);
-            });
         }
     }, []);
 
@@ -98,8 +88,8 @@ const RamadanSpecial = () => {
         return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
-    const isRamadan = hijriDate.month === 9 && theme === 'ramadan';
-    const isEid = hijriDate.month === 10 && hijriDate.day <= 3 && theme === 'eid-fitr';
+    const isRamadan = theme === 'ramadan';
+    const isEid = theme === 'eid-fitr';
 
     // خارج رمضان وأيام العيد، أو عندما يكون الثيم "عادي"، لا نظهر أي كارت
     if (!isRamadan && !isEid) return null;

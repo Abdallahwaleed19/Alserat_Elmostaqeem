@@ -444,6 +444,142 @@ body::before {
   z-index: -1;
 }
 
+/* --- Eid Al-Fitr Festive Theme --- */
+[data-theme="eid-fitr"][data-color-mode="dark"] {
+  --bg-main: #0d041a; 
+  --bg-gradient: radial-gradient(circle at 50% 50%, #1a0628 0%, #0d041a 100%);
+  --bg-card: #1a0628;
+  --text-main: #f8f1e5;
+  --text-sub: #bda6cc;
+  --text-muted: #8a6da6;
+
+  --color-bg: #0d041a;
+  --color-surface: #1a0628;
+  --color-surface-hover: #2d0b45;
+  --color-primary: #d4af37;
+  --color-primary-rgb: 212, 175, 55;
+  --color-text: #f8f1e5;
+  --color-text-muted: #bda6cc;
+  --color-border: rgba(212, 175, 55, 0.3);
+  --color-accent: #fcd34d;
+  --gold-main: #d4af37;
+  --gold-light: #f1d592;
+}
+
+[data-theme="eid-fitr"][data-color-mode="light"] {
+  --bg-main: #f9f5ff;
+  --bg-gradient: radial-gradient(circle at 50% 50%, #f0e6ff 0%, #f9f5ff 100%);
+  --bg-card: #ffffff;
+  --text-main: #2d0b45;
+  --text-sub: #5d3d82;
+  --text-muted: #8a6da6;
+
+  --color-bg: #f9f5ff;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f0e6ff;
+  --color-primary: #8a4dc7;
+  --color-primary-rgb: 138, 77, 199;
+  --color-text: #2d0b45;
+  --color-text-muted: #5d3d82;
+  --color-border: rgba(138, 77, 199, 0.2);
+  --color-accent: #d4af37;
+  --gold-main: #d4af37;
+  --gold-light: #f1d592;
+}
+
+/* Base properties for Eid Fitr regardless of mode */
+[data-theme="eid-fitr"] body {
+  background: var(--bg-gradient) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="eid-fitr"] {
+  --shadow-glow: 0 0 30px rgba(212, 175, 55, 0.3);
+}
+
+[data-theme="eid-fitr"] .card {
+  background: var(--color-surface) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-theme="eid-fitr"] .badge {
+  background: rgba(212, 175, 55, 0.2) !important;
+  color: #fcd34d !important;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.eid-decorations {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+  overflow: hidden;
+}
+
+.eid-balloon {
+  position: absolute;
+  bottom: -100px;
+  width: 40px;
+  height: 50px;
+  background: rgba(255, 105, 180, 0.8);
+  border-radius: 50%;
+  animation: float-up 10s linear infinite;
+}
+
+.eid-balloon::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  width: 2px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.eid-balloon.gold { background: rgba(212, 175, 55, 0.8); }
+.eid-balloon.purple { background: rgba(138, 43, 226, 0.8); }
+.eid-balloon.cyan { background: rgba(0, 255, 255, 0.8); }
+
+@keyframes float-up {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-120vh) translateX(50px); opacity: 0; }
+}
+
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  filter: blur(1px);
+  animation: sparkle-anim 3s infinite;
+}
+
+@keyframes sparkle-anim {
+  0%, 100% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.5); opacity: 0.8; }
+}
+
+[data-theme="eid-fitr"] .eid-banner {
+  background: linear-gradient(90deg, #4a148c, #d4af37, #4a148c);
+  background-size: 200% auto;
+  animation: shine 3s linear infinite;
+  color: white;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+@keyframes shine {
+  to { background-position: 200% center; }
+}
+
 /* Background Pattern - Dark Mode */
 [data-theme='dark'] body::before {
   background-image:

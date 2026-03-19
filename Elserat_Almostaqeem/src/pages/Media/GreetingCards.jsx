@@ -38,7 +38,7 @@ const TEMPLATES = [
 const GreetingCards = () => {
     const { lang } = useLanguage();
     const { theme } = useTheme();
-    const { currentWeekday } = useHijriDate(lang);
+    const { currentWeekday } = useHijriDate(lang, theme);
     const navigate = useNavigate();
     const [selectedTemplate, setSelectedTemplate] = useState(TEMPLATES[0]);
     const [sender, setSender] = useState('');
@@ -217,7 +217,16 @@ const GreetingCards = () => {
                 <div 
                     ref={cardRef} 
                     className={`card-canvas ${selectedTemplate.className}`}
+                    data-color-mode={theme === 'eid-fitr' ? (document.documentElement.getAttribute('data-color-mode') || 'light') : 'light'}
                 >
+                    {selectedTemplate.id === 'eid' && (
+                        <>
+                            <div className="template-eid-ornament orn-tl" />
+                            <div className="template-eid-ornament orn-tr" />
+                            <div className="template-eid-ornament orn-bl" />
+                            <div className="template-eid-ornament orn-br" />
+                        </>
+                    )}
                     {recipient && (
                         <div className="card-text-to">
                             <span className="card-text-label">{lang === 'ar' ? 'إلى' : 'To'}</span>

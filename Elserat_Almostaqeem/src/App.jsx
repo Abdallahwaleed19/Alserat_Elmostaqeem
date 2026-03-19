@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AudioProvider } from './context/AudioContext';
 import { RadioProvider } from './context/RadioContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { PrayerProvider } from './context/PrayerContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/layout/Layout';
 import Home from './pages/Home';
@@ -134,7 +135,8 @@ function App() {
 
       <ErrorBoundary>
         <LanguageProvider>
-          <ThemeProvider>
+          <PrayerProvider>
+            <ThemeProvider>
             <AudioProvider>
               <RadioProvider>
                 <BrowserRouter>
@@ -175,7 +177,8 @@ function App() {
                 </BrowserRouter>
               </RadioProvider>
             </AudioProvider>
-          </ThemeProvider>
+            </ThemeProvider>
+          </PrayerProvider>
         </LanguageProvider>
       </ErrorBoundary>
     </>
