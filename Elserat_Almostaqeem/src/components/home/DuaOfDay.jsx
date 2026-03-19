@@ -7,10 +7,20 @@ import html2canvas from 'html2canvas';
 import { shareImageDataUrl } from '../../utils/shareImageNative';
 import './ShareCard.css';
 
-const EID_DUA = {
-    ar: "اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، لَا إِلَهَ إِلَّا اللَّهُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، وَلِلَّهِ الْحَمْدُ",
-    en: "Allah is the Greatest, Allah is the Greatest, Allah is the Greatest, there is no god but Allah. Allah is the Greatest, Allah is the Greatest, and to Allah belongs all praise."
-};
+const EID_DUAS = [
+    {
+        ar: "اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، لَا إِلَهَ إِلَّا اللَّهُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، وَلِلَّهِ الْحَمْدُ",
+        en: "Allah is the Greatest, Allah is the Greatest, Allah is the Greatest, there is no god but Allah. Allah is the Greatest, Allah is the Greatest, and to Allah belongs all praise."
+    },
+    {
+        ar: "تَقَبَّلَ اللَّهُ مِنَّا وَمِنْكُمْ صَالِحَ الْأَعْمَالِ. كُلُّ عَامٍ وَأَنْتُمْ بِخَيْرٍ",
+        en: "May Allah accept from us and you the good deeds. Happy Eid to you all."
+    },
+    {
+        ar: "اللَّهُمَّ رَبَّنَا لَكَ الْحَمْدُ، أَنْعَمْتَ عَلَيْنَا بِتَمَامِ الصِّيَامِ وَبَلَغْتَنَا عِيدَ الْفِطْرِ، فَلَكَ الْحَمْدُ حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ",
+        en: "O Allah, all praise is due to You. You have blessed us with the completion of fasting and allowed us to reach Eid Al-Fitr. To You belongs much good and blessed praise."
+    }
+];
 
 const DAILY_DUAS = [
     {
@@ -63,7 +73,9 @@ const DuaOfDay = () => {
 
     useEffect(() => {
         if (theme === 'eid-fitr') {
-            setDua(EID_DUA);
+            const dayHash = egyptDateKey.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0);
+            const selectedIndex = dayHash % EID_DUAS.length;
+            setDua(EID_DUAS[selectedIndex]);
             return;
         }
         const dayHash = egyptDateKey.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0);

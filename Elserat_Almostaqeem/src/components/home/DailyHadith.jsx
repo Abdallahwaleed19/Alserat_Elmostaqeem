@@ -7,11 +7,23 @@ import html2canvas from 'html2canvas';
 import { shareImageDataUrl } from '../../utils/shareImageNative';
 import './ShareCard.css';
 
-const EID_HADITH = {
-    text: "عَنْ عَائِشَةَ رضي الله عنها قَالَتْ: قَالَ رَسُولُ اللَّهِ ﷺ: (يَوْمُ الْفِطْرِ، وَيَوْمُ الْأَضْحَى، وَأَيَّامُ التَّشْرِيقِ عِيدُنَا أَهْلَ الْإِسْلَامِ، وَهِيَ أَيَّامُ أَكْلٍ وَشُرْبٍ)",
-    source: "سنن النسائي",
-    sourceEn: "Sunan an-Nasa'i"
-};
+const EID_HADITHS = [
+    {
+        text: "عَنْ عَائِشَةَ رضي الله عنها قَالَتْ: قَالَ رَسُولُ اللَّهِ ﷺ: (يَوْمُ الْفِطْرِ، وَيَوْمُ الْأَضْحَى، وَأَيَّامُ التَّشْرِيقِ عِيدُنَا أَهْلَ الْإِسْلَامِ، وَهِيَ أَيَّامُ أَكْلٍ وَشُرْبٍ)",
+        source: "سنن النسائي",
+        sourceEn: "Sunan an-Nasa'i"
+    },
+    {
+        text: "كَانَ رَسُولُ اللَّهِ ﷺ لا يَغْدُو يَوْمَ الْفِطْرِ حَتَّى يَأْكُلَ تَمَرَاتٍ .. وَيَأْكُلُهُنَّ وِتْرًا",
+        source: "صحيح البخاري",
+        sourceEn: "Sahih Al-Bukhari"
+    },
+    {
+        text: "عَنْ أَبِي هُرَيْرَةَ رضي الله عنه أَنَّ رَسُولَ اللَّهِ ﷺ قَالَ: (لِلصَّائِمِ فَرْحَتَانِ يَفْرَحُهُمَا: إِذَا أَفْطَرَ فَرِحَ بِفِطْرِهِ، وَإِذَا لَقِيَ رَبَّهُ فَرِحَ بِصَوْمِهِ)",
+        source: "متفق عليه",
+        sourceEn: "Sahih Al-Bukhari & Muslim"
+    }
+];
 
 const BUKHARI_RANGE = 7563;
 
@@ -43,7 +55,9 @@ const DailyHadith = () => {
     useEffect(() => {
         const fetchDailyHadith = async () => {
             if (theme === 'eid-fitr') {
-                setHadith(EID_HADITH);
+                const dayHash = egyptDateKey.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0);
+                const selectedIndex = dayHash % EID_HADITHS.length;
+                setHadith(EID_HADITHS[selectedIndex]);
                 setLoading(false);
                 return;
             }
