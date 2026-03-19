@@ -13,15 +13,25 @@ import IslamicAssistantSidebar from '../assistant/IslamicAssistantSidebar';
 import './Layout.css';
 
 const Layout = () => {
-    const { theme } = useTheme();
-    const { city } = usePrayer();
+    const { prayerTimes, city } = usePrayer();
     const isRamadanOn = theme === 'ramadan';
     const { lang } = useLanguage();
     const { hijriShort: hijriDateStr } = useHijriDate(lang, theme);
 
     const getEidPrayerTime = () => {
-        if (city?.includes('شبين') || city?.includes('Shibin')) return '6:25';
-        return '6:24';
+        if (!prayerTimes?.Sunrise) {
+             // Fallback if prayer times not yet loaded
+            if (city?.includes('شبين') || city?.includes('Shibin')) return '6:25';
+            return '6:24';
+        }
+
+        const [sH, sM] = prayerTimes.Sunrise.split(':');
+        const sunriseDate = new Date();
+        sunriseDate.setHours(parseInt(sH, 10), parseInt(sM, 10) + 20, 0, 0); 
+        
+        const hh = sunriseDate.getHours().toString().padStart(2, '0');
+        const mm = sunriseDate.getMinutes().toString().padStart(2, '0');
+        return `${hh}:${mm}`;
     };
 
     const eidTime = getEidPrayerTime();
