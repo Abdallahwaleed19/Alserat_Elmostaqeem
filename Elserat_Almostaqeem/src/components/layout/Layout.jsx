@@ -13,6 +13,7 @@ import IslamicAssistantSidebar from '../assistant/IslamicAssistantSidebar';
 import './Layout.css';
 
 const Layout = () => {
+    const { theme } = useTheme();
     const { prayerTimes, city } = usePrayer();
     const isRamadanOn = theme === 'ramadan';
     const { lang } = useLanguage();
