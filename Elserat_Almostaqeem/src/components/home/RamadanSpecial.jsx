@@ -18,7 +18,7 @@ const RamadanSpecial = () => {
     useEffect(() => {
         // Get Hijri Date
         try {
-            const { day: hDay, monthIndex } = getEgyptHijriDateParts();
+            const { day: hDay, monthIndex } = getEgyptHijriDateParts(new Date(), 0);
             setHijriDate({
                 month: monthIndex + 1,
                 day: hDay
@@ -32,7 +32,7 @@ const RamadanSpecial = () => {
         if (!prayerTimes) return;
 
         // لو مش في رمضان، نوقف تايمر الصيام
-        if (hijriDate.month !== 9) return;
+        if (hijriDate.month !== 9 || theme === 'eid-fitr') return;
 
         const timer = setInterval(() => {
             const now = new Date();
