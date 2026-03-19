@@ -118,6 +118,13 @@ const EID_FITR_MESSAGES = [
     "عيد فطر مبارك 🌙 تقبل الله منا ومنكم صالح الأعمال، ولا تنسَ الاغتسال والتطيب ولبس أحسن الثياب.",
     "كل عام وأنتم إلى الله أقرب، سنَّة العيد: التكبير، والاغتسال، والذهاب لصلاة العيد من طريق والعودة من آخر.",
     "نسأل الله أن يعيد عليكم رمضان أعوامًا عديدة، واحرص في العيد على صلة الأرحام، والصدقة، وإدخال السرور على المسلمين.",
+    "عن النبي ﷺ: «لِلصَّائِمِ فَرْحَتَانِ يَفْرَحُهُمَا: إِذَا أَفْطَرَ فَرِحَ بِفِطْرِهِ، وَإِذَا لَقِيَ رَبَّهُ فَرِحَ بِصَوْمِهِ». عيدكم مبارك!",
+    "من سنن العيد: التكبير المطلق من ثبوت العيد حتى صلاة العيد، والغسل، والتطيب، ولبس الجميل، وأكل تمرات وتراً قبل الخروج لغدو الفطر.",
+    "تقبل الله صيامكم وقيامكم وطاعتكم، وجعل أيامكم كلها أعياداً ومسرات. كل عام وأنتم بخير.",
+    "الله أكبر، الله أكبر، الله أكبر، لا إله إلا الله، الله أكبر، الله أكبر، ولله الحمد. أكثروا من ذكر الله في هذه الأيام المباركة.",
+    "لا تكتمل فرحة العيد إلا بصلة الأرحام والسؤال عن الأهل والأحباب.. بادر بالاتصال أو الزيارة وتحدث بكلمة طيبة.",
+    "العيد فرصة لصفاء القلوب وتجديد المودة.. سامح واعفُ واجعل صدرك سليماً لإخوانك المسلمين.",
+    "الحمد لله الذي بلغنا العيد ونحن في عافية.. أدخلوا السرور على أطفالكم وأهليكم واجعلوا العيد بهجة للجميع."
 ];
 
 const ARAFAH_MESSAGES = [
@@ -626,21 +633,33 @@ export function useLocalAlarms() {
                     }
                 }
 
-                // Eid & Hajj occasions based on Hijri month/day
                 // Eid al-Fitr: 1-3 Shawwal (month 10)
                 if (hijriMonth === 10 && hijriDay >= 1 && hijriDay <= 3) {
-                    const eidTime = new Date(year, month - 1, dayDate.getDate(), 7, 45, 0);
-                    if (eidTime > now) {
-                        const msg = EID_FITR_MESSAGES[(hijriDay - 1) % EID_FITR_MESSAGES.length];
-                        notifications.push({
-                            id: idCounter++,
-                            title: 'عيد فطر مبارك 🌙',
-                            body: msg,
-                            channelId: 'general_channel_v5',
-                            sound: 'chime2.wav',
-                            schedule: { at: eidTime, allowWhileIdle: true },
-                        });
-                    }
+                    const eidTimes = [
+                        { h: 7, m: 45 },  // Morning reminder
+                        { h: 10, m: 0 },  // Mid-morning
+                        { h: 13, m: 30 }, // After Dhuhr
+                        { h: 17, m: 0 },  // Afternoon
+                        { h: 21, m: 0 }   // Night
+                    ];
+                    
+                    eidTimes.forEach((time, index) => {
+                        const scheduleAt = new Date(year, month - 1, dayDate.getDate(), time.h, time.m, 0);
+                        if (scheduleAt > now) {
+                            // Cycle through messages uniquely for each time slot over 3 days
+                            const msgIndex = ((hijriDay - 1) * eidTimes.length + index) % EID_FITR_MESSAGES.length;
+                            const msg = EID_FITR_MESSAGES[msgIndex];
+                            
+                            notifications.push({
+                                id: idCounter++,
+                                title: 'عيد فطر مبارك 🌙',
+                                body: msg,
+                                channelId: 'general_channel_v5',
+                                sound: 'chime2.wav',
+                                schedule: { at: scheduleAt, allowWhileIdle: true },
+                            });
+                        }
+                    });
                 }
 
                 // Arafah: 9 Dhul-Hijjah (month 12)
