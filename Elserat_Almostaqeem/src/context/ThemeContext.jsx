@@ -15,7 +15,7 @@ export const ThemeProvider = ({ children }) => {
 
   const [theme, setTheme] = useState(() => {
     try {
-      const { day: hijriDay, monthIndex } = getEgyptHijriDateParts();
+      const { day: hijriDay, monthIndex } = getEgyptHijriDateParts(new Date(), 0); // Use 0 offset to match user's "Today is 1 Shawwal"
       const hijriMonth = monthIndex + 1;
 
       // Force Eid al-Fitr during Shawwal 1-3
@@ -47,7 +47,7 @@ export const ThemeProvider = ({ children }) => {
     let effectiveTheme = themePreference;
 
     try {
-      const { day: hijriDay, monthIndex } = getEgyptHijriDateParts();
+      const { day: hijriDay, monthIndex } = getEgyptHijriDateParts(new Date(), 0);
       const hijriMonth = monthIndex + 1;
 
       const isEidFitrRange = (hijriMonth === 10 && hijriDay <= 3);
