@@ -9,7 +9,6 @@ import AyahOfDay from '../components/home/AyahOfDay';
 import DuaOfDay from '../components/home/DuaOfDay';
 import RecitersCarousel from '../components/home/RecitersCarousel';
 
-import RamadanSpecial from '../components/home/RamadanSpecial';
 import MushafHomeCard from '../components/home/MushafHomeCard';
 import HomeTopBar from '../components/home/HomeTopBar';
 
@@ -23,7 +22,6 @@ const Home = () => {
             <div className="container animate-slide-down" style={{ paddingTop: '2rem' }}>
                 <HomeHero />
                 <MushafHomeCard />
-            <RamadanSpecial />
 
             <div style={{ marginTop: '3rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--color-text)' }}>
