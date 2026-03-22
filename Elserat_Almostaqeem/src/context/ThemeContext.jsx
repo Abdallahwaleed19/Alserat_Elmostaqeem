@@ -8,29 +8,22 @@ export const ThemeProvider = ({ children }) => {
   const { prayerTimes } = usePrayer();
   const [themePreference, setThemePreference] = useState(() => {
     const saved = localStorage.getItem('zad_theme_pref');
-    if (saved === 'ramadan' || saved === 'default' || saved === 'auto') return saved;
-    // أول تشغيل: نستخدم "auto" ليتم اختيار رمضان/العيد/العادي تلقائياً حسب التاريخ الهجري
+    if (saved === 'default' || saved === 'auto') return saved;
     return 'auto';
   });
 
   const [theme, setTheme] = useState(() => {
     try {
-      const { day: hijriDay, monthIndex } = getEgyptHijriDateParts(new Date(), 0); // Use 0 offset to match user's "Today is 1 Shawwal"
+      const { day: hijriDay, monthIndex } = getEgyptHijriDateParts(new Date(), 0);
       const hijriMonth = monthIndex + 1;
 
-      // Force Eid al-Fitr during Shawwal 1-3
-      if (hijriMonth === 10 && hijriDay <= 3) return 'eid-fitr';
-
-      // Arafah & Eid al-Adha (Dhul-Hijjah)
+      // Arafah & Eid al-Adha (Dhul-Hijjah) ONLY
       if (hijriMonth === 12 && hijriDay === 9) return 'arafah';
       if (hijriMonth === 12 && hijriDay >= 10 && hijriDay <= 13) return 'eid-adha';
 
-      if (themePreference === 'auto') {
-        return 'default';
-      }
-      return themePreference;
+      return 'default';
     } catch (e) {
-      return themePreference === 'auto' ? 'default' : themePreference;
+      return 'default';
     }
   });
 
@@ -50,30 +43,15 @@ export const ThemeProvider = ({ children }) => {
       const { day: hijriDay, monthIndex } = getEgyptHijriDateParts(new Date(), 0);
       const hijriMonth = monthIndex + 1;
 
-      const isEidFitrRange = (hijriMonth === 10 && hijriDay <= 3);
-      
-      // Check for Eid Eve transition (Ramadan 29/30 after Maghrib + 30 mins)
-      let isEidEveTransition = false;
-      if (hijriMonth === 9 && hijriDay >= 29 && prayerTimes?.Maghrib) {
-        const [h, m] = prayerTimes.Maghrib.split(':');
-        const maghrib = new Date();
-        maghrib.setHours(parseInt(h, 10), parseInt(m, 10), 0, 0);
-        if (new Date().getTime() > maghrib.getTime() + 30 * 60 * 1000) {
-          isEidEveTransition = true;
-        }
-      }
-
-      if (isEidFitrRange || isEidEveTransition) {
-        effectiveTheme = 'eid-fitr';
-      } else if (hijriMonth === 12 && hijriDay === 9) {
+      if (hijriMonth === 12 && hijriDay === 9) {
         effectiveTheme = 'arafah';
       } else if (hijriMonth === 12 && hijriDay >= 10 && hijriDay <= 13) {
         effectiveTheme = 'eid-adha';
-      } else if (themePreference === 'auto') {
-        effectiveTheme = 'default';
+      } else {
+        effectiveTheme = (themePreference === 'auto') ? 'default' : themePreference;
       }
     } catch (e) {
-      if (themePreference === 'auto') effectiveTheme = 'default';
+      effectiveTheme = (themePreference === 'auto') ? 'default' : themePreference;
     }
 
     setTheme(effectiveTheme);
@@ -109,7 +87,7 @@ export const ThemeProvider = ({ children }) => {
   };
 
   const setRamadanMode = (on) => {
-    setThemePreference(on ? 'ramadan' : 'default');
+    setThemePreference('default');
   };
 
   return (
