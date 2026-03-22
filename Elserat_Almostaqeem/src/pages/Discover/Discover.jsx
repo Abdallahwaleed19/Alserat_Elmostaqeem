@@ -369,64 +369,43 @@ const Discover = () => {
                     </Link>
 
 
-                    {/* Conditional Cards based on Theme */}
-                    {theme === 'ramadan' ? (
-                        <Link to="/discover/laylat-alqadr" className="discover-card ramadan-special-card" style={{ borderColor: 'var(--color-primary-light)' }}>
-                            <div className="card-icon ramadan-special-icon" style={{ background: 'linear-gradient(135deg, #1B4332 0%, #0F766E 100%)' }}>
-                                <Moon size={32} color="white" />
+                    <>
+                        <Link to="/discover/isra-miraj" className="discover-card isra-card" style={{ borderColor: '#F59E0B' }}>
+                            <div className="card-icon isra-icon" style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)' }}>
+                                <Star size={32} color="white" />
                             </div>
                             <div className="card-content">
-                                <h2>{lang === 'ar' ? 'ليلة القدر' : 'Laylat al-Qadr'}</h2>
+                                <h2>{lang === 'ar' ? 'رحلة الإسراء والمعراج' : 'Isra and Mi\'raj'}</h2>
                                 <p>
                                     {lang === 'ar'
-                                        ? 'شرح تفصيلي لفضائل وعلامات ليلة القدر وأفضل ما يُدعى فيها.'
-                                        : 'Detailed explanation of the virtues, signs, and best supplications of the Night of Decree.'}
+                                        ? 'رحلة النبي ﷺ المعجزة من المسجد الحرام إلى المسجد الأقصى ثم إلى السماوات العلا.'
+                                        : 'The miraculous journey of the Prophet ﷺ from Al-Haram to Al-Aqsa and the heavens.'}
                                 </p>
                             </div>
                             <div className="card-cta">
-                                <span style={{ color: 'var(--color-primary)' }}>{lang === 'ar' ? 'اقرأ المزيد' : 'Read More'}</span>
-                                <ArrowLeft size={18} className="cta-arrow" color="var(--color-primary)" />
+                                <span style={{ color: '#D97706' }}>{lang === 'ar' ? 'اقرأ التفاصيل' : 'Read Details'}</span>
+                                <ArrowLeft size={18} className="cta-arrow" color="#D97706" />
                             </div>
                         </Link>
-                    ) : (
-                        <>
-                            <Link to="/discover/isra-miraj" className="discover-card isra-card" style={{ borderColor: '#F59E0B' }}>
-                                <div className="card-icon isra-icon" style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)' }}>
-                                    <Star size={32} color="white" />
-                                </div>
-                                <div className="card-content">
-                                    <h2>{lang === 'ar' ? 'رحلة الإسراء والمعراج' : 'Isra and Mi\'raj'}</h2>
-                                    <p>
-                                        {lang === 'ar'
-                                            ? 'رحلة النبي ﷺ المعجزة من المسجد الحرام إلى المسجد الأقصى ثم إلى السماوات العلا.'
-                                            : 'The miraculous journey of the Prophet ﷺ from Al-Haram to Al-Aqsa and the heavens.'}
-                                    </p>
-                                </div>
-                                <div className="card-cta">
-                                    <span style={{ color: '#D97706' }}>{lang === 'ar' ? 'اقرأ التفاصيل' : 'Read Details'}</span>
-                                    <ArrowLeft size={18} className="cta-arrow" color="#D97706" />
-                                </div>
-                            </Link>
 
-                            <Link to="/discover/qibla" className="discover-card qibla-card" style={{ borderColor: '#0EA5E9' }}>
-                                <div className="card-icon qibla-icon" style={{ background: 'linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)' }}>
-                                    <Compass size={32} color="white" />
-                                </div>
-                                <div className="card-content">
-                                    <h2>{lang === 'ar' ? 'قصة تحويل القبلة' : 'Change of Qibla'}</h2>
-                                    <p>
-                                        {lang === 'ar'
-                                            ? 'تفاصيل الحدث العظيم حينما تحولت قبلة المسلمين من بيت المقدس إلى الكعبة المشرفة.'
-                                            : 'Details of the monumental event when the Qibla was changed from Jerusalem to the Kaaba.'}
-                                    </p>
-                                </div>
-                                <div className="card-cta">
-                                    <span style={{ color: '#0284C7' }}>{lang === 'ar' ? 'اقرأ التفاصيل' : 'Read Details'}</span>
-                                    <ArrowLeft size={18} className="cta-arrow" color="#0284C7" />
-                                </div>
-                            </Link>
-                        </>
-                    )}
+                        <Link to="/discover/qibla" className="discover-card qibla-card" style={{ borderColor: '#0EA5E9' }}>
+                            <div className="card-icon qibla-icon" style={{ background: 'linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)' }}>
+                                <Compass size={32} color="white" />
+                            </div>
+                            <div className="card-content">
+                                <h2>{lang === 'ar' ? 'قصة تحويل القبلة' : 'Change of Qibla'}</h2>
+                                <p>
+                                    {lang === 'ar'
+                                        ? 'تفاصيل الحدث العظيم حينما تحولت قبلة المسلمين من بيت المقدس إلى الكعبة المشرفة.'
+                                        : 'Details of the monumental event when the Qibla was changed from Jerusalem to the Kaaba.'}
+                                </p>
+                            </div>
+                            <div className="card-cta">
+                                <span style={{ color: '#0284C7' }}>{lang === 'ar' ? 'اقرأ التفاصيل' : 'Read Details'}</span>
+                                <ArrowLeft size={18} className="cta-arrow" color="#0284C7" />
+                            </div>
+                        </Link>
+                    </>
                 </div>
             </div>
         </div>
