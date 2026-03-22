@@ -26,7 +26,7 @@ export const ThemeProvider = ({ children }) => {
       if (hijriMonth === 12 && hijriDay >= 10 && hijriDay <= 13) return 'eid-adha';
 
       if (themePreference === 'auto') {
-        return hijriMonth === 9 ? 'ramadan' : 'default';
+        return 'default';
       }
       return themePreference;
     } catch (e) {
@@ -70,7 +70,7 @@ export const ThemeProvider = ({ children }) => {
       } else if (hijriMonth === 12 && hijriDay >= 10 && hijriDay <= 13) {
         effectiveTheme = 'eid-adha';
       } else if (themePreference === 'auto') {
-        effectiveTheme = hijriMonth === 9 ? 'ramadan' : 'default';
+        effectiveTheme = 'default';
       }
     } catch (e) {
       if (themePreference === 'auto') effectiveTheme = 'default';
@@ -99,8 +99,7 @@ export const ThemeProvider = ({ children }) => {
 
   const cycleThemePreference = () => {
     setThemePreference((prev) => {
-      if (prev === 'auto') return 'ramadan';
-      if (prev === 'ramadan') return 'default';
+      if (prev === 'auto') return 'default';
       return 'auto';
     });
   };
