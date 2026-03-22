@@ -67,6 +67,21 @@ const Discover = () => {
                             <ArrowLeft size={18} className="cta-arrow" />
                         </div>
                     </Link>
+ 
+                    {/* Sunnah (Hadith) */}
+                    <Link to="/sunnah" className="discover-card" style={{ borderColor: 'var(--color-primary)' }}>
+                        <div className="card-icon" style={{ color: 'var(--color-primary)' }}>
+                            <BookOpen size={32} />
+                        </div>
+                        <div className="card-content">
+                            <h2>{lang === 'ar' ? 'السنة النبوية (الأحاديث)' : 'Prophetic Sunnah'}</h2>
+                            <p>{lang === 'ar' ? 'تصفّح أهم كتب الحديث النبوي الشريف واقرأ جميع أحاديث صحيح البخاري وصحيح مسلم.' : 'Browse the most important Hadith collections including Sahih Al-Bukhari and Muslim.'}</p>
+                        </div>
+                        <div className="card-cta">
+                            <span>{lang === 'ar' ? 'تصفح الأحاديث' : 'Go to Hadith'}</span>
+                            <ArrowLeft size={18} className="cta-arrow" />
+                        </div>
+                    </Link>
 
                     {/* Khatma */}
                     <Link to="/khatma" className="discover-card" style={{ borderColor: 'var(--color-accent)' }}>
