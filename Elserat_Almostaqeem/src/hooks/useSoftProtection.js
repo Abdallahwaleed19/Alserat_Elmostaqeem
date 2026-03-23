@@ -27,7 +27,7 @@ export const useSoftProtection = () => {
                 const selection = window.getSelection();
                 if (selection && selection.toString().length > 0) {
                     const originalText = selection.toString();
-                    const copyrightNotice = '\n\n---\nمأخوذ من مشروع الصراط المستقيم (زاد المسلم) © 2026\nلا يُسمح بالاستخدام التجاري غير المصرح به.';
+                    const copyrightNotice = '\n\n---\nمأخوذ من مشروع الصراط المستقيم © 2026\nلا يُسمح بالاستخدام التجاري غير المصرح به.';
 
                     if (e.clipboardData) {
                         e.clipboardData.setData('text/plain', originalText + copyrightNotice);

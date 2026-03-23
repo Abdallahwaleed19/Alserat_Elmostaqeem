@@ -96,6 +96,13 @@ export const AudioProvider = ({ children }) => {
     const [duration, setDuration] = useState(0);
     const mediaSessionActiveRef = useRef(false);
 
+    const [repeatMode, setRepeatMode] = useState('off'); // 'off', 'one', 'all'
+    const repeatModeRef = useRef('off');
+    useEffect(() => { repeatModeRef.current = repeatMode; }, [repeatMode]);
+
+    const [sleepTimerMinutes, setSleepTimerMinutes] = useState(0);
+    const sleepTimerRef = useRef(null);
+
     const audioRef = useRef(new Audio());
     const verseQueueRef = useRef([]);
     const verseIndexRef = useRef(0);
@@ -118,6 +125,12 @@ export const AudioProvider = ({ children }) => {
         verseIndexRef.current = 0;
         setCurrentSurah(null);
         setIsPlaying(false);
+
+        if (sleepTimerRef.current) {
+            clearTimeout(sleepTimerRef.current);
+            sleepTimerRef.current = null;
+        }
+        setSleepTimerMinutes(0);
 
         if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
             CapacitorMusicControls.destroy();
@@ -221,14 +234,15 @@ export const AudioProvider = ({ children }) => {
             CapacitorMusicControls.create({
                 track: `سورة ${surahName}`,
                 artist: reciterName,
-                cover: 'icons/icon-512x512.png',
+                cover: currentReciter?.image ? currentReciter.image.replace(/^\//, '') : 'icons/icon-512x512.png',
                 duration: audio.duration && !isNaN(audio.duration) ? Math.floor(audio.duration * 1000) : 0,
                 elapsed: Math.floor(audio.currentTime * 1000) || 0,
                 isPlaying: !audio.paused,
-                dismissable: true,
+                dismissable: false, // Prevent OS from swiping it away completely on pause
                 hasPrev: false,
                 hasNext: false,
-                hasClose: true,
+                hasClose: false, // Remove the X button so the user can only pause/resume
+
                 hasScrubbing: true,
                 playIcon: '',
                 pauseIcon: '',
@@ -440,6 +454,24 @@ export const AudioProvider = ({ children }) => {
     // Handle audio end: إما انتهت السورة أو ننتقل للآية التالية (آية بآية)
     useEffect(() => {
         const audio = audioRef.current;
+
+        const moveToNextSurah = () => {
+            const surah = currentSurahRef.current;
+            if (surah && surah.number < 114) {
+                const nextNum = surah.number + 1;
+                if (playSurahRef.current) {
+                    playSurahRef.current(nextNum, SURAH_NAMES_VOWELLED[nextNum - 1]);
+                }
+            } else if (surah && surah.number === 114 && repeatModeRef.current === 'all') {
+                if (playSurahRef.current) {
+                    playSurahRef.current(1, SURAH_NAMES_VOWELLED[0]);
+                }
+            } else {
+                verseQueueRef.current = [];
+                setIsPlaying(false);
+            }
+        };
+
         const handleEnded = () => {
             const queue = verseQueueRef.current;
             if (queue.length > 0) {
@@ -449,26 +481,20 @@ export const AudioProvider = ({ children }) => {
                     audio.src = queue[next];
                     audio.play().catch(() => setIsPlaying(false));
                 } else {
-                    const surah = currentSurahRef.current;
-                    if (surah && surah.number < 114) {
-                        const nextNum = surah.number + 1;
-                        if (playSurahRef.current) {
-                            playSurahRef.current(nextNum, SURAH_NAMES_VOWELLED[nextNum - 1]);
-                        }
+                    if (repeatModeRef.current === 'one') {
+                        verseIndexRef.current = 0;
+                        audio.src = queue[0];
+                        audio.play().catch(() => setIsPlaying(false));
                     } else {
-                        verseQueueRef.current = [];
-                        setIsPlaying(false);
+                        moveToNextSurah();
                     }
                 }
             } else {
-                const surah = currentSurahRef.current;
-                if (surah && surah.number < 114) {
-                    const nextNum = surah.number + 1;
-                    if (playSurahRef.current) {
-                        playSurahRef.current(nextNum, SURAH_NAMES_VOWELLED[nextNum - 1]);
-                    }
+                if (repeatModeRef.current === 'one') {
+                    audio.currentTime = 0;
+                    audio.play().catch(() => setIsPlaying(false));
                 } else {
-                    setIsPlaying(false);
+                    moveToNextSurah();
                 }
             }
         };
@@ -506,6 +532,24 @@ export const AudioProvider = ({ children }) => {
         }
     };
 
+    const setSleepTimer = (minutes) => {
+        setSleepTimerMinutes(minutes);
+        if (sleepTimerRef.current) {
+            clearTimeout(sleepTimerRef.current);
+            sleepTimerRef.current = null;
+        }
+        if (minutes > 0) {
+            sleepTimerRef.current = setTimeout(() => {
+                stopPlay();
+                setSleepTimerMinutes(0);
+            }, minutes * 60 * 1000);
+        }
+    };
+
+    const toggleRepeatMode = () => {
+        setRepeatMode(prev => prev === 'off' ? 'all' : prev === 'all' ? 'one' : 'off');
+    };
+
     return (
         <AudioContext.Provider value={{
             currentSurah,
@@ -518,7 +562,11 @@ export const AudioProvider = ({ children }) => {
             RECITERS,
             currentTime,
             duration,
-            seek
+            seek,
+            repeatMode,
+            toggleRepeatMode,
+            sleepTimerMinutes,
+            setSleepTimer
         }}>
             {children}
         </AudioContext.Provider>

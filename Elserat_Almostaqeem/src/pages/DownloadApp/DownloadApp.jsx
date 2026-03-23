@@ -24,13 +24,13 @@ const DownloadApp = () => {
         try {
             if (!isWeb) {
                 await Share.share({
-                    title: lang === 'ar' ? 'تطبيق زاد المسلم' : 'Zad Al-Muslim App',
+                    title: lang === 'ar' ? 'تطبيق الصراط المستقيم' : 'Elserat Almostaqeem App',
                     text: lang === 'ar' ? 'الرفيق الإيماني اليومي. قرآءة، استماع، أذكار، ومواقيت الصلاة.' : 'Your daily spiritual companion. Quran, Adhkar, and Prayer Times.',
                     url: window.location.origin,
                 });
             } else if (navigator.share) {
                 await navigator.share({
-                    title: lang === 'ar' ? 'تطبيق زاد المسلم' : 'Zad Al-Muslim App',
+                    title: lang === 'ar' ? 'تطبيق الصراط المستقيم' : 'Elserat Almostaqeem App',
                     text: lang === 'ar' ? 'الرفيق الإيماني اليومي. قرآءة، استماع، أذكار، ومواقيت الصلاة.' : 'Your daily spiritual companion. Quran, Adhkar, and Prayer Times.',
                     url: window.location.origin,
                 });

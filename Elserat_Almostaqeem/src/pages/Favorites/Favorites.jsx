@@ -73,16 +73,15 @@ const Favorites = () => {
                             directory: Directory.Cache
                         });
                         await Share.share({
-                            url: uri,
-                            title: lang === 'ar' ? 'مشاركة من زاد المسلم' : 'Share from Zad Al-Muslim',
-                            text: lang === 'ar' ? 'تطبيق زاد المسلم' : 'Zad Al-Muslim App',
-                            dialogTitle: lang === 'ar' ? 'مشاركة' : 'Share'
+                            title: lang === 'ar' ? 'مشاركة من الصراط المستقيم' : 'Share from Elserat Almostaqeem',
+                            text: lang === 'ar' ? 'تطبيق الصراط المستقيم' : 'Elserat Almostaqeem App',
+                            url: window.location.href,
                         });
                     } else if (navigator.share) {
                         await navigator.share({
                             files: [file],
-                            title: lang === 'ar' ? 'مشاركة من زاد المسلم' : 'Share from Zad Al-Muslim',
-                            text: lang === 'ar' ? 'تطبيق زاد المسلم' : 'Zad Al-Muslim App'
+                            title: lang === 'ar' ? 'مشاركة من الصراط المستقيم' : 'Share from Elserat Almostaqeem',
+                            text: lang === 'ar' ? 'تطبيق الصراط المستقيم' : 'Elserat Almostaqeem App'
                         });
                     } else {
                         // Fallback: download

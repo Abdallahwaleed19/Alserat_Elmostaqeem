@@ -1,10 +1,18 @@
 {
   "appId": "com.zadelmuslim.app",
-  "appName": "Alserat-Almostaqeem",
+  "appName": "الصراط المستقيم",
   "webDir": "dist",
   "plugins": {
     "LocalNotifications": {
-      "sound": "adhan"
+      "sound": "adhan",
+      "iconColor": "#0F5A47"
+    },
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "launchAutoHide": true,
+      "backgroundColor": "#121212",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP"
     }
   },
   "server": {

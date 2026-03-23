@@ -137,3 +137,94 @@
     opacity: 1;
   }
 }
+
+.radio-player-btn-secondary {
+  background: transparent;
+  color: var(--color-text-muted);
+}
+.radio-player-btn-secondary:hover {
+  color: var(--gold-main);
+}
+.radio-player-btn-secondary.active {
+  color: var(--gold-main);
+  background: rgba(212, 175, 55, 0.1);
+}
+.timer-menu {
+  position: absolute;
+  bottom: 55px;
+  right: -20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  min-width: 100px;
+  z-index: 1200;
+}
+.timer-menu button {
+  background: none;
+  border: none;
+  padding: 0.6rem 1rem;
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: center;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.timer-menu button:hover {
+  background: var(--color-border);
+  color: var(--gold-main);
+}
+.timer-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: var(--color-error);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 0px 4px;
+  border-radius: 10px;
+  line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+  .radio-player-controls { gap: 0.25rem; }
+  .radio-player-btn { width: 36px; height: 36px; }
+}
+
+/* Live Waves Animation */
+.audio-live-waves {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 12px;
+  margin-left: 8px; /* LTR */
+}
+[dir="rtl"] .audio-live-waves {
+  margin-left: 0;
+  margin-right: 8px;
+}
+.audio-live-waves .wave {
+  display: block;
+  width: 3px;
+  height: 4px;
+  background-color: var(--color-primary);
+  border-radius: 3px;
+  animation: waveAnim 1s ease-in-out infinite;
+}
+[data-theme='ramadan'] .audio-live-waves .wave {
+  background-color: var(--gold-main);
+}
+.audio-live-waves .wave:nth-child(1) { animation-delay: 0s; }
+.audio-live-waves .wave:nth-child(2) { animation-delay: 0.2s; }
+.audio-live-waves .wave:nth-child(3) { animation-delay: 0.4s; }
+.audio-live-waves .wave:nth-child(4) { animation-delay: 0.6s; }
+
+@keyframes waveAnim {
+  0%, 100% { height: 4px; }
+  50% { height: 12px; }
+}

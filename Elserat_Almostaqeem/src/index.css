@@ -1580,33 +1580,58 @@ select.form-control {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--primary);
-  background-image: var(--bg-gradient, linear-gradient(135deg, var(--primary) 0%, var(--color-primary-dark) 100%));
+  background-color: #0F5A47;
+  background-image: radial-gradient(circle at center, #18745c 0%, #06382a 100%);
   z-index: 9999;
-  transition: opacity 0.8s ease-out, visibility 0.8s;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s, transform 0.8s;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-6);
 }
 
 .splash-container.fade-out {
   opacity: 0;
   visibility: hidden;
+  transform: scale(1.03); /* Subtle zoom out when fading */
+}
+
+.splash-logo-wrapper {
+  position: relative;
+  padding: 6px;
+  border-radius: 36px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(15, 90, 71, 0) 100%);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  animation: float 4s ease-in-out infinite;
+}
+
+.splash-logo-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 38px;
+  background: linear-gradient(135deg, var(--gold-main), transparent 70%);
+  z-index: -1;
+  animation: pulse-glow 3s infinite alternate;
 }
 
 .splash-logo {
-  width: 120px;
-  height: auto;
-  animation: pulse-glow 2.5s infinite alternate, float 4s ease-in-out infinite;
-  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+  width: 130px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 30px;
+  display: block;
 }
 
 .splash-title {
-  color: white;
-  font-family: var(--font-logo);
-  font-size: 2.5rem;
-  letter-spacing: 2px;
-  margin-top: 1rem;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-family: var(--font-logo), 'Noto Kufi Arabic', serif;
+  font-size: 2.8rem;
+  letter-spacing: 1px;
+  margin-top: 0;
+  text-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(to bottom, #ffffff, #d4af37);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   opacity: 0;
-  animation: slideUp 1s ease 0.5s forwards;
+  animation: slideUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
 }

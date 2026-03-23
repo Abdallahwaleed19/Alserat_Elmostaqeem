@@ -26,6 +26,9 @@ export function RadioProvider({ children }) {
   const retryTimeoutRef = useRef(null);
   const mediaSessionActiveRef = useRef(false);
 
+  const [sleepTimerMinutes, setSleepTimerMinutes] = useState(0);
+  const sleepTimerRef = useRef(null);
+
   const stopRadioRef = useRef(null); // To hold the stopRadio function for event listeners
 
   const updateMediaSession = useCallback(() => {
@@ -173,12 +176,33 @@ export function RadioProvider({ children }) {
     setIsPlaying(false);
     setRadioError(null);
     clearAudio();
+
+    if (sleepTimerRef.current) {
+      clearTimeout(sleepTimerRef.current);
+      sleepTimerRef.current = null;
+    }
+    setSleepTimerMinutes(0);
+
     if ('mediaSession' in navigator) {
       navigator.mediaSession.playbackState = 'none';
     }
 
     // Media session is now managed by a reactive useEffect
   }, [clearAudio]);
+
+  const setSleepTimer = useCallback((minutes) => {
+    setSleepTimerMinutes(minutes);
+    if (sleepTimerRef.current) {
+      clearTimeout(sleepTimerRef.current);
+      sleepTimerRef.current = null;
+    }
+    if (minutes > 0) {
+      sleepTimerRef.current = setTimeout(() => {
+        if (stopRadioRef.current) stopRadioRef.current();
+        setSleepTimerMinutes(0);
+      }, minutes * 60 * 1000);
+    }
+  }, []);
 
   // Store stopRadio in a ref for use in event listeners
   useEffect(() => {
@@ -272,6 +296,8 @@ export function RadioProvider({ children }) {
     startRadio,
     togglePlayPause,
     stopRadio,
+    sleepTimerMinutes,
+    setSleepTimer
   };
 
   return (

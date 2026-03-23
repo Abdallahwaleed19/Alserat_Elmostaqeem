@@ -5,68 +5,28 @@ import './Wallpapers.css';
 
 const WALLPAPERS = [
     {
-        id: 'mosque_sunset',
-        titleAr: 'المسجد في الغروب',
-        titleEn: 'Mosque at Sunset',
+        id: 'grand_mosque',
+        titleAr: 'المسجد العظيم',
+        titleEn: 'Grand Mosque',
         categoryAr: 'مساجد',
         categoryEn: 'Architecture',
-        url: '/wallpapers/mosque.png'
+        url: '/wallpapers/wp_mosque.png'
     },
     {
-        id: 'calligraphy_gold',
-        titleAr: 'سبحان الله - مذهب',
-        titleEn: 'Subhan Allah - Golden',
+        id: 'islamic_geometric',
+        titleAr: 'نقوش إسلامية مذهبة',
+        titleEn: 'Golden Geometric',
+        categoryAr: 'فن وتصميم',
+        categoryEn: 'Islamic Art',
+        url: '/wallpapers/wp_geometric.png'
+    },
+    {
+        id: 'spiritual_lantern',
+        titleAr: 'فانوس روحاني',
+        titleEn: 'Spiritual Lantern',
         categoryAr: 'روحانيات',
-        categoryEn: 'Calligraphy',
-        url: '/wallpapers/calligraphy.png'
-    },
-    {
-        id: 'nature_peace',
-        titleAr: 'سكينة الطبيعة',
-        titleEn: 'Peaceful Nature',
-        categoryAr: 'طبيعة',
-        categoryEn: 'Nature',
-        url: '/wallpapers/nature.png'
-    },
-    {
-        id: 'mosque_lighting',
-        titleAr: 'أنوار المساجد',
-        titleEn: 'Divine Lights',
-        categoryAr: 'مساجد',
         categoryEn: 'Atmosphere',
-        url: '/wallpapers/mosque.png'
-    },
-    {
-        id: 'calligraphy_emerald',
-        titleAr: 'خط إسلامي زمردي',
-        titleEn: 'Emerald Calligraphy',
-        categoryAr: 'فن',
-        categoryEn: 'Art',
-        url: '/wallpapers/calligraphy.png'
-    },
-    {
-        id: 'night_crescent',
-        titleAr: 'ليالي روحانية',
-        titleEn: 'Spiritual Nights',
-        categoryAr: 'مناظر',
-        categoryEn: 'Scenery',
-        url: '/wallpapers/nature.png'
-    },
-    {
-        id: 'architecture_details',
-        titleAr: 'تفاصيل معمارية',
-        titleEn: 'Detailed Architecture',
-        categoryAr: 'هندسة',
-        categoryEn: 'Engineering',
-        url: '/wallpapers/mosque.png'
-    },
-    {
-        id: 'minimalist_islamic',
-        titleAr: 'بساطة إسلامية',
-        titleEn: 'Minimalist Islamic',
-        categoryAr: 'تصميم',
-        categoryEn: 'Minimalist',
-        url: '/wallpapers/calligraphy.png'
+        url: '/wallpapers/wp_lantern.png'
     }
 ];
 

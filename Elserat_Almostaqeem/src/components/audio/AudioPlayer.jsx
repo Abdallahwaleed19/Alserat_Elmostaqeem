@@ -1,13 +1,16 @@
-import React from 'react';
-import { Play, Pause, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Play, Pause, X, Repeat, Repeat1, Moon } from 'lucide-react';
 import { useAudio } from '../../context/AudioContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { SURAH_NAMES_VOWELLED } from '../../data/surahNamesVowelled';
 import './AudioPlayer.css';
 
 const AudioPlayer = () => {
-    const { currentSurah, isPlaying, togglePlay, stopPlay, currentReciter, currentTime, duration, seek } = useAudio();
+    const { currentSurah, isPlaying, togglePlay, stopPlay, currentReciter, currentTime, duration, seek, repeatMode, toggleRepeatMode, sleepTimerMinutes, setSleepTimer } = useAudio();
     const { lang } = useLanguage();
+    const [showTimerMenu, setShowTimerMenu] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragValue, setDragValue] = useState(0);
 
     if (!currentSurah) return null;
 
@@ -31,10 +34,17 @@ const AudioPlayer = () => {
         return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     };
 
-    const handleSeek = (e) => {
-        const time = parseFloat(e.target.value);
-        seek(time);
+    const handleSeekChange = (e) => {
+        setIsDragging(true);
+        setDragValue(parseFloat(e.target.value));
     };
+
+    const handleSeekCommit = (e) => {
+        setIsDragging(false);
+        seek(parseFloat(e.target.value));
+    };
+
+    const currentDisplayTime = isDragging ? dragValue : currentTime;
 
     return (
         <div className="audio-player-container flex flex-col">
@@ -44,8 +54,11 @@ const AudioPlayer = () => {
                     type="range"
                     min={0}
                     max={duration || 0}
-                    value={currentTime || 0}
-                    onChange={handleSeek}
+                    step={0.1}
+                    value={currentDisplayTime || 0}
+                    onChange={handleSeekChange}
+                    onMouseUp={handleSeekCommit}
+                    onTouchEnd={handleSeekCommit}
                     dir="ltr"
                     className="audio-timeline-slider"
                     style={{
@@ -57,7 +70,7 @@ const AudioPlayer = () => {
                     className="audio-timeline-fill"
                     style={{
                         height: '100%',
-                        width: `${duration ? (currentTime / duration) * 100 : 0}%`,
+                        width: `${duration ? (currentDisplayTime / duration) * 100 : 0}%`,
                         background: '#e53935',
                         position: 'absolute', top: 0, left: 0, zIndex: 1, pointerEvents: 'none'
                     }}
@@ -77,10 +90,40 @@ const AudioPlayer = () => {
                     </div>
                 </div>
 
-                <div className="audio-player-controls flex items-center gap-4">
-                    <div className="audio-time-display text-sm text-muted" style={{ direction: 'ltr', fontVariantNumeric: 'tabular-nums' }}>
-                        {formatTime(currentTime)} / {formatTime(duration)}
+                <div className="audio-player-controls flex items-center gap-2">
+                    <div className="audio-time-display text-sm text-muted hidden-mobile" style={{ direction: 'ltr', fontVariantNumeric: 'tabular-nums', marginRight: '4px' }}>
+                        {formatTime(currentDisplayTime)} / {formatTime(duration)}
                     </div>
+                    
+                    <button
+                        type="button"
+                        onClick={toggleRepeatMode}
+                        className={`audio-player-btn audio-player-btn-secondary ${repeatMode !== 'off' ? 'active' : ''}`}
+                        title={lang === 'ar' ? 'تكرار' : 'Repeat'}
+                    >
+                        {repeatMode === 'one' ? <Repeat1 size={20} /> : <Repeat size={20} />}
+                    </button>
+
+                    <div style={{ position: 'relative' }}>
+                        <button
+                            type="button"
+                            onClick={() => setShowTimerMenu(!showTimerMenu)}
+                            className={`audio-player-btn audio-player-btn-secondary ${sleepTimerMinutes > 0 ? 'active' : ''}`}
+                            title={lang === 'ar' ? 'مؤقت النوم' : 'Sleep Timer'}
+                        >
+                            <Moon size={20} />
+                            {sleepTimerMinutes > 0 && <span className="timer-badge">{sleepTimerMinutes}</span>}
+                        </button>
+                        {showTimerMenu && (
+                            <div className="timer-menu">
+                                <button type="button" onClick={() => { setSleepTimer(15); setShowTimerMenu(false); }}>15 {lang === 'ar' ? 'دقيقية' : 'm'}</button>
+                                <button type="button" onClick={() => { setSleepTimer(30); setShowTimerMenu(false); }}>30 {lang === 'ar' ? 'دقيقة' : 'm'}</button>
+                                <button type="button" onClick={() => { setSleepTimer(60); setShowTimerMenu(false); }}>60 {lang === 'ar' ? 'دقيقة' : 'm'}</button>
+                                <button type="button" onClick={() => { setSleepTimer(0); setShowTimerMenu(false); }}>{lang === 'ar' ? 'إيقاف' : 'Off'}</button>
+                            </div>
+                        )}
+                    </div>
+
                     <button
                         type="button"
                         onClick={togglePlay}

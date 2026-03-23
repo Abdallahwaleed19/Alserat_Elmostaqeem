@@ -129,7 +129,9 @@ function App() {
   return (
     <>
       <div className={`splash-container ${!showSplash ? 'fade-out' : ''}`}>
-        <img src="/zad_splash_logo.png" alt="Zad El Muslim Logo" className="splash-logo" />
+        <div className="splash-logo-wrapper">
+          <img src="/icons/icon-512x512.png" alt="Elserat Logo" className="splash-logo" />
+        </div>
         <h1 className="splash-title">الصراط المستقيم</h1>
       </div>
 

@@ -114,14 +114,14 @@ const Quran = () => {
                 <QuranReader
                     surahNumber={readerConfig.type === 'surah' ? readerConfig.value : null}
                     startPage={readerConfig.type === 'juz' ? readerConfig.value : 1}
+                    khatmaJuz={khatmaContext ? khatmaContext.part : null}
                     onClose={() => {
                         setReaderConfig(null);
                         if (khatmaContext) {
                             navigate(khatmaContext.type === 'deceased' ? '/khatma/deceased' : '/khatma/group');
                         }
                     }}
-                    onComplete={() => {
-                        if (!khatmaContext) return;
+                    onComplete={khatmaContext ? () => {
                         const storageKey = khatmaContext.type === 'deceased' ? 'zad_khatmas_deceased' : 'zad_khatmas_group';
                         const stored = localStorage.getItem(storageKey);
                         if (!stored) return;
@@ -140,7 +140,7 @@ const Quran = () => {
                         } catch (err) {
                             console.error('Failed to update khatma on complete', err);
                         }
-                    }}
+                    } : undefined}
                 />
             </div>
         );

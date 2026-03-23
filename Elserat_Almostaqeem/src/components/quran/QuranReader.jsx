@@ -31,7 +31,7 @@ const getApproxHizb = (pageNum) => {
     return Math.min(TOTAL_HIZB, Math.max(1, approx));
 };
 
-const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete }) => {
+const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete, khatmaJuz = null }) => {
     const { lang, t } = useLanguage();
     const [page, setPage] = useState(startPage);
     const [pageData, setPageData] = useState(null);
@@ -39,6 +39,7 @@ const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete })
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [isFavorited, setIsFavorited] = useState(false);
     const [readMode] = useState('image'); // Hardcoded to image mode
+    const [showCompletionModal, setShowCompletionModal] = useState(false);
 
     // دعم السحب (Swipe) لتقليب الصفحات
     const [touchStartX, setTouchStartX] = useState(null);
@@ -157,6 +158,10 @@ const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete })
     const currentJuz = getCurrentJuz(page);
     const currentHizb = getApproxHizb(page);
 
+    // Khatma completion logic: determine the end page of the assigned part
+    const khatmaTargetEndPage = khatmaJuz ? (JUZ_START_PAGES[khatmaJuz] ? JUZ_START_PAGES[khatmaJuz] - 1 : 604) : null;
+    const isEndOfJuz = khatmaJuz ? (page >= khatmaTargetEndPage) : false;
+
     return (
         <div className="quran-reader-container animate-fade-in" style={{ 
             minHeight: '100vh', 
@@ -184,15 +189,28 @@ const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete })
                     </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 toolbar-actions">
                     {onComplete && (
                         <button
-                            onClick={onComplete}
-                            className="btn btn-primary flex items-center gap-2"
-                            style={{ padding: '0.4rem 1.2rem', borderRadius: 'var(--radius-full)', fontSize: '0.86rem', background: 'var(--gold-main, #D4AF37)', color: '#1a1a1a', fontWeight: 'bold' }}
+                            onClick={() => {
+                                if (isEndOfJuz) setShowCompletionModal(true);
+                            }}
+                            className={`btn flex items-center gap-1 ${isEndOfJuz ? 'btn-primary' : ''}`}
+                            style={{ 
+                                padding: '0.4rem 0.8rem', 
+                                borderRadius: 'var(--radius-full)', 
+                                fontSize: '0.86rem', 
+                                background: isEndOfJuz ? 'var(--gold-main, #D4AF37)' : 'transparent',
+                                border: `1px solid ${isEndOfJuz ? 'var(--gold-main, #D4AF37)' : 'var(--color-border)'}`,
+                                color: isEndOfJuz ? '#1a1a1a' : 'var(--color-text-muted)',
+                                fontWeight: 'bold',
+                                cursor: isEndOfJuz ? 'pointer' : 'not-allowed',
+                                opacity: isEndOfJuz ? 1 : 0.5
+                            }}
+                            disabled={!isEndOfJuz}
                         >
-                            <CheckCircle size={18} />
-                            <span className="hidden-mobile">{lang === 'ar' ? 'تم الانتهاء' : 'Mark as completed'}</span>
+                            <CheckCircle size={16} />
+                            <span className="hidden-mobile">{lang === 'ar' ? 'تم الانتهاء' : 'Done'}</span>
                         </button>
                     )}
                     <button
@@ -260,6 +278,34 @@ const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete })
                     </div>
                 </div>
             </div>
+
+            {/* Completion Modal */}
+            {showCompletionModal && (
+                <div className="modal-overlay" style={{ zIndex: 100 }}>
+                    <div className="modal-content animate-scale-in text-center" style={{ maxWidth: '400px', padding: '2rem' }}>
+                        <div style={{ color: 'var(--gold-main)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
+                            <CheckCircle size={64} />
+                        </div>
+                        <h2 className="quran-text" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>
+                            {lang === 'ar' ? 'تم قراءة الجزء بنجاح' : 'Juz Read Successfully'}
+                        </h2>
+                        <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem', fontSize: '1.1rem', lineHeight: '1.8' }}>
+                            {lang === 'ar' ? 'تقبل الله منا ومنكم صالح الأعمال. أسأل الله أن يجعله شفيعاً لك يوم القيامة، وأن ينور دربك بالقرآن.' : 'May Allah accept from us and you. May He make it an intercessor for you on the Day of Judgment.'}
+                        </p>
+                        <button 
+                            className="btn btn-primary w-full"
+                            style={{ background: 'var(--gold-main)', color: '#1a1a1a', fontWeight: 'bold', padding: '0.8rem' }}
+                            onClick={() => {
+                                setShowCompletionModal(false);
+                                onComplete();
+                                onClose();
+                            }}
+                        >
+                            {lang === 'ar' ? 'تقبل الله' : 'Ameen'}
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <style>{`
                 .reader-badge {
@@ -347,7 +393,28 @@ const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete })
                 }
 
                 @media (max-width: 768px) {
-                    .hidden-mobile { display: none; }
+                    .hidden-mobile { display: none !important; }
+                    .reader-toolbar {
+                        padding: 0.6rem 0.5rem !important;
+                    }
+                    .reader-toolbar > div {
+                        gap: 0.4rem !important;
+                    }
+                    .reader-badge {
+                        padding: 0.15rem 0.35rem;
+                        font-size: 0.7rem;
+                        border-radius: 6px;
+                    }
+                    .btn-icon {
+                        width: 34px;
+                        height: 34px;
+                    }
+                    .btn-icon svg { width: 18px; height: 18px; }
+                    .toolbar-actions .btn {
+                        padding: 0.3rem 0.6rem !important;
+                        font-size: 0.75rem !important;
+                    }
+                    
                     .floating-nav-btn { 
                         display: flex; 
                         width: 40px; 
