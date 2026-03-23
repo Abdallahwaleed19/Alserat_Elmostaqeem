@@ -61,18 +61,33 @@
     color: #e6c87a; /* Goldish color for times */
 }
 
+@keyframes prayerPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(230, 200, 122, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(230, 200, 122, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(230, 200, 122, 0);
+    }
+}
+
 .prayer-item.next-prayer {
     color: #ffffff;
-    background: #e53935;
-    padding: 0.3rem 0.6rem;
-    border-radius: 0.35rem;
-    box-shadow: 0 0 5px rgba(229, 57, 53, 0.4);
+    background: linear-gradient(135deg, #d4a74a, #e6c87a);
+    padding: 0.35rem 0.8rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(212, 167, 74, 0.4);
+    animation: prayerPulse 2s infinite;
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .prayer-item.next-prayer .prayer-time {
     color: #ffffff;
 }
-
 .top-bar-date {
     display: flex;
     align-items: center;

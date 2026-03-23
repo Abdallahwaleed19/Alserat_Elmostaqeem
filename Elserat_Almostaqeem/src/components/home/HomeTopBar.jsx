@@ -106,7 +106,7 @@ const HomeTopBar = () => {
                 <div className="top-bar-date">
                     <CalendarDays size={14} />
                     <span>
-                        {day} {hijriShort} {lang === 'ar' ? 'هـ' : 'AH'} - {fullDate} {lang === 'ar' ? 'م' : 'AD'}
+                        {day} {hijriShort} - {fullDate} {lang === 'ar' ? 'م' : 'AD'}
                     </span>
                 </div>
             </div>

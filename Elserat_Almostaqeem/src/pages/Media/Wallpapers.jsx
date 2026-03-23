@@ -1,6 +1,8 @@
 import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { Download, Image as ImageIcon } from 'lucide-react';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Capacitor } from '@capacitor/core';
 import './Wallpapers.css';
 
 const WALLPAPERS = [
@@ -33,13 +35,51 @@ const WALLPAPERS = [
 const Wallpapers = () => {
     const { lang } = useLanguage();
 
-    const handleDownload = (url, title) => {
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${title}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const handleDownload = async (url, title) => {
+        if (Capacitor.isNativePlatform()) {
+            try {
+                // Request permissions first
+                const perm = await Filesystem.checkPermissions();
+                if (perm.publicStorage !== 'granted') {
+                    const req = await Filesystem.requestPermissions();
+                    if (req.publicStorage !== 'granted') {
+                        alert(lang === 'ar' ? 'الرجاء منح صلاحيات التخزين لحفظ الصورة' : 'Please grant storage permission');
+                        return;
+                    }
+                }
+
+                alert(lang === 'ar' ? 'جاري التحميل...' : 'Downloading...');
+                const response = await fetch(url);
+                const blob = await response.blob();
+                
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    const base64data = reader.result;
+                    const base64String = base64data.split(',')[1];
+                    
+                    try {
+                        const result = await Filesystem.writeFile({
+                            path: `ZadElMuslim_${title}.png`,
+                            data: base64String,
+                            directory: Directory.Documents,
+                        });
+                        alert((lang === 'ar' ? 'تم الحفظ في المستندات (Documents): ' : 'Saved to Documents: ') + result.uri);
+                    } catch (e) {
+                        alert(lang === 'ar' ? 'فشل الحفظ: ' + e.message : 'Save failed: ' + e.message);
+                    }
+                };
+                reader.readAsDataURL(blob);
+            } catch (err) {
+                alert(lang === 'ar' ? 'حدث خطأ: ' + err.message : 'Error: ' + err.message);
+            }
+        } else {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${title}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     };
 
     return (

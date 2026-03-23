@@ -204,7 +204,12 @@ export const AudioProvider = ({ children }) => {
                     CapacitorMusicControls.updateIsPlaying({ isPlaying: false });
                 }
             } else if (msg === 'music-controls-destroy') {
-                stopPlay();
+                // Background Quran fix: Stop button = pause only
+                audio.pause();
+                setIsPlaying(false);
+                if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+                    CapacitorMusicControls.updateIsPlaying({ isPlaying: false });
+                }
             } else if (msg === 'music-controls-seek-to') {
                 const seekMs = action.position;
                 if (typeof seekMs === 'number') {
@@ -217,11 +222,26 @@ export const AudioProvider = ({ children }) => {
 
         document.addEventListener('controlsNotification', handleNotification);
 
+        const handleExternalMedia = () => {
+            if (!audio.paused) {
+                audio.pause();
+                setIsPlaying(false);
+                if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
+                    CapacitorMusicControls.updateIsPlaying({ isPlaying: false });
+                }
+            }
+        };
+
+        window.addEventListener('media-started-adhan', handleExternalMedia);
+        window.addEventListener('media-started-radio', handleExternalMedia);
+
         return () => {
             audio.removeEventListener('timeupdate', setTime);
             audio.removeEventListener('loadedmetadata', setAudioDuration);
             audio.removeEventListener('durationchange', setAudioDuration);
             document.removeEventListener('controlsNotification', handleNotification);
+            window.removeEventListener('media-started-adhan', handleExternalMedia);
+            window.removeEventListener('media-started-radio', handleExternalMedia);
         };
     }, [stopPlay, currentSurah, currentReciter]);
 
@@ -341,6 +361,7 @@ export const AudioProvider = ({ children }) => {
         if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
             CapacitorMusicControls.updateIsPlaying({ isPlaying: true });
         }
+        window.dispatchEvent(new Event('media-started-quran'));
     };
 
     /**
@@ -431,6 +452,7 @@ export const AudioProvider = ({ children }) => {
             });
         }
         setIsPlaying(true);
+        window.dispatchEvent(new Event('media-started-quran'));
     };
 
     playSurahRef.current = playSurah;

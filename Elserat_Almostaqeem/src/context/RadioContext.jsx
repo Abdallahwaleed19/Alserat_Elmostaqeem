@@ -166,7 +166,7 @@ export function RadioProvider({ children }) {
     setIsActive(true);
     setRadioError(null);
     playWithRetry();
-
+    window.dispatchEvent(new Event('media-started-radio'));
     // Media session is now managed by a reactive useEffect
   }, [playWithRetry]);
 
@@ -236,8 +236,18 @@ export function RadioProvider({ children }) {
     };
 
     document.addEventListener('controlsNotification', handleNotification);
+    
+    // Central Audio Manager listeners
+    const handleExternalMedia = () => {
+      if (isActiveRef.current) stopRadio();
+    };
+    window.addEventListener('media-started-quran', handleExternalMedia);
+    window.addEventListener('media-started-adhan', handleExternalMedia);
+
     return () => {
       document.removeEventListener('controlsNotification', handleNotification);
+      window.removeEventListener('media-started-quran', handleExternalMedia);
+      window.removeEventListener('media-started-adhan', handleExternalMedia);
     };
   }, [startRadio, stopRadio]);
 

@@ -85,12 +85,12 @@ export const RECITER_BIOS = {
     },
     'السيد سعيد': {
         birth: '1943 م',
-        death: 'معاصر',
+        death: '24 مايو 2025 م',
         birthplace: 'الدقهلية، مصر',
         education: 'حفظ القرآن في طفولته المبكرة وأتم دراسة القراءات وتجويدها.',
         bioAr: 'من القراء المصريين المعاصرين البارزين، تميز بأدائه الخاشع الذي يجمع بين أصالة المدرسة المصرية القديمة والروحانية العالية في التلاوة.',
         birthEn: '1943 AD',
-        deathEn: 'Contemporary',
+        deathEn: 'May 24, 2025 AD',
         birthplaceEn: 'Dakahlia, Egypt',
         educationEn: 'Memorized the Quran in early childhood and studied Qira\'at.',
         bioEn: 'A prominent contemporary Egyptian reciter whose heartfelt style beautifully bridges the classical Egyptian school with deep spirituality.'

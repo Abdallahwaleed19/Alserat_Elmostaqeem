@@ -172,6 +172,13 @@ export function useLocalAlarms() {
                             console.log("Adhan stopped by user action.");
                         }
                     });
+
+                    // Intercept Adhan start to pause Quran/Radio
+                    LocalNotifications.addListener('localNotificationReceived', (notification) => {
+                        if (notification.channelId === 'adhan_channel_v5' || (notification.sound && notification.sound.includes('adhan'))) {
+                            window.dispatchEvent(new Event('media-started-adhan'));
+                        }
+                    });
                 } catch (e) {
                     console.error("Failed to register notification actions:", e);
                 }
@@ -520,7 +527,7 @@ export function useLocalAlarms() {
                             channelId: 'adhan_channel_v5',
                             ongoing: true, // Attempt to keep it in status bar
                             sticky: true, // Extra hint for OEMs that support sticky notifications
-                            autoCancel: true, // But allow dismissal when tapped
+                            autoCancel: false, // DO NOT cancel on click/swipe; require Stop action
                             actionTypeId: 'ADHAN_ACTIONS',
                             iconColor: '#0F5A47',
                             smallIcon: 'ic_mosque',
