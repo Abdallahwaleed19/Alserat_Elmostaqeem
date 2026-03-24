@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Coordinates, CalculationMethod, PrayerTimes } from 'adhan';
 import { Preferences } from '@capacitor/preferences';
+import { formatCountdown, getLocalizedDates, getNextPrayer } from '../utils/prayerRuntime';
+import { getIslamicContext } from '../utils/islamicContext';
 
 const PrayerContext = createContext();
 
@@ -10,14 +12,14 @@ export const PrayerProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [location, setLocation] = useState({ latitude: 30.0444, longitude: 31.2357 }); // Default Cairo
   const [city, setCity] = useState('');
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    const fetchPrayerTimes = async () => {
-      const updateWidget = async (pTimesObj) => {
+    const updateWidget = async (pTimesObj, at = new Date()) => {
         try {
           const prayers = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
           const prayerNamesAr = { Fajr: 'الفجر', Sunrise: 'الشروق', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
-          const now = new Date();
+          const nowDate = at;
           let nextP = 'Fajr';
           let nextTimeStr = pTimesObj['Fajr'];
           for (const p of prayers) {
@@ -25,7 +27,7 @@ export const PrayerProvider = ({ children }) => {
             const [h, m] = pTimesObj[p].split(':');
             const pDate = new Date();
             pDate.setHours(parseInt(h, 10), parseInt(m, 10), 0, 0);
-            if (pDate > now) {
+            if (pDate > nowDate) {
               nextP = p;
               nextTimeStr = pTimesObj[p];
               break;
@@ -41,8 +43,8 @@ export const PrayerProvider = ({ children }) => {
           try {
               const gregorianOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
               const hijriOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', calendar: 'islamic-umalqura' };
-              const gregorianDateStr = new Intl.DateTimeFormat('ar-EG', gregorianOptions).format(now);
-              const hijriDateStr = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', hijriOptions).format(now);
+              const gregorianDateStr = new Intl.DateTimeFormat('ar-EG', gregorianOptions).format(nowDate);
+              const hijriDateStr = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', hijriOptions).format(nowDate);
               
               const widgetData = {
                   prayers: pTimesObj,
@@ -54,11 +56,13 @@ export const PrayerProvider = ({ children }) => {
           } catch(err) { console.warn("Failed formats for widget dates", err); }
 
           if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-            // Tell android to trigger an immediate update if a custom plugin exists
-            await window.Capacitor.Plugins.AppWidget?.update();
+            // Trigger Android home screen widget refresh via native Capacitor plugin
+            await window.Capacitor.Plugins.WidgetPlugin?.update();
           }
         } catch(e) { console.error('Widget update error', e); }
-      };
+    };
+
+    const fetchPrayerTimes = async () => {
 
       if (!navigator.geolocation) {
         setError("Geolocation not supported");
@@ -85,7 +89,7 @@ export const PrayerProvider = ({ children }) => {
             const data = await res.json();
             if (data.code === 200) {
               setPrayerTimes(data.data.timings);
-              updateWidget(data.data.timings);
+              updateWidget(data.data.timings, new Date());
               setLoading(false);
               return;
             }
@@ -109,21 +113,60 @@ export const PrayerProvider = ({ children }) => {
             Isha: format(pTimes.isha),
           };
           setPrayerTimes(timesObj);
-          updateWidget(timesObj);
+          updateWidget(timesObj, new Date());
           setLoading(false);
         },
-        (err) => {
+        () => {
           setError("Location access denied");
           setLoading(false);
         }
       );
     };
 
+    const minuteTimer = setInterval(() => setNow(new Date()), 60 * 1000);
     fetchPrayerTimes();
+    return () => clearInterval(minuteTimer);
   }, []);
 
+  useEffect(() => {
+    if (!prayerTimes) return;
+    // Keep widget date + next prayer + dua fresh without reopening app.
+    const refresh = async () => {
+      try {
+        const n = getNextPrayer(prayerTimes, now);
+        const dates = getLocalizedDates(now);
+        const context = getIslamicContext(now);
+        const prayerNamesAr = { Fajr: 'الفجر', Sunrise: 'الشروق', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
+        await Preferences.set({ key: 'widget_prayer_name', value: prayerNamesAr[n?.prayer || 'Fajr'] || 'الفجر' });
+        await Preferences.set({ key: 'widget_prayer_time', value: prayerTimes[n?.prayer || 'Fajr'] || '--:--' });
+        await Preferences.set({ key: 'widget_dhikr', value: context.dua.ar });
+        await Preferences.set({
+          key: 'widget_data_v2',
+          value: JSON.stringify({
+            prayers: prayerTimes,
+            nextPrayer: n?.prayer || 'Fajr',
+            hijriDate: dates.hijri,
+            gregorianDate: dates.gregorian
+          })
+        });
+        if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+          await window.Capacitor.Plugins.WidgetPlugin?.update();
+        }
+      } catch (err) {
+        console.warn('widget auto refresh failed', err);
+      }
+    };
+
+    refresh();
+  }, [prayerTimes, now]);
+
+  const nextPrayer = getNextPrayer(prayerTimes, now);
+  const countdown = formatCountdown(nextPrayer?.at, now);
+  const dates = getLocalizedDates(now);
+  const islamicContext = getIslamicContext(now);
+
   return (
-    <PrayerContext.Provider value={{ prayerTimes, loading, error, location, city }}>
+    <PrayerContext.Provider value={{ prayerTimes, loading, error, location, city, now, nextPrayer, countdown, dates, islamicContext }}>
       {children}
     </PrayerContext.Provider>
   );

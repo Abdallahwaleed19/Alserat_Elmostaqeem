@@ -5,40 +5,7 @@ import QuranReader from '../../components/quran/QuranReader';
 import { useLanguage } from '../../context/LanguageContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './Quran.css';
-
-// Starting page number for each Juz in Madani Mushaf
-const JUZ_START_PAGES = [
-    1,   // Juz 1
-    22,  // Juz 2
-    42,  // Juz 3
-    62,  // Juz 4
-    82,  // Juz 5
-    102, // Juz 6
-    122, // Juz 7
-    142, // Juz 8
-    162, // Juz 9
-    182, // Juz 10
-    202, // Juz 11
-    222, // Juz 12
-    242, // Juz 13
-    262, // Juz 14
-    282, // Juz 15
-    302, // Juz 16
-    322, // Juz 17
-    342, // Juz 18
-    362, // Juz 19
-    382, // Juz 20
-    402, // Juz 21
-    422, // Juz 22
-    442, // Juz 23
-    462, // Juz 24
-    482, // Juz 25
-    502, // Juz 26
-    522, // Juz 27
-    542, // Juz 28
-    562, // Juz 29
-    582  // Juz 30
-];
+import { JUZ_START_PAGES, getLastActivePlanKey } from '../../data/khatmaPlans';
 
 const Quran = () => {
     const { lang } = useLanguage();
@@ -47,7 +14,7 @@ const Quran = () => {
     const [surahs, setSurahs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [readerConfig, setReaderConfig] = useState(null); // { type: 'surah' | 'juz', value: number }
-    const [khatmaContext, setKhatmaContext] = useState(null); // { type: 'deceased' | 'group', khatmaId, part }
+    const [khatmaContext, setKhatmaContext] = useState(null); // { type: 'deceased' | 'group' | 'plan', khatmaId?, part?, planId?, task? }
     const [filterCategory, setFilterCategory] = useState('all'); // all, egyptian, saudi
     const [filterStyle, setFilterStyle] = useState('all'); // all, مجوّد, مرتّل
     const [showReciterModal, setShowReciterModal] = useState(false);
@@ -76,6 +43,20 @@ const Quran = () => {
         const khatmaId = params.get('khatmaId');
         const partStr = params.get('part');
 
+        const planId = params.get('planId');
+        const task = params.get('task');
+        const startPageParam = params.get('startPage');
+        const endPageParam = params.get('endPage');
+
+        if (planId && startPageParam) {
+            const startPage = parseInt(startPageParam, 10) || 1;
+            const endPage = parseInt(endPageParam || '604', 10) || 604;
+            setReaderConfig({ type: 'juz', value: startPage });
+            setKhatmaContext({ type: 'plan', planId, task: Number(task || 1), endPage });
+            localStorage.setItem(getLastActivePlanKey(), planId);
+            return;
+        }
+
         if (partStr) {
             const part = parseInt(partStr, 10);
             const startPage = JUZ_START_PAGES[part - 1] || 1;
@@ -84,7 +65,11 @@ const Quran = () => {
                 setKhatmaContext({ type: khatmaType, khatmaId, part });
             }
         }
-    }, [location.search]);
+        const statePage = location.state?.page;
+        if (!partStr && statePage && Number.isFinite(statePage)) {
+            setReaderConfig({ type: 'juz', value: Math.max(1, Math.min(604, Number(statePage))) });
+        }
+    }, [location.search, location.state]);
 
     // Filter reciters based on category and style
     const filteredReciters = RECITERS.filter(r => {
@@ -118,10 +103,22 @@ const Quran = () => {
                     onClose={() => {
                         setReaderConfig(null);
                         if (khatmaContext) {
-                            navigate(khatmaContext.type === 'deceased' ? '/khatma/deceased' : '/khatma/group');
+                            if (khatmaContext.type === 'plan') {
+                                navigate('/khatma/plans');
+                            } else {
+                                navigate(khatmaContext.type === 'deceased' ? '/khatma/deceased' : '/khatma/group');
+                            }
                         }
                     }}
+                    khatmaEndPage={khatmaContext?.type === 'plan' ? khatmaContext.endPage : null}
                     onComplete={khatmaContext ? () => {
+                        if (khatmaContext.type === 'plan') {
+                            const key = `zad_khatma_plan_progress_${khatmaContext.planId}`;
+                            const current = JSON.parse(localStorage.getItem(key) || '{}');
+                            current[khatmaContext.task] = new Date().toISOString();
+                            localStorage.setItem(key, JSON.stringify(current));
+                            return;
+                        }
                         const storageKey = khatmaContext.type === 'deceased' ? 'zad_khatmas_deceased' : 'zad_khatmas_group';
                         const stored = localStorage.getItem(storageKey);
                         if (!stored) return;

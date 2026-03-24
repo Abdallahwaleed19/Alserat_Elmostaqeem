@@ -1,0 +1,72 @@
+<svg width="1440" height="3120" viewBox="0 0 1440 3120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#061A17"/>
+      <stop offset="0.42" stop-color="#0B463A"/>
+      <stop offset="1" stop-color="#03110F"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.46" r="0.42">
+      <stop offset="0" stop-color="#F3D27A" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#F3D27A" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F7D67E"/>
+      <stop offset="1" stop-color="#C79832"/>
+    </linearGradient>
+    <pattern id="pattern" width="120" height="120" patternUnits="userSpaceOnUse">
+      <path d="M60 8L76 44L112 60L76 76L60 112L44 76L8 60L44 44Z" fill="none" stroke="#D8B25A" stroke-opacity="0.13" stroke-width="2"/>
+      <circle cx="60" cy="60" r="10" fill="none" stroke="#D8B25A" stroke-opacity="0.09" stroke-width="2"/>
+    </pattern>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.02"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1440" height="3120" fill="url(#bg)"/>
+  <rect width="1440" height="3120" fill="url(#pattern)"/>
+  <circle cx="720" cy="1360" r="520" fill="url(#halo)"/>
+  <ellipse cx="210" cy="820" rx="240" ry="220" fill="#E0BA63" fill-opacity="0.10"/>
+  <ellipse cx="1260" cy="2140" rx="240" ry="260" fill="#3FB087" fill-opacity="0.12"/>
+
+  <!-- Ornament corners -->
+  <g stroke="#D8B25A" stroke-opacity="0.3" fill="none" stroke-width="4">
+    <path d="M88 180c120-120 250-170 390-170"/>
+    <path d="M1352 180c-120-120-250-170-390-170"/>
+    <path d="M88 2940c120 120 250 170 390 170"/>
+    <path d="M1352 2940c-120 120-250 170-390 170"/>
+  </g>
+
+  <!-- Additional islamic geometry -->
+  <g fill="none" stroke="#E3C276" stroke-opacity="0.22" stroke-width="2.5">
+    <path d="M180 520h240l46 46v240l-46 46h-240l-46-46v-240z"/>
+    <path d="M1020 2280h240l46 46v240l-46 46h-240l-46-46v-240z"/>
+    <path d="M1096 640l32 72 72 32-72 32-32 72-32-72-72-32 72-32z"/>
+    <path d="M344 2440l32 72 72 32-72 32-32 72-32-72-72-32 72-32z"/>
+  </g>
+
+  <g stroke="#D8B25A" stroke-opacity="0.2" fill="none" stroke-width="2">
+    <path d="M220 1540c145-82 296-123 452-123s307 41 452 123"/>
+    <path d="M220 1608c145-82 296-123 452-123s307 41 452 123"/>
+  </g>
+
+  <!-- Center glass panel -->
+  <rect x="300" y="980" width="840" height="760" rx="56" fill="url(#glass)" stroke="#D8B25A" stroke-opacity="0.28" stroke-width="2"/>
+
+  <!-- Center logo -->
+  <g transform="translate(720 1340)">
+    <path d="M110 -260c155 50 270 195 270 367 0 214-173 387-387 387-135 0-254-69-323-173 60 31 127 49 200 49 235 0 425-190 425-425 0-73-19-142-53-205 3 0 6 0 10 0z" fill="url(#gold)"/>
+    <g transform="translate(0 230)">
+      <path d="M-290 0c88-96 177-144 267-144v285c-106 0-192 28-267 85z" fill="#FBF6EC" stroke="#D8B25A" stroke-width="10"/>
+      <path d="M290 0c-88-96-177-144-267-144v285c106 0 192 28 267 85z" fill="#FBF6EC" stroke="#D8B25A" stroke-width="10"/>
+      <line x1="0" y1="-144" x2="0" y2="200" stroke="#C79832" stroke-width="9"/>
+    </g>
+  </g>
+
+  <g transform="translate(720 890)">
+    <path d="M0 -52L16 -16L52 0L16 16L0 52L-16 16L-52 0L-16 -16Z" fill="#F7D67E" fill-opacity="0.92"/>
+  </g>
+
+  <!-- bottom subtle flourish -->
+  <path d="M260 2540c160-80 300-120 460-120s300 40 460 120" fill="none" stroke="#D8B25A" stroke-opacity="0.22" stroke-width="3"/>
+</svg>

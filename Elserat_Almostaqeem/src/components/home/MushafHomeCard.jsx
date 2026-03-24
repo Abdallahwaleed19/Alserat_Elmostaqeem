@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Book, ChevronRight, GraduationCap, Flame, Target } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
+import { getKhatmaPlanById, getLastActivePlanKey, getPlanProgressKey } from '../../data/khatmaPlans';
 
 const MushafHomeCard = () => {
     const { lang, t } = useLanguage();
@@ -9,6 +10,30 @@ const MushafHomeCard = () => {
     const [lastPage, setLastPage] = useState(() => parseInt(localStorage.getItem('zad_last_read_page') || '1'));
     const [khatmahProgress, setKhatmahProgress] = useState(0);
     const [dailyAyah, setDailyAyah] = useState(() => JSON.parse(localStorage.getItem('zad_daily_ayah') || 'null'));
+    const [activePlanStats, setActivePlanStats] = useState(null);
+
+    const getPlanStreak = (progressObj) => {
+        const dates = new Set(
+            Object.values(progressObj || {})
+                .filter(Boolean)
+                .map((iso) => String(iso).slice(0, 10))
+        );
+        if (!dates.size) return 0;
+        const cursor = new Date();
+        cursor.setHours(0, 0, 0, 0);
+        let streak = 0;
+
+        const today = cursor.toISOString().slice(0, 10);
+        if (!dates.has(today)) {
+            cursor.setDate(cursor.getDate() - 1);
+        }
+
+        while (dates.has(cursor.toISOString().slice(0, 10))) {
+            streak += 1;
+            cursor.setDate(cursor.getDate() - 1);
+        }
+        return streak;
+    };
 
     useEffect(() => {
         // Calculate progress based on last page read
@@ -22,8 +47,29 @@ const MushafHomeCard = () => {
             setKhatmahProgress(Math.min(100, Math.round((page / 604) * 100)));
             const ayah = JSON.parse(localStorage.getItem('zad_daily_ayah') || 'null');
             setDailyAyah(ayah);
+
+            const activePlanId = localStorage.getItem(getLastActivePlanKey());
+            const activePlan = activePlanId ? getKhatmaPlanById(activePlanId) : null;
+            if (!activePlan) {
+                setActivePlanStats(null);
+                return;
+            }
+            const progressRaw = JSON.parse(localStorage.getItem(getPlanProgressKey(activePlanId)) || '{}');
+            const doneCount = activePlan.tasks.filter((t) => !!progressRaw[t.day]).length;
+            const percent = Math.round((doneCount / activePlan.tasks.length) * 100);
+            const nextTask = activePlan.tasks.find((t) => !progressRaw[t.day]) || null;
+            setActivePlanStats({
+                planId: activePlan.id,
+                titleAr: activePlan.titleAr,
+                titleEn: activePlan.titleEn,
+                doneCount,
+                total: activePlan.tasks.length,
+                percent,
+                streak: getPlanStreak(progressRaw),
+                nextTask
+            });
         };
-        
+        handleStorage();
         window.addEventListener('storage', handleStorage);
         return () => window.removeEventListener('storage', handleStorage);
     }, [lastPage]);
@@ -132,12 +178,43 @@ const MushafHomeCard = () => {
                                 borderColor: 'rgba(212, 175, 55, 0.5)',
                                 color: 'var(--gold-main, #D4AF37)'
                             }}
-                            onClick={() => navigate('/quran')}
+                            onClick={() => navigate('/khatma/plans')}
                         >
                             <Target size={18} />
                             {lang === 'ar' ? 'خطة الختمة' : 'Khatmah Plan'}
                         </button>
                     </div>
+
+                    {activePlanStats && (
+                        <div style={{
+                            marginTop: '1rem',
+                            padding: '0.85rem 1rem',
+                            borderRadius: '12px',
+                            background: 'rgba(255,255,255,0.06)',
+                            border: '1px solid rgba(212,175,55,0.25)'
+                        }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                                <strong style={{ color: 'var(--gold-main, #D4AF37)' }}>
+                                    {lang === 'ar' ? `آخر خطة نشطة: ${activePlanStats.titleAr}` : `Last active plan: ${activePlanStats.titleEn}`}
+                                </strong>
+                                <span style={{ fontSize: '0.82rem', opacity: 0.85 }}>
+                                    {activePlanStats.doneCount}/{activePlanStats.total}
+                                </span>
+                            </div>
+                            <div style={{ marginTop: '0.45rem', fontSize: '0.82rem', opacity: 0.9 }}>
+                                {lang === 'ar'
+                                    ? `التقدم ${activePlanStats.percent}% • نشاط ${activePlanStats.streak} يوم`
+                                    : `Progress ${activePlanStats.percent}% • Streak ${activePlanStats.streak} days`}
+                            </div>
+                            {activePlanStats.nextTask && (
+                                <div style={{ marginTop: '0.35rem', fontSize: '0.82rem', opacity: 0.78 }}>
+                                    {lang === 'ar'
+                                        ? `التالي: اليوم ${activePlanStats.nextTask.day} (ص ${activePlanStats.nextTask.startPage} - ${activePlanStats.nextTask.endPage})`
+                                        : `Next: Day ${activePlanStats.nextTask.day} (p ${activePlanStats.nextTask.startPage}-${activePlanStats.nextTask.endPage})`}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {dailyAyah && (
                         <div style={{

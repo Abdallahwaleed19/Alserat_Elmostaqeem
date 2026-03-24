@@ -10,6 +10,7 @@ import Layout from './components/layout/Layout';
 import Home from './pages/Home';
 import Quran from './pages/Quran/Quran';
 import Khatma from './pages/Khatma/Khatma';
+import KhatmaPlans from './pages/Khatma/KhatmaPlans';
 import KhatmaDeceased from './pages/Khatma/KhatmaDeceased';
 import KhatmaGroup from './pages/Khatma/KhatmaGroup';
 import Adhkar from './pages/Adhkar/Adhkar';
@@ -40,6 +41,7 @@ import { useLocalAlarms } from './hooks/useLocalAlarms';
 import { App as CapApp } from '@capacitor/app';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { initBackgroundRunner } from './services/backgroundRunner';
 
 function App() {
   const { scheduleOfflineAlarms, loading } = useLocalAlarms();
@@ -51,6 +53,7 @@ function App() {
     const initApp = async () => {
       try {
         if (!isWeb) {
+          await initBackgroundRunner();
           // Hide the native static splash early so permission dialogs can attach reliably
           if (window.Capacitor) {
             await SplashScreen.hide();
@@ -129,10 +132,19 @@ function App() {
   return (
     <>
       <div className={`splash-container ${!showSplash ? 'fade-out' : ''}`}>
-        <div className="splash-logo-wrapper">
-          <img src="/icons/icon-512x512.png" alt="Elserat Logo" className="splash-logo" />
+        <div className="splash-backdrop" aria-hidden />
+        <div className="splash-pattern" aria-hidden />
+        <div className="splash-geo-ring splash-geo-ring-top" aria-hidden />
+        <div className="splash-geo-ring splash-geo-ring-bottom" aria-hidden />
+        <div className="splash-star splash-star-a" aria-hidden />
+        <div className="splash-star splash-star-b" aria-hidden />
+        <div className="splash-core" aria-hidden>
+          <div className="splash-core-glow" />
+          <div className="splash-crescent" />
+          <div className="splash-book">
+            <span className="book-spine" />
+          </div>
         </div>
-        <h1 className="splash-title">الصراط المستقيم</h1>
       </div>
 
       <ErrorBoundary>
@@ -148,6 +160,7 @@ function App() {
                       <Route path="home" element={<Home />} />
                       <Route path="quran" element={<Quran />} />
                       <Route path="khatma" element={<Khatma />} />
+                      <Route path="khatma/plans" element={<KhatmaPlans />} />
                       <Route path="khatma/deceased" element={<KhatmaDeceased />} />
                       <Route path="khatma/group" element={<KhatmaGroup />} />
                       <Route path="reciters" element={<Reciters />} />

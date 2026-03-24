@@ -11,6 +11,7 @@ import RecitersCarousel from '../components/home/RecitersCarousel';
 
 import MushafHomeCard from '../components/home/MushafHomeCard';
 import HomeTopBar from '../components/home/HomeTopBar';
+import { motion } from 'framer-motion';
 
 const Home = () => {
     const { theme } = useTheme();
@@ -29,11 +30,16 @@ const Home = () => {
                 </h2>
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            <motion.div
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}
+            >
                 <AyahOfDay />
                 <DailyHadith />
                 <DuaOfDay />
-            </div>
+            </motion.div>
 
             <div style={{ marginTop: '2.5rem' }}>
                 {/* Dynamic Auto-Playing Reciters Carousel */}

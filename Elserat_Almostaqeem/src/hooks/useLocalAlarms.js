@@ -6,6 +6,7 @@ import { Coordinates, CalculationMethod, PrayerTimes } from 'adhan';
 // (safe no-op on web/iOS)
 // @ts-ignore - JS file importing TS helper
 import { PersistentAdhan } from '../plugins/persistentAdhan';
+import audioCoordinator from '../services/audioCoordinator';
 
 const PRAYER_KEYS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 const PRAYER_NAMES_AR = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
@@ -161,6 +162,22 @@ export function useLocalAlarms() {
                                         destructive: true
                                     }
                                 ]
+                            },
+                            {
+                                id: 'MEDIA_QURAN_ACTIONS',
+                                actions: [
+                                    { id: 'quran_play', title: 'تشغيل القرآن ▶️' },
+                                    { id: 'quran_pause', title: 'إيقاف مؤقت ⏸' },
+                                    { id: 'quran_stop', title: 'إغلاق ❌', destructive: true }
+                                ]
+                            },
+                            {
+                                id: 'MEDIA_RADIO_ACTIONS',
+                                actions: [
+                                    { id: 'radio_play', title: 'تشغيل الراديو ▶️' },
+                                    { id: 'radio_pause', title: 'إيقاف مؤقت ⏸' },
+                                    { id: 'radio_stop', title: 'إيقاف كامل ❌', destructive: true }
+                                ]
                             }
                         ]
                     });
@@ -170,13 +187,37 @@ export function useLocalAlarms() {
                             // Immediately stop the ringing and clear the notification
                             LocalNotifications.removeAllDeliveredNotifications();
                             console.log("Adhan stopped by user action.");
+                            return;
+                        }
+                        if (notification.actionId === 'quran_play') {
+                            window.dispatchEvent(new Event('audio-action-quran-play'));
+                            return;
+                        }
+                        if (notification.actionId === 'quran_pause') {
+                            window.dispatchEvent(new Event('audio-action-quran-pause'));
+                            return;
+                        }
+                        if (notification.actionId === 'quran_stop') {
+                            window.dispatchEvent(new Event('audio-action-quran-stop'));
+                            return;
+                        }
+                        if (notification.actionId === 'radio_play') {
+                            window.dispatchEvent(new Event('audio-action-radio-play'));
+                            return;
+                        }
+                        if (notification.actionId === 'radio_pause') {
+                            window.dispatchEvent(new Event('audio-action-radio-pause'));
+                            return;
+                        }
+                        if (notification.actionId === 'radio_stop') {
+                            window.dispatchEvent(new Event('audio-action-radio-stop'));
                         }
                     });
 
                     // Intercept Adhan start to pause Quran/Radio
                     LocalNotifications.addListener('localNotificationReceived', (notification) => {
                         if (notification.channelId === 'adhan_channel_v5' || (notification.sound && notification.sound.includes('adhan'))) {
-                            window.dispatchEvent(new Event('media-started-adhan'));
+                            audioCoordinator.startAdhan({ source: 'local-notification' });
                         }
                     });
                 } catch (e) {

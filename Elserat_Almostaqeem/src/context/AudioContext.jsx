@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { CapacitorMusicControls } from 'capacitor-music-controls-plugin';
 import { SURAH_NAMES_VOWELLED } from '../data/surahNamesVowelled';
+import audioCoordinator from '../services/audioCoordinator';
+import { cacheLastQuranTrack } from '../services/audioCache';
+import mediaNotificationManager from '../services/mediaNotificationManager';
 
 const AudioContext = createContext();
 
@@ -134,6 +137,7 @@ export const AudioProvider = ({ children }) => {
 
         if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
             CapacitorMusicControls.destroy();
+            mediaNotificationManager.clearQuran();
         }
     }, []);
 
@@ -232,16 +236,20 @@ export const AudioProvider = ({ children }) => {
             }
         };
 
-        window.addEventListener('media-started-adhan', handleExternalMedia);
-        window.addEventListener('media-started-radio', handleExternalMedia);
+        window.addEventListener(audioCoordinator.events.ADHAN_STARTED, handleExternalMedia);
+        window.addEventListener(audioCoordinator.events.RADIO_STARTED, handleExternalMedia);
+        window.addEventListener(audioCoordinator.events.STOP_QURAN, handleExternalMedia);
+        window.addEventListener(audioCoordinator.events.STOP_ALL, handleExternalMedia);
 
         return () => {
             audio.removeEventListener('timeupdate', setTime);
             audio.removeEventListener('loadedmetadata', setAudioDuration);
             audio.removeEventListener('durationchange', setAudioDuration);
             document.removeEventListener('controlsNotification', handleNotification);
-            window.removeEventListener('media-started-adhan', handleExternalMedia);
-            window.removeEventListener('media-started-radio', handleExternalMedia);
+            window.removeEventListener(audioCoordinator.events.ADHAN_STARTED, handleExternalMedia);
+            window.removeEventListener(audioCoordinator.events.RADIO_STARTED, handleExternalMedia);
+            window.removeEventListener(audioCoordinator.events.STOP_QURAN, handleExternalMedia);
+            window.removeEventListener(audioCoordinator.events.STOP_ALL, handleExternalMedia);
         };
     }, [stopPlay, currentSurah, currentReciter]);
 
@@ -252,8 +260,8 @@ export const AudioProvider = ({ children }) => {
 
             mediaSessionActiveRef.current = true;
             CapacitorMusicControls.create({
-                track: `سورة ${surahName}`,
-                artist: reciterName,
+                track: `📿 سورة ${surahName}`,
+                artist: `🎙 ${reciterName}`,
                 cover: currentReciter?.image ? currentReciter.image.replace(/^\//, '') : 'icons/icon-512x512.png',
                 duration: audio.duration && !isNaN(audio.duration) ? Math.floor(audio.duration * 1000) : 0,
                 elapsed: Math.floor(audio.currentTime * 1000) || 0,
@@ -278,6 +286,7 @@ export const AudioProvider = ({ children }) => {
     useEffect(() => {
         if (isPlaying && currentSurah && currentReciter) {
             updateMediaSession(currentSurah.name, currentReciter.nameAr);
+            mediaNotificationManager.showQuran({ surahName: currentSurah.name, reciterName: currentReciter.nameAr });
         } else if (!isPlaying && mediaSessionActiveRef.current) {
             if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
                 CapacitorMusicControls.updateIsPlaying({ isPlaying: false });
@@ -357,11 +366,18 @@ export const AudioProvider = ({ children }) => {
         updateMediaSession(surahName, currentReciter.nameAr);
         audioRef.current.src = urls[0];
         audioRef.current.play().catch(() => setIsPlaying(false));
+        cacheLastQuranTrack({
+            surahNumber,
+            surahName,
+            reciterId: currentReciter?.id || null,
+            audioUrl: urls[0],
+            mode: 'verse'
+        });
 
         if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
             CapacitorMusicControls.updateIsPlaying({ isPlaying: true });
         }
-        window.dispatchEvent(new Event('media-started-quran'));
+        audioCoordinator.startQuran({ source: 'quran-player' });
     };
 
     /**
@@ -452,7 +468,14 @@ export const AudioProvider = ({ children }) => {
             });
         }
         setIsPlaying(true);
-        window.dispatchEvent(new Event('media-started-quran'));
+        audioCoordinator.startQuran({ source: 'quran-player' });
+        cacheLastQuranTrack({
+            surahNumber,
+            surahName,
+            reciterId: reciter?.id || null,
+            audioUrl,
+            mode: 'surah'
+        });
     };
 
     playSurahRef.current = playSurah;
@@ -472,6 +495,31 @@ export const AudioProvider = ({ children }) => {
         }
         setIsPlaying(!isPlaying);
     };
+
+    useEffect(() => {
+        const onPlay = () => {
+            if (!currentSurahRef.current) return;
+            const p = audioRef.current.play();
+            setIsPlaying(true);
+            if (p && typeof p.catch === 'function') {
+                p.catch(() => setIsPlaying(false));
+            }
+        };
+        const onPause = () => {
+            audioRef.current.pause();
+            setIsPlaying(false);
+        };
+        const onStop = () => stopPlay();
+
+        window.addEventListener('audio-action-quran-play', onPlay);
+        window.addEventListener('audio-action-quran-pause', onPause);
+        window.addEventListener('audio-action-quran-stop', onStop);
+        return () => {
+            window.removeEventListener('audio-action-quran-play', onPlay);
+            window.removeEventListener('audio-action-quran-pause', onPause);
+            window.removeEventListener('audio-action-quran-stop', onStop);
+        };
+    }, [stopPlay]);
 
     // Handle audio end: إما انتهت السورة أو ننتقل للآية التالية (آية بآية)
     useEffect(() => {

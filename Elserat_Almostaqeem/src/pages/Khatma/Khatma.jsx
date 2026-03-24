@@ -53,7 +53,7 @@ const Khatma = () => {
                     </div>
                 </Link>
 
-                <Link to="/quran" className="khatma-card">
+                <Link to="/khatma/plans" className="khatma-card">
                     <div className="khatma-card-icon-wrapper">
                         <BookOpen size={32} />
                     </div>

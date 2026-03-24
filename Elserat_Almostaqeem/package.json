@@ -25,6 +25,7 @@
     "@capacitor-community/keep-awake": "^8.0.0",
     "@capacitor/android": "^8.2.0",
     "@capacitor/app": "^8.0.1",
+    "@capacitor/background-runner": "^3.0.0",
     "@capacitor/core": "^8.2.0",
     "@capacitor/filesystem": "^8.1.2",
     "@capacitor/geolocation": "^8.1.0",
@@ -38,7 +39,9 @@
     "@supabase/supabase-js": "^2.98.0",
     "adhan": "^4.4.3",
     "capacitor-music-controls-plugin": "^6.1.0",
+    "framer-motion": "^12.38.0",
     "html2canvas": "^1.4.1",
+    "idb-keyval": "^6.2.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.575.0",
     "node-fetch": "^3.3.2",
@@ -47,6 +50,7 @@
     "react-leaflet": "^5.0.0",
     "react-medium-image-zoom": "^5.4.1",
     "react-router-dom": "^7.13.0",
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "workbox-window": "^7.4.0"
   }
 }

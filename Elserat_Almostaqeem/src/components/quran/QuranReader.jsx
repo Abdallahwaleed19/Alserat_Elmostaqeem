@@ -31,7 +31,7 @@ const getApproxHizb = (pageNum) => {
     return Math.min(TOTAL_HIZB, Math.max(1, approx));
 };
 
-const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete, khatmaJuz = null }) => {
+const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete, khatmaJuz = null, khatmaEndPage = null }) => {
     const { lang, t } = useLanguage();
     const [page, setPage] = useState(startPage);
     const [pageData, setPageData] = useState(null);
@@ -159,7 +159,7 @@ const QuranReader = ({ startPage = 1, surahNumber = null, onClose, onComplete, k
     const currentHizb = getApproxHizb(page);
 
     // Khatma completion logic: determine the end page of the assigned part
-    const khatmaTargetEndPage = khatmaJuz ? (JUZ_START_PAGES[khatmaJuz] ? JUZ_START_PAGES[khatmaJuz] - 1 : 604) : null;
+    const khatmaTargetEndPage = khatmaEndPage || (khatmaJuz ? (JUZ_START_PAGES[khatmaJuz] ? JUZ_START_PAGES[khatmaJuz] - 1 : 604) : null);
     const isEndOfJuz = khatmaJuz ? (page >= khatmaTargetEndPage) : false;
 
     return (

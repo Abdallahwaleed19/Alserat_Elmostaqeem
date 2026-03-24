@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 import { CapacitorMusicControls } from 'capacitor-music-controls-plugin';
+import audioCoordinator from '../services/audioCoordinator';
+import { cacheLastRadioUrl, getLastRadioUrl } from '../services/audioCache';
+import mediaNotificationManager from '../services/mediaNotificationManager';
 
 // إذاعة القرآن الكريم من القاهرة - المصدر: https://www.holyquranradio.com/
 // روابط البث المباشر لنفس الإذاعة (مع بدائل عند الفشل)
@@ -38,8 +41,8 @@ export function RadioProvider({ children }) {
 
       mediaSessionActiveRef.current = true;
       CapacitorMusicControls.create({
-        track: 'إذاعة القرآن الكريم',
-        artist: 'بث مباشر',
+        track: '📡 إذاعة القرآن الكريم',
+        artist: '🟢 بث مباشر',
         cover: 'icons/icon-512x512.png',
         isPlaying: isPlaying,
         dismissable: true,
@@ -123,6 +126,7 @@ export function RadioProvider({ children }) {
         handleErrorOrDrop();
       });
     }
+    cacheLastRadioUrl(url);
   }, [clearAudio]);
 
   // Watchdog timer to check if stream is frozen despite claiming to be "playing"
@@ -161,12 +165,14 @@ export function RadioProvider({ children }) {
   }, [isPlaying, clearAudio, playWithRetry]);
 
   const startRadio = useCallback(async () => {
-    urlIndexRef.current = 0; // Reset index on fresh start
+    const lastUrl = await getLastRadioUrl();
+    const idx = lastUrl ? RADIO_URLS.indexOf(lastUrl) : -1;
+    urlIndexRef.current = idx >= 0 ? idx : 0;
     isActiveRef.current = true;
     setIsActive(true);
     setRadioError(null);
     playWithRetry();
-    window.dispatchEvent(new Event('media-started-radio'));
+    audioCoordinator.startRadio({ source: 'radio-player' });
     // Media session is now managed by a reactive useEffect
   }, [playWithRetry]);
 
@@ -188,6 +194,7 @@ export function RadioProvider({ children }) {
     }
 
     // Media session is now managed by a reactive useEffect
+    mediaNotificationManager.clearRadio();
   }, [clearAudio]);
 
   const setSleepTimer = useCallback((minutes) => {
@@ -241,19 +248,24 @@ export function RadioProvider({ children }) {
     const handleExternalMedia = () => {
       if (isActiveRef.current) stopRadio();
     };
-    window.addEventListener('media-started-quran', handleExternalMedia);
-    window.addEventListener('media-started-adhan', handleExternalMedia);
+    window.addEventListener(audioCoordinator.events.QURAN_STARTED, handleExternalMedia);
+    window.addEventListener(audioCoordinator.events.ADHAN_STARTED, handleExternalMedia);
+    window.addEventListener(audioCoordinator.events.STOP_RADIO, handleExternalMedia);
+    window.addEventListener(audioCoordinator.events.STOP_ALL, handleExternalMedia);
 
     return () => {
       document.removeEventListener('controlsNotification', handleNotification);
-      window.removeEventListener('media-started-quran', handleExternalMedia);
-      window.removeEventListener('media-started-adhan', handleExternalMedia);
+      window.removeEventListener(audioCoordinator.events.QURAN_STARTED, handleExternalMedia);
+      window.removeEventListener(audioCoordinator.events.ADHAN_STARTED, handleExternalMedia);
+      window.removeEventListener(audioCoordinator.events.STOP_RADIO, handleExternalMedia);
+      window.removeEventListener(audioCoordinator.events.STOP_ALL, handleExternalMedia);
     };
   }, [startRadio, stopRadio]);
 
   useEffect(() => {
     if (isActive && isPlaying) {
       updateMediaSession();
+      mediaNotificationManager.showRadio();
     } else if (!isActive && mediaSessionActiveRef.current) {
       if (window.Capacitor && window.Capacitor.getPlatform() !== 'web') {
         CapacitorMusicControls.destroy();
@@ -298,6 +310,26 @@ export function RadioProvider({ children }) {
       clearAudio();
     };
   }, [clearAudio]);
+
+  useEffect(() => {
+    const onPlay = () => startRadio();
+    const onPause = () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setIsPlaying(false);
+    };
+    const onStop = () => stopRadio();
+
+    window.addEventListener('audio-action-radio-play', onPlay);
+    window.addEventListener('audio-action-radio-pause', onPause);
+    window.addEventListener('audio-action-radio-stop', onStop);
+    return () => {
+      window.removeEventListener('audio-action-radio-play', onPlay);
+      window.removeEventListener('audio-action-radio-pause', onPause);
+      window.removeEventListener('audio-action-radio-stop', onStop);
+    };
+  }, [startRadio, stopRadio]);
 
   const value = {
     isActive,
